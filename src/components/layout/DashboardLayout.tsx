@@ -23,11 +23,12 @@ export function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="dashboard-sidebar hidden w-64 shrink-0 flex-col bg-sidebar text-sidebar-foreground lg:flex">
+      <aside className="dashboard-sidebar sticky top-0 hidden h-screen w-64 shrink-0 self-start flex-col bg-sidebar text-sidebar-foreground lg:flex">
         <DashboardSidebarPanel
           displayName={displayName}
           displayRole={displayRole}
           canAccess={canAccess}
+          className="h-full"
         />
       </aside>
 

@@ -17,6 +17,8 @@ export const speedsService = {
       ...response.data,
       deleted: false,
       createdAt: new Date().toISOString(),
+      availableUsernamesCount: 0,
+      usedUsernamesCount: 0,
     });
   },
 
@@ -32,6 +34,8 @@ export const speedsService = {
       ...response.data,
       deleted: false,
       createdAt: new Date().toISOString(),
+      availableUsernamesCount: 0,
+      usedUsernamesCount: 0,
     });
   },
 

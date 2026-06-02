@@ -3,6 +3,8 @@ export interface SpeedTier {
   label: string;
   valueMbps: number;
   price: number;
+  /** Soft-deleted on server — hidden from username picker, still listed on Speeds page */
+  deleted?: boolean;
   totalCount?: number;
   availableCount?: number;
   activeLinkedCount?: number;
@@ -16,12 +18,21 @@ export interface BackendSpeedTierRow {
   createdAt: string;
 }
 
+/** `GET /speeds` — flat tier + aggregate username counts */
+export interface BackendSpeedListItem extends BackendSpeedTierRow {
+  availableUsernamesCount: number;
+  usedUsernamesCount: number;
+}
+
 export interface BackendAvailableUsernameRow {
   id: number;
   speedId: number;
   isUsed: boolean | null;
   isOwnerUsername: boolean | null;
-  expiryDate: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  expiryDate?: string | null;
+  isExpired?: boolean | null;
 }
 
 export interface BackendSpeedJoinRow {
@@ -43,5 +54,5 @@ interface BackendStatusResponse<T> {
   message?: string;
 }
 
-export type SpeedsListResponse = BackendStatusResponse<BackendSpeedJoinRow[]>;
+export type SpeedsListResponse = BackendStatusResponse<BackendSpeedListItem[]>;
 export type SpeedTierResponse = BackendStatusResponse<BackendSpeedTierRecord>;

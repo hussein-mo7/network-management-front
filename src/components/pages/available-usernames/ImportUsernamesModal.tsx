@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, ModalFooterButton } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
-import type { SpeedTier } from "@/lib/mocks";
+import type { SpeedTier } from "@/types/speeds";
 import { cn } from "@/lib/cn";
 
 interface ImportUsernamesModalProps {

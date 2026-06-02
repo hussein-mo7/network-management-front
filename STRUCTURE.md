@@ -1,4 +1,4 @@
-# We-Paltel-Front — Project Structure & Rules
+# network-management-front — Project Structure & Rules
 
 > Read this file at the start of a session so the agent follows our conventions without re-explaining everything.
 
@@ -29,7 +29,8 @@ src/
 │   ├── pages/        # Page sections — one folder per route screen
 │   │   ├── auth/
 │   │   ├── speeds/
-│   │   └── available-usernames/
+│   │   ├── available-usernames/
+│   │   └── support/
 │   └── ui/           # Design system only (reusable primitives)
 │       ├── buttons/
 │       ├── forms/
@@ -311,6 +312,138 @@ Allow origin `http://localhost:5173` so the Vite app can call the API.
 
 ### Dev proxy
 Vite: `/api` → `http://localhost:3000` — frontend base URL is `/api/v1`.
+
+---
+
+### Support tickets *(UI ready — mock data; API needed)*
+
+Route: `/support` — tickets are **created manually by support staff** (phone / office visit), not by subscribers online.
+
+#### Suggested statuses
+| `status` | Meaning |
+|----------|---------|
+| `open` | Logged, not started |
+| `in_progress` | Team is working on it |
+| `waiting_customer` | Waiting for subscriber callback / info |
+| `resolved` | Closed / solved |
+
+#### Suggested fields (`SupportTicket`)
+| Field | Type | Notes |
+|-------|------|-------|
+| `id` | number | |
+| `ticketNumber` | string | e.g. `TKT-2026-0142` |
+| `title` | string | Short summary |
+| `description` | string | Full issue details |
+| `status` | enum above | |
+| `priority` | `low` \| `medium` \| `high` \| `urgent` | |
+| `channel` | `phone` \| `visit` \| `whatsapp` \| `other` | How contact happened |
+| `subscriberName` | string | May not be linked to DB subscriber yet |
+| `subscriberPhone` | string | |
+| `assignedTo` | string | Support staff name |
+| `createdAt` | ISO datetime | |
+| `updatedAt` | ISO datetime | |
+| `resolvedAt` | ISO datetime \| null | Set when status → `resolved` |
+
+#### Endpoints (proposed)
+- `GET /api/v1/support/tickets` — list (+ optional `?status=` filter)
+- `GET /api/v1/support/stats` — summary counts + chart aggregates (open, in progress, resolved today/week, avg resolution hours, daily trend, by channel)
+- `POST /api/v1/support/tickets` — create (admin)
+- `PUT /api/v1/support/tickets/:id` — update (admin)
+- `DELETE /api/v1/support/tickets/:id` — delete (admin)
+
+Frontend mock: `src/lib/mocks/supportTickets.mock.ts`
+
+---
+
+### Available usernames *(connected to API)*
+
+Route: `/available-usernames` — pool of PPPoE usernames **per speed tier**. When a username is assigned to a subscriber it stays visible here during a **cooldown** (default **30 days**), then moves to the **Expiring** page (separate route, not built yet).
+
+#### Lifecycle (derived on frontend + backend)
+
+| UI status | `lifecycleStatus` | In pool? | Meaning |
+|-----------|-------------------|----------|---------|
+| **New** | `new` | yes | Never assigned (`assignedAt` / `expiryDate` null, not owner) |
+| **Running** | `in_cooldown` | yes | Assigned; cooldown active until `expiryDate` |
+| **Owner** | `owner` | yes | `isOwnerUsername: true` — never expires |
+| *(hidden)* | `expired` | no | `expiryDate` passed — list on Expiring page later |
+
+Do **not** rely on `isUsed` alone for UI; use `assignedAt`, `expiryDate`, `isOwnerUsername`, and compare `expiryDate` to now.
+
+#### API row shape (`AvailableUsername`)
+
+| Field | Type | DB column | Notes |
+|-------|------|-----------|-------|
+| `id` | number | `id` | |
+| `username` | string | `username` | unique |
+| `password` | string | `password` | |
+| `speedId` | number | `speed_id` | FK → speed tier |
+| `isOwnerUsername` | boolean | `is_owner_username` | Owner pool row |
+| `createdAt` | ISO date | `created_at` | |
+| `assignedAt` (UI) | ISO datetime \| null | `start_date` | API field **`startDate`** e.g. `2026-05-21T21:50:33.724+03:00` |
+| `expiryDate` (UI) | ISO datetime \| null | `end_date` | Set by API when `startDate` + 30 days; null for new / owner |
+
+Optional legacy fields in DB: `is_used`, `first_connection_date`, `package` — can support assign flow on backend.
+
+#### Endpoints (implemented)
+
+Base: `/api/v1/speeds/:speedId/usernames`
+
+| Method | Path | Notes |
+|--------|------|-------|
+| GET | `/` | List (`?page=1&limit=500`), excludes `isExpired` |
+| POST | `/` | Create — body below |
+| PUT | `/:id` | Update status/password |
+| DELETE | `/:id` | Soft-delete (`isExpired`) |
+| POST | `/import` | multipart `file` (Excel) |
+| GET | `/export` | Excel download |
+
+UI list filters (`new` / Running / Owner) are **client-side** on the list response.
+
+#### Pool counts (speed cards / header)
+
+Per `speedId`, return or let frontend compute:
+
+```json
+{ "total": 12, "new": 5, "inCooldown": 4, "owner": 3 }
+```
+
+Helpers: `src/types/availableUsername.ts` (`getSpeedPoolCounts`, `getDaysUntilExpiry`).
+
+#### Assign / cooldown (subscriber flow — backend)
+
+When admin assigns pool username to subscriber (or subscriber changes username but cooldown not finished):
+
+1. Set `assignedAt` (and `is_used` if you keep it).
+2. Set `expiryDate = assignedAt + USERNAME_COOLDOWN_DAYS` (30 unless configurable).
+3. Row remains in **Available usernames** list with status **Running** and “Expires in N days”.
+
+After `expiryDate`, row leaves this pool → **Expiring** table/page (future).
+
+Owner usernames: `isOwnerUsername: true`, no `expiryDate` / no cooldown.
+
+#### POST body (create) — maps from UI status
+
+| UI status | `isOwnerUsername` | `isUsed` | `startDate` |
+|-----------|-------------------|----------|-------------|
+| New | `false` | `false` | omit |
+| Running | `false` | `true` | **required** — ISO with offset from form |
+| Owner | `true` | `false` | omit |
+
+Example Running payload:
+```json
+{
+  "username": "0599123456PP",
+  "password": "wifi2024",
+  "isOwnerUsername": false,
+  "isUsed": true,
+  "startDate": "2026-05-21T21:50:33.724+03:00"
+}
+```
+
+PUT uses the same flags; `isUsed: false` or `isOwnerUsername: true` clears `startDate` / `endDate` on the server.
+
+Frontend: `src/services/usernames.service.ts`, `src/lib/mapAvailableUsernames.ts` (`toApiStartDate`), `src/hooks/useAvailableUsernames.ts`
 
 ---
 

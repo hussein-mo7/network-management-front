@@ -14,6 +14,24 @@ export const apiClient = axios.create({
   },
 });
 
+function getApiErrorMessage(
+  data: unknown,
+  fallback: string,
+): string {
+  if (!data || typeof data !== "object") {
+    return fallback;
+  }
+  const body = data as Record<string, unknown>;
+  if (typeof body.message === "string" && body.message.trim()) {
+    return body.message;
+  }
+  const nested = body.error;
+  if (nested && typeof nested === "object" && typeof (nested as { message?: string }).message === "string") {
+    return (nested as { message: string }).message;
+  }
+  return fallback;
+}
+
 apiClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError<{ message?: string }>) => {
@@ -21,9 +39,7 @@ apiClient.interceptors.response.use(
     const message =
       status === 0
         ? i18n.t("common.networkError")
-        : (error.response?.data?.message ??
-          error.message ??
-          i18n.t("common.unexpectedError"));
+        : getApiErrorMessage(error.response?.data, error.message || i18n.t("common.unexpectedError"));
 
     const isAuthMe = error.config?.url?.includes("/auth/me");
 

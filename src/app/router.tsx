@@ -5,6 +5,7 @@ import { ForgotPasswordPage, LoginPage, ResetPasswordPage } from "@/pages/auth";
 import { HomePage } from "@/pages/home";
 import { AvailableUsernamesPage } from "@/pages/available-usernames";
 import { SpeedsPage } from "@/pages/speeds";
+import { SupportPage } from "@/pages/support";
 import { PlaceholderPage } from "@/pages/_shared/PlaceholderPage";
 
 export function AppRouter() {
@@ -76,7 +77,7 @@ export function AppRouter() {
               </Can>
             }
           />
-          <Route path="support" element={<PlaceholderPage titleKey="nav.items.support" />} />
+          <Route path="support" element={<SupportPage />} />
           <Route path="finance" element={<PlaceholderPage titleKey="nav.items.finance" />} />
           <Route
             path="users"

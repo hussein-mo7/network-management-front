@@ -1,6 +1,9 @@
-# We-Paltel Front
+# network-management-front
 
 React SPA admin dashboard for WeWiFi subscription management.
+
+> **Git remote:** If you renamed the GitHub repo from `We-Paltel-Front`, update origin:
+> `git remote set-url origin https://github.com/<your-org>/network-management-front.git`
 
 **Project rules & folder structure:** see [STRUCTURE.md](./STRUCTURE.md)
 

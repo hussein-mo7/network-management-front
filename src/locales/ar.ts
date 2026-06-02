@@ -8,6 +8,7 @@ export interface TranslationSchema {
     cancel: string;
     save: string;
     retry: string;
+    all: string;
   };
   pageTitles: {
     login: string;
@@ -126,8 +127,10 @@ export interface TranslationSchema {
     title: string;
     subtitle: string;
     hint: string;
+    deletedBadge: string;
     actions: {
       add: string;
+      restore: string;
     };
     stats: {
       total: string;
@@ -151,6 +154,7 @@ export interface TranslationSchema {
       createSuccess: string;
       updateSuccess: string;
       deleteSuccess: string;
+      restoreSuccess: string;
       deleteTitle: string;
       deleteMessage: string;
       deleteMessageWithUsernames: string;
@@ -162,24 +166,52 @@ export interface TranslationSchema {
     pickSpeed: string;
     sectionTitle: string;
     sectionSubtitle: string;
+    lifecycleHint: string;
     emptyForSpeed: string;
+    emptyForFilter: string;
+    filters: {
+      all: string;
+      new: string;
+      inCooldown: string;
+      owner: string;
+    };
     actions: {
+      add: string;
       addForSpeed: string;
+      import: string;
       importForSpeed: string;
       export: string;
+      deleteAll: string;
+      deleteAllForSpeed: string;
     };
     table: {
       username: string;
       password: string;
       speed: string;
       status: string;
+      expires: string;
       createdAt: string;
       actions: string;
     };
     status: {
-      available: string;
-      used: string;
+      new: string;
+      inCooldown: string;
       owner: string;
+      ownerNeverExpires: string;
+      notAssigned: string;
+      expiresIn: string;
+      expiresOn: string;
+      firstConnectionAt: string;
+      expiresAt: string;
+    };
+    details: {
+      title: string;
+      close: string;
+      view: string;
+      firstConnection: string;
+      expiresAt: string;
+      addedDate: string;
+      addedFull: string;
     };
     form: {
       addTitle: string;
@@ -193,21 +225,121 @@ export interface TranslationSchema {
       passwordMin: string;
       passwordEditHint: string;
       usernameEditHint: string;
-      ownerUsername: string;
-      ownerHint: string;
-      ownerEditHint: string;
+      status: string;
+      statusHint: string;
+      statusNewHint: string;
+      statusRunningHint: string;
+      statusOwnerHint: string;
+      assignedAt: string;
+      assignedAtHint: string;
+      assignedAtRequired: string;
+      expiryPreview: string;
+      statusEditHint: string;
       duplicateUsername: string;
       createSuccess: string;
       updateSuccess: string;
       deleteSuccess: string;
       deleteTitle: string;
       deleteMessage: string;
+      deleteAllTitle: string;
+      deleteAllMessage: string;
+      deleteAllSuccess: string;
       importTitle: string;
       importHint: string;
       selectFile: string;
       importSubmit: string;
       importSuccess: string;
       exportSuccess: string;
+    };
+  };
+  support: {
+    title: string;
+    subtitle: string;
+    hint: string;
+    actions: {
+      addTicket: string;
+    };
+    stats: {
+      open: string;
+      openHint: string;
+      inProgress: string;
+      inProgressHint: string;
+      resolvedToday: string;
+      resolvedTodayHint: string;
+      resolvedWeek: string;
+      avgResolution: string;
+    };
+    charts: {
+      byStatus: string;
+      byStatusHint: string;
+      dailyTrend: string;
+      dailyTrendHint: string;
+      weeklyActivity: string;
+      weeklyActivityHint: string;
+      byChannel: string;
+      byChannelHint: string;
+      created: string;
+      resolved: string;
+    };
+    status: {
+      open: string;
+      in_progress: string;
+      waiting_customer: string;
+      resolved: string;
+    };
+    priority: {
+      low: string;
+      medium: string;
+      high: string;
+      urgent: string;
+    };
+    channel: {
+      phone: string;
+      visit: string;
+      whatsapp: string;
+      other: string;
+    };
+    table: {
+      sectionTitle: string;
+      sectionSubtitle: string;
+      empty: string;
+      ticket: string;
+      title: string;
+      subscriber: string;
+      channel: string;
+      priority: string;
+      status: string;
+      createdAt: string;
+      actions: string;
+    };
+    form: {
+      addTitle: string;
+      editTitle: string;
+      create: string;
+      title: string;
+      titlePlaceholder: string;
+      titleRequired: string;
+      description: string;
+      descriptionPlaceholder: string;
+      descriptionRequired: string;
+      status: string;
+      priority: string;
+      channel: string;
+      subscriberName: string;
+      subscriberNamePlaceholder: string;
+      subscriberNameRequired: string;
+      subscriberPhone: string;
+      subscriberPhonePlaceholder: string;
+      subscriberPhoneRequired: string;
+      assignedTo: string;
+      assignedToPlaceholder: string;
+      assignedToRequired: string;
+      hint: string;
+      createSuccess: string;
+      updateSuccess: string;
+      deleteSuccess: string;
+      deleteTitle: string;
+      deleteMessage: string;
     };
   };
 }
@@ -222,6 +354,7 @@ export const ar: TranslationSchema = {
     cancel: "إلغاء",
     save: "حفظ",
     retry: "إعادة المحاولة",
+    all: "الكل",
   },
   pageTitles: {
     login: "تسجيل الدخول",
@@ -354,12 +487,14 @@ export const ar: TranslationSchema = {
     title: "السرعات",
     subtitle: "عرّف سرعات الإنترنت المتاحة. كل سرعة لها جدول أسماء مستخدمة خاص بها.",
     hint: "بعد إضافة سرعة، انتقل إلى «أسماء متاحة» واختر السرعة لإدارة الأسماء واستيراد Excel.",
+    deletedBadge: "محذوفة",
     actions: {
       add: "إضافة سرعة",
+      restore: "استعادة",
     },
     stats: {
       total: "{{count}} اسم",
-      available: "{{count}} متاح",
+      available: "{{count}} جاهز",
       price: "{{price}} ₪ / شهر",
     },
     form: {
@@ -379,6 +514,7 @@ export const ar: TranslationSchema = {
       createSuccess: "تمت إضافة السرعة",
       updateSuccess: "تم تحديث السرعة",
       deleteSuccess: "تم حذف السرعة",
+      restoreSuccess: "تمت استعادة {{speed}}",
       deleteTitle: "حذف السرعة",
       deleteMessage: "هل تريد حذف {{speed}}؟",
       deleteMessageWithUsernames:
@@ -387,28 +523,58 @@ export const ar: TranslationSchema = {
   },
   availableUsernames: {
     title: "أسماء متاحة",
-    subtitle: "اختر سرعة لعرض وإدارة الأسماء المتاحة لهذه السرعة فقط.",
+    subtitle:
+      "اختر سرعة لإدارة مجموعة الأسماء. يبقى الاسم هنا خلال فترة الانتظار بعد التعيين حتى انتهاء الصلاحية.",
     pickSpeed: "اختر السرعة",
     sectionTitle: "أسماء {{speed}}",
-    sectionSubtitle: "{{count}} اسم مسجّل لسرعة {{speed}}",
-    emptyForSpeed: "لا توجد أسماء متاحة لسرعة {{speed}} بعد.",
+    sectionSubtitle: "{{count}} معروض · {{total}} في المجموعة لسرعة {{speed}}",
+    lifecycleHint:
+      "عند تعيين اسم لمشترك يدخل فترة انتظار {{days}} يوماً (قيد التشغيل). يبقى ظاهراً هنا مع تاريخ انتهاء، ثم ينتقل إلى «منتهية» بعد انتهاء الانتظار. أسماء المالك لا تنتهي.",
+    emptyForSpeed: "لا توجد أسماء لسرعة {{speed}} بعد.",
+    emptyForFilter: "لا توجد أسماء تطابق هذا الفلتر.",
+    filters: {
+      all: "الكل في المجموعة",
+      new: "جديد",
+      inCooldown: "قيد التشغيل",
+      owner: "مالك",
+    },
     actions: {
+      add: "إضافة اسم",
       addForSpeed: "إضافة اسم — {{speed}}",
+      import: "استيراد Excel",
       importForSpeed: "استيراد Excel — {{speed}}",
       export: "تصدير",
+      deleteAll: "حذف الكل",
+      deleteAllForSpeed: "حذف الكل — {{speed}}",
     },
     table: {
       username: "اسم المستخدم",
       password: "كلمة المرور",
       speed: "السرعة",
       status: "الحالة",
+      expires: "ينتهي",
       createdAt: "تاريخ الإضافة",
       actions: "إجراءات",
     },
     status: {
-      available: "متاح",
-      used: "مستخدم",
+      new: "جديد",
+      inCooldown: "قيد التشغيل",
       owner: "مالك",
+      ownerNeverExpires: "لا ينتهي",
+      notAssigned: "لم يُعيَّن بعد",
+      expiresIn: "خلال {{count}} يوم",
+      expiresOn: "حتى {{date}}",
+      firstConnectionAt: "أول اتصال: {{datetime}}",
+      expiresAt: "ينتهي: {{datetime}}",
+    },
+    details: {
+      title: "تفاصيل {{username}}",
+      close: "إغلاق",
+      view: "عرض التفاصيل",
+      firstConnection: "أول اتصال",
+      expiresAt: "تاريخ الانتهاء",
+      addedDate: "تاريخ الإضافة",
+      addedFull: "وقت الإضافة (كامل)",
     },
     form: {
       addTitle: "إضافة اسم — {{speed}}",
@@ -422,21 +588,125 @@ export const ar: TranslationSchema = {
       passwordMin: "كلمة المرور يجب أن تكون 4 أحرف على الأقل",
       passwordEditHint: "اترك الحقل فارغاً للإبقاء على كلمة المرور الحالية.",
       usernameEditHint: "لا يمكن تغيير اسم المستخدم بعد إنشائه.",
-      ownerUsername: "اسم مالك (Owner)",
-      ownerHint: "أسماء المالك (Owner) لا تنتهي صلاحيتها على الخادم.",
-      ownerEditHint: "حالة المالك (Owner) تُحدَّد عند الإنشاء ولا يمكن تغييرها.",
+      status: "الحالة",
+      statusHint: "اختر الحالة عند الإضافة — لاستيراد اسم كان قيد التشغيل خارج النظام اختر «قيد التشغيل» وأدخل تاريخ البدء.",
+      statusNewHint: "لم يُستخدم بعد — جاهز للتعيين لمشترك جديد.",
+      statusRunningHint: "مُستخدم سابقاً ولا يزال ضمن فترة الانتظار — أدخل تاريخ بدء الاستخدام.",
+      statusOwnerHint: "اسم مالك — لا ينتهي ولا يدخل فترة انتظار.",
+      assignedAt: "وقت أول اتصال (يوم / ساعة / دقيقة)",
+      assignedAtHint: "يُحسب وقت الانتهاء تلقائياً بعد {{days}} يوماً من هذا التاريخ والوقت.",
+      assignedAtRequired: "وقت أول اتصال مطلوب لحالة قيد التشغيل",
+      expiryPreview: "ينتهي {{datetime}} — متبقي {{count}} يوم",
+      statusEditHint:
+        "يمكنك تغيير الحالة عند التعديل. عند اختيار «جديد» يُحذف وقت أول اتصال ووقت الانتهاء من السجل.",
       duplicateUsername: "اسم المستخدم موجود مسبقاً",
       createSuccess: "تمت إضافة الاسم",
       updateSuccess: "تم تحديث الاسم",
       deleteSuccess: "تم حذف الاسم",
       deleteTitle: "حذف اسم متاح",
-      deleteMessage: "هل تريد حذف {{username}}؟",
+      deleteMessage: "هل تريد حذف {{username}}؟ لا يمكن التراجع عن هذا الإجراء.",
+      deleteAllTitle: "حذف كل أسماء {{speed}}",
+      deleteAllMessage:
+        "حذف نهائي لجميع الأسماء ({{count}}) في مجموعة {{speed}}؟ السرعات الأخرى لن تتأثر. لا يمكن التراجع.",
+      deleteAllSuccess: "تم حذف {{count}} اسم من {{speed}}",
       importTitle: "استيراد Excel — {{speed}}",
-      importHint: "ارفع ملف Excel أو CSV لإضافة أسماء لسرعة {{speed}}.",
+      importHint:
+        "ارفع Excel (.xlsx): العمود A اسم المستخدم، العمود B كلمة المرور فقط. لا تعيد استيراد ملف التصدير (فيه أعمدة إضافية). الأسماء المكررة مرفوضة.",
       selectFile: "اختر ملفاً",
       importSubmit: "استيراد",
-      importSuccess: "تم استيراد {{file}} (وضع تجريبي)",
+      importSuccess: "تم استيراد {{count}} اسم",
       exportSuccess: "تم تصدير أسماء {{speed}} (وضع تجريبي)",
+    },
+  },
+  support: {
+    title: "الدعم الفني",
+    subtitle:
+      "تسجيل مشاكل المشتركين من المكالمات وزيارات المكتب. متابعة التذاكر وأداء الفريق.",
+    hint: "التذاكر يُنشئها فريق الدعم يدوياً — المشتركون لا يفتحون تذاكر من الموقع.",
+    actions: {
+      addTicket: "تذكرة جديدة",
+    },
+    stats: {
+      open: "تذاكر مفتوحة",
+      openHint: "مشاكل جديدة بانتظار المعالجة",
+      inProgress: "قيد المعالجة",
+      inProgressHint: "جاري العمل عليها الآن",
+      resolvedToday: "حُلّت اليوم",
+      resolvedTodayHint: "{{created}} جديدة اليوم",
+      resolvedWeek: "حُلّت هذا الأسبوع",
+      avgResolution: "متوسط الحل ~{{hours}} س",
+    },
+    charts: {
+      byStatus: "التذاكر حسب الحالة",
+      byStatusHint: "توزيع العمل الحالي",
+      dailyTrend: "آخر 7 أيام",
+      dailyTrendHint: "مُنشأة مقابل محلولة يومياً",
+      weeklyActivity: "نشاط الأسبوع",
+      weeklyActivityHint: "مقارنة الحجم حسب اليوم",
+      byChannel: "قناة التواصل",
+      byChannelHint: "كيف تواصل المشتركون مع الدعم",
+      created: "مُنشأة",
+      resolved: "محلولة",
+    },
+    status: {
+      open: "مفتوحة",
+      in_progress: "قيد المعالجة",
+      waiting_customer: "بانتظار المشترك",
+      resolved: "محلولة",
+    },
+    priority: {
+      low: "منخفضة",
+      medium: "متوسطة",
+      high: "عالية",
+      urgent: "عاجلة",
+    },
+    channel: {
+      phone: "هاتف",
+      visit: "زيارة المكتب",
+      whatsapp: "واتساب",
+      other: "أخرى",
+    },
+    table: {
+      sectionTitle: "التذاكر",
+      sectionSubtitle: "{{count}} تذكرة",
+      empty: "لا توجد تذاكر لهذا الفلتر.",
+      ticket: "رقم التذكرة",
+      title: "العنوان / المشكلة",
+      subscriber: "المشترك",
+      channel: "القناة",
+      priority: "الأولوية",
+      status: "الحالة",
+      createdAt: "تاريخ الإنشاء",
+      actions: "إجراءات",
+    },
+    form: {
+      addTitle: "تذكرة دعم جديدة",
+      editTitle: "تعديل {{ticket}}",
+      create: "إنشاء تذكرة",
+      title: "العنوان",
+      titlePlaceholder: "مثال: انقطاع الإنترنت",
+      titleRequired: "العنوان مطلوب",
+      description: "تفاصيل المشكلة",
+      descriptionPlaceholder: "صف ما أبلغ عنه المشترك…",
+      descriptionRequired: "تفاصيل المشكلة مطلوبة",
+      status: "الحالة",
+      priority: "الأولوية",
+      channel: "قناة التواصل",
+      subscriberName: "اسم المشترك",
+      subscriberNamePlaceholder: "الاسم الكامل",
+      subscriberNameRequired: "اسم المشترك مطلوب",
+      subscriberPhone: "رقم الهاتف",
+      subscriberPhonePlaceholder: "0599123456",
+      subscriberPhoneRequired: "رقم الهاتف مطلوب",
+      assignedTo: "مسند إلى",
+      assignedToPlaceholder: "عضو فريق الدعم",
+      assignedToRequired: "المسند إليه مطلوب",
+      hint: "استخدم مفتوحة للمكالمات الجديدة، قيد المعالجة أثناء الإصلاح، بانتظار المشترك عند الحاجة لرد، محلولة عند الانتهاء.",
+      createSuccess: "تم إنشاء التذكرة",
+      updateSuccess: "تم تحديث التذكرة",
+      deleteSuccess: "تم حذف التذكرة",
+      deleteTitle: "حذف تذكرة",
+      deleteMessage: "هل تريد حذف {{ticket}}؟",
     },
   },
 };

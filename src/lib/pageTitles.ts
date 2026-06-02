@@ -11,7 +11,7 @@ const ROUTE_TITLE_KEYS: Array<{ match: (path: string) => boolean; titleKey: stri
   { match: (path) => path === "/stopped", titleKey: "nav.items.stopped" },
   { match: (path) => path === "/speeds", titleKey: "speeds.title" },
   { match: (path) => path === "/available-usernames", titleKey: "availableUsernames.title" },
-  { match: (path) => path === "/support", titleKey: "nav.items.support" },
+  { match: (path) => path === "/support", titleKey: "support.title" },
   { match: (path) => path === "/finance", titleKey: "nav.items.finance" },
   { match: (path) => path === "/users", titleKey: "pages.users" },
   { match: (path) => path === "/logs", titleKey: "nav.items.logs" },

@@ -1,13 +1,24 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Info, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { AvailableUsernameDetailsModal } from "@/components/pages/available-usernames/AvailableUsernameDetailsModal";
+import {
+  AvailableUsernameStatusBadge,
+  AvailableUsernameStatusBadgeCompact,
+} from "@/components/pages/available-usernames/AvailableUsernameStatusBadge";
 import { Button } from "@/components/ui/buttons";
 import { MaskedPasswordCell } from "@/components/ui/data";
-import { useRoleAccess } from "@/hooks/useRoleAccess";
-import type { AvailableUsername } from "@/lib/mocks";
+import {
+  formatCreatedDate,
+  getDaysUntilExpiry,
+  getUsernameLifecycleStatus,
+  type AvailableUsername,
+} from "@/types/availableUsername";
 import { cn } from "@/lib/cn";
 
 interface AvailableUsernamesTableProps {
   rows: AvailableUsername[];
+  speedLabel?: string;
   className?: string;
   onEdit?: (row: AvailableUsername) => void;
   onDelete?: (row: AvailableUsername) => void;
@@ -15,22 +26,38 @@ interface AvailableUsernamesTableProps {
 
 export function AvailableUsernamesTable({
   rows,
+  speedLabel,
   className,
   onEdit,
   onDelete,
 }: AvailableUsernamesTableProps) {
-  const { t } = useTranslation();
-  const { canManage } = useRoleAccess();
+  const { t, i18n } = useTranslation();
+  const [detailsRow, setDetailsRow] = useState<AvailableUsername | null>(null);
+  const showActions = Boolean(onEdit || onDelete);
 
-  const columns = canManage
-    ? { username: "w-[28%]", password: "w-[26%]", status: "w-[18%]", date: "w-[16%]", actions: "w-[12%]" }
-    : { username: "w-[32%]", password: "w-[28%]", status: "w-[22%]", date: "w-[18%]", actions: "" };
+  const columns = showActions
+    ? {
+        username: "w-[20%]",
+        password: "w-[18%]",
+        status: "w-[14%]",
+        expires: "w-[14%]",
+        date: "w-[12%]",
+        actions: "w-[14%]",
+      }
+    : {
+        username: "w-[22%]",
+        password: "w-[20%]",
+        status: "w-[16%]",
+        expires: "w-[16%]",
+        date: "w-[14%]",
+        actions: "w-[12%]",
+      };
 
   return (
     <div className={className}>
       <AvailableUsernamesMobileList
         rows={rows}
-        canManage={canManage}
+        onDetails={setDetailsRow}
         onEdit={onEdit}
         onDelete={onDelete}
       />
@@ -39,28 +66,37 @@ export function AvailableUsernamesTable({
         <table className="w-full table-fixed text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
-              <th className={cn(columns.username, "px-4 py-3 text-start align-middle font-semibold text-foreground")}>
+              <th className={cn(columns.username, "px-4 py-3 text-start font-semibold")}>
                 {t("availableUsernames.table.username")}
               </th>
-              <th className={cn(columns.password, "px-4 py-3 text-start align-middle font-semibold text-foreground")}>
+              <th className={cn(columns.password, "px-4 py-3 text-start font-semibold")}>
                 {t("availableUsernames.table.password")}
               </th>
-              <th className={cn(columns.status, "px-4 py-3 text-start align-middle font-semibold text-foreground")}>
+              <th className={cn(columns.status, "px-4 py-3 text-start font-semibold")}>
                 {t("availableUsernames.table.status")}
               </th>
-              <th className={cn(columns.date, "px-4 py-3 text-start align-middle font-semibold text-foreground")}>
+              <th className={cn(columns.expires, "px-4 py-3 text-start font-semibold")}>
+                {t("availableUsernames.table.expires")}
+              </th>
+              <th className={cn(columns.date, "px-4 py-3 text-start font-semibold")}>
                 {t("availableUsernames.table.createdAt")}
               </th>
-              {canManage ? (
-                <th className={cn(columns.actions, "px-4 py-3 text-end align-middle font-semibold text-foreground")}>
-                  {t("availableUsernames.table.actions")}
-                </th>
-              ) : null}
+              <th
+                className={cn(
+                  columns.actions,
+                  "px-4 py-3 text-center align-middle font-semibold",
+                )}
+              >
+                {t("availableUsernames.table.actions")}
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.map((row) => (
-              <tr key={row.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+              <tr
+                key={row.id}
+                className="border-b border-border last:border-0 hover:bg-muted/30"
+              >
                 <td className="px-4 py-3 align-middle font-medium">
                   <span className="block truncate">{row.username}</span>
                 </td>
@@ -68,37 +104,74 @@ export function AvailableUsernamesTable({
                   <MaskedPasswordCell value={row.password} />
                 </td>
                 <td className="px-4 py-3 align-middle">
-                  <RowStatus row={row} />
+                  <AvailableUsernameStatusBadge row={row} />
+                </td>
+                <td className="px-4 py-3 align-middle">
+                  <ExpiresCell row={row} />
                 </td>
                 <td className="whitespace-nowrap px-4 py-3 align-middle text-muted-foreground">
-                  {row.createdAt}
+                  {formatCreatedDate(row.createdAt, i18n.language)}
                 </td>
-                {canManage ? (
-                  <td className="px-4 py-3 align-middle text-end">
-                    <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
-                  </td>
-                ) : null}
+                <td className="px-4 py-3 align-middle">
+                  <RowActions
+                    row={row}
+                    onDetails={() => setDetailsRow(row)}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <AvailableUsernameDetailsModal
+        open={detailsRow !== null}
+        row={detailsRow}
+        speedLabel={speedLabel}
+        onClose={() => setDetailsRow(null)}
+      />
     </div>
   );
 }
 
+function ExpiresCell({ row }: { row: AvailableUsername }) {
+  const { t } = useTranslation();
+  const lifecycle = getUsernameLifecycleStatus(row);
+
+  if (lifecycle === "owner") {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  if (lifecycle === "new") {
+    return <span className="text-xs text-muted-foreground">—</span>;
+  }
+
+  if (row.expiryDate) {
+    const days = getDaysUntilExpiry(row.expiryDate);
+    return (
+      <span className="text-sm font-medium text-foreground">
+        {t("availableUsernames.status.expiresIn", { count: days })}
+      </span>
+    );
+  }
+
+  return <span className="text-xs text-muted-foreground">—</span>;
+}
+
 function AvailableUsernamesMobileList({
   rows,
-  canManage,
+  onDetails,
   onEdit,
   onDelete,
 }: {
   rows: AvailableUsername[];
-  canManage: boolean;
+  onDetails: (row: AvailableUsername) => void;
   onEdit?: (row: AvailableUsername) => void;
   onDelete?: (row: AvailableUsername) => void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="space-y-3 lg:hidden">
@@ -109,10 +182,10 @@ function AvailableUsernamesMobileList({
         >
           <div className="flex items-start justify-between gap-3">
             <p className="font-semibold text-foreground">{row.username}</p>
-            <RowStatus row={row} />
+            <AvailableUsernameStatusBadgeCompact row={row} />
           </div>
 
-          <dl className="mt-4 space-y-3">
+          <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
             <div>
               <dt className="text-xs font-medium text-muted-foreground">
                 {t("availableUsernames.table.password")}
@@ -123,94 +196,79 @@ function AvailableUsernamesMobileList({
             </div>
             <div>
               <dt className="text-xs font-medium text-muted-foreground">
+                {t("availableUsernames.table.expires")}
+              </dt>
+              <dd className="mt-1">
+                <ExpiresCell row={row} />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-muted-foreground">
                 {t("availableUsernames.table.createdAt")}
               </dt>
-              <dd className="mt-1 text-sm text-muted-foreground">{row.createdAt}</dd>
+              <dd className="mt-1 text-muted-foreground">
+                {formatCreatedDate(row.createdAt, i18n.language)}
+              </dd>
             </div>
           </dl>
 
-          {canManage ? (
-            <div className="mt-4 flex justify-end border-t border-border pt-3">
-              <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
-            </div>
-          ) : null}
+          <div className="mt-4 flex justify-end border-t border-border pt-3">
+            <RowActions
+              row={row}
+              onDetails={() => onDetails(row)}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          </div>
         </article>
       ))}
     </div>
   );
 }
 
-function RowStatus({ row }: { row: AvailableUsername }) {
-  const { t } = useTranslation();
-
-  return (
-    <div className="inline-flex flex-wrap items-center gap-1.5">
-      <StatusBadge
-        label={
-          row.isUsed
-            ? t("availableUsernames.status.used")
-            : t("availableUsernames.status.available")
-        }
-        variant={row.isUsed ? "muted" : "success"}
-      />
-      {row.isOwnerUsername ? (
-        <span className="text-xs font-medium text-primary">
-          {t("availableUsernames.status.owner")}
-        </span>
-      ) : null}
-    </div>
-  );
-}
-
 function RowActions({
   row,
+  onDetails,
   onEdit,
   onDelete,
 }: {
   row: AvailableUsername;
+  onDetails: () => void;
   onEdit?: (row: AvailableUsername) => void;
   onDelete?: (row: AvailableUsername) => void;
 }) {
   const { t } = useTranslation();
 
   return (
-    <div className="inline-flex justify-end gap-1">
+    <div className="flex items-center justify-center gap-0.5">
       <Button
         variant="ghost"
         size="icon"
-        aria-label={t("common.edit")}
-        onClick={() => onEdit?.(row)}
+        aria-label={t("availableUsernames.details.view")}
+        onClick={onDetails}
       >
-        <Pencil className="h-4 w-4" />
+        <Info className="h-4 w-4 text-muted-foreground" />
       </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label={t("common.delete")}
-        onClick={() => onDelete?.(row)}
-      >
-        <Trash2 className="h-4 w-4 text-danger" />
-      </Button>
+      {onEdit ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("common.edit")}
+          onClick={() => onEdit(row)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+      ) : null}
+      {onDelete ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t("common.delete")}
+          onClick={() => onDelete(row)}
+        >
+          <Trash2 className="h-4 w-4 text-danger" />
+        </Button>
+      ) : null}
     </div>
-  );
-}
-
-function StatusBadge({
-  label,
-  variant,
-}: {
-  label: string;
-  variant: "success" | "muted";
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium",
-        variant === "success" && "bg-success/10 text-success",
-        variant === "muted" && "bg-muted text-muted-foreground",
-      )}
-    >
-      {label}
-    </span>
   );
 }

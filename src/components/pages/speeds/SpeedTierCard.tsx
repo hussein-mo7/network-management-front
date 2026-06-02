@@ -12,6 +12,7 @@ interface SpeedTierCardProps {
   showActions?: boolean;
   onEdit?: (tier: SpeedTier) => void;
   onDelete?: (tier: SpeedTier) => void;
+  onRestore?: (tier: SpeedTier) => void;
   totalCount?: number;
   availableCount?: number;
   className?: string;
@@ -24,11 +25,13 @@ export function SpeedTierCard({
   showActions = false,
   onEdit,
   onDelete,
+  onRestore,
   totalCount,
   availableCount,
   className,
 }: SpeedTierCardProps) {
   const { t } = useTranslation();
+  const isDeleted = tier.deleted === true;
   const total = totalCount ?? tier.totalCount ?? countUsernamesBySpeedId(tier.id);
   const available = availableCount ?? tier.availableCount ?? countAvailableBySpeedId(tier.id);
   const isInteractive = Boolean(onSelect);
@@ -46,7 +49,14 @@ export function SpeedTierCard({
             <Gauge className="h-5 w-5" strokeWidth={2} />
           </div>
           <div>
-            <p className="font-semibold text-foreground">{tier.label}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-semibold text-foreground">{tier.label}</p>
+              {isDeleted ? (
+                <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("speeds.deletedBadge")}
+                </span>
+              ) : null}
+            </div>
             <p className="mt-0.5 text-sm font-medium text-primary">
               {t("speeds.stats.price", { price: tier.price })}
             </p>
@@ -60,22 +70,30 @@ export function SpeedTierCard({
 
       {showActions ? (
         <div className="mt-4 flex justify-end gap-1 border-t border-border pt-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={t("common.edit")}
-            onClick={() => onEdit?.(tier)}
-          >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label={t("common.delete")}
-            onClick={() => onDelete?.(tier)}
-          >
-            <Trash2 className="h-4 w-4 text-danger" />
-          </Button>
+          {isDeleted ? (
+            <Button size="sm" variant="outline" onClick={() => onRestore?.(tier)}>
+              {t("speeds.actions.restore")}
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("common.edit")}
+                onClick={() => onEdit?.(tier)}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t("common.delete")}
+                onClick={() => onDelete?.(tier)}
+              >
+                <Trash2 className="h-4 w-4 text-danger" />
+              </Button>
+            </>
+          )}
         </div>
       ) : null}
     </>
@@ -104,6 +122,7 @@ export function SpeedTierCard({
     <article
       className={cn(
         "rounded-xl border border-border bg-surface p-4 shadow-card",
+        isDeleted && "opacity-75",
         className,
       )}
     >
@@ -130,7 +149,7 @@ export function SpeedTierPicker({
   return (
     <div
       className={cn(
-        "grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3",
+        "grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
         className,
       )}
     >

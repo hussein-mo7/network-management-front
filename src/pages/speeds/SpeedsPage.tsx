@@ -78,6 +78,18 @@ export function SpeedsPage() {
     }
   };
 
+  const handleRestore = async (tier: SpeedTier) => {
+    try {
+      await createMutation.mutateAsync({
+        valueMbps: tier.valueMbps,
+        price: tier.price,
+      });
+      toast.success(t("speeds.form.restoreSuccess", { speed: tier.label }));
+    } catch (err) {
+      showError(err);
+    }
+  };
+
   const deleteTier = dialog?.type === "delete" ? dialog.tier : null;
   const linkedCount = deleteTier?.activeLinkedCount ?? deleteTier?.totalCount ?? 0;
 
@@ -121,6 +133,7 @@ export function SpeedsPage() {
               availableCount={tier.availableCount}
               onEdit={() => setDialog({ type: "edit", tier })}
               onDelete={() => setDialog({ type: "delete", tier })}
+              onRestore={tier.deleted ? () => handleRestore(tier) : undefined}
             />
           ))}
         </div>
