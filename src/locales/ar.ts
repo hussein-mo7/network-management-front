@@ -14,6 +14,10 @@ import type { OnlineUsersI18n } from "./onlineUsers.i18n";
 import { onlineUsersAr } from "./onlineUsers.i18n";
 import type { SubscribersI18n } from "./subscribers.i18n";
 import { subscribersAr } from "./subscribers.i18n";
+import type { ActivityLogsI18n } from "./activityLogs.i18n";
+import { activityLogsAr } from "./activityLogs.i18n";
+import type { UsersI18n } from "./users.i18n";
+import { usersAr } from "./users.i18n";
 
 export interface TranslationSchema {
   common: {
@@ -26,6 +30,13 @@ export interface TranslationSchema {
     save: string;
     retry: string;
     all: string;
+    pagination: {
+      showing: string;
+      previous: string;
+      next: string;
+      ariaLabel: string;
+      goToPage: string;
+    };
   };
   pageTitles: {
     login: string;
@@ -279,6 +290,8 @@ export interface TranslationSchema {
   statistics: StatisticsI18n;
   subscribers: SubscribersI18n;
   sms: SmsI18n;
+  activityLogs: ActivityLogsI18n;
+  users: UsersI18n;
   support: {
     title: string;
     subtitle: string;
@@ -386,6 +399,13 @@ export const ar: TranslationSchema = {
     save: "حفظ",
     retry: "إعادة المحاولة",
     all: "الكل",
+    pagination: {
+      showing: "عرض <range>{{from}}–{{to}}</range> من <total>{{total}}</total>",
+      previous: "السابق",
+      next: "التالي",
+      ariaLabel: "ترقيم الصفحات",
+      goToPage: "الانتقال إلى الصفحة {{page}}",
+    },
   },
   pageTitles: {
     login: "تسجيل الدخول",
@@ -659,6 +679,8 @@ export const ar: TranslationSchema = {
   statistics: statisticsAr,
   subscribers: subscribersAr,
   sms: smsAr,
+  activityLogs: activityLogsAr,
+  users: usersAr,
   support: {
     title: "الدعم الفني",
     subtitle:

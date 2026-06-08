@@ -7,6 +7,8 @@ import { stoppedEn } from "./stopped.i18n";
 import { smsEn } from "./sms.i18n";
 import { onlineUsersEn } from "./onlineUsers.i18n";
 import { subscribersEn } from "./subscribers.i18n";
+import { activityLogsEn } from "./activityLogs.i18n";
+import { usersEn } from "./users.i18n";
 
 export const en: TranslationSchema = {
   common: {
@@ -19,6 +21,13 @@ export const en: TranslationSchema = {
     save: "Save",
     retry: "Try again",
     all: "All",
+    pagination: {
+      showing: "Showing <range>{{from}}–{{to}}</range> of <total>{{total}}</total>",
+      previous: "Previous",
+      next: "Next",
+      ariaLabel: "Pagination",
+      goToPage: "Go to page {{page}}",
+    },
   },
   pageTitles: {
     login: "Sign in",
@@ -293,6 +302,8 @@ export const en: TranslationSchema = {
   statistics: statisticsEn,
   subscribers: subscribersEn,
   sms: smsEn,
+  activityLogs: activityLogsEn,
+  users: usersEn,
   support: {
     title: "Support",
     subtitle:

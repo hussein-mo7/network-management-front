@@ -6,7 +6,6 @@ import { HomePage } from "@/pages/home";
 import { AvailableUsernamesPage } from "@/pages/available-usernames";
 import { SpeedsPage } from "@/pages/speeds";
 import { SupportPage } from "@/pages/support";
-import { PlaceholderPage } from "@/pages/_shared/PlaceholderPage";
 import { OnlineUsersPage } from "@/pages/online-users/OnlineUsersPage";
 import { AddCustomerPage, CustomerProfilePage, CustomersPage } from "@/pages/customers";
 import { ExpiringPage } from "@/pages/expiring/ExpiringPage";
@@ -15,6 +14,8 @@ import { SmsPage } from "@/pages/sms";
 import { StoppedPage } from "@/pages/stopped";
 import { StatisticsPage } from "@/pages/statistics/StatisticsPage";
 import { SubscriberProfilePage, SubscribersPage } from "@/pages/subscribers";
+import { ActivityLogsPage } from "@/pages/activity-logs/ActivityLogsPage";
+import { AdminUsersPage } from "@/pages/users/AdminUsersPage";
 
 export function AppRouter() {
   return (
@@ -151,7 +152,7 @@ export function AppRouter() {
             path="users"
             element={
               <Can permission="users.view">
-                <PlaceholderPage titleKey="pages.users" />
+                <AdminUsersPage />
               </Can>
             }
           />
@@ -159,7 +160,7 @@ export function AppRouter() {
             path="logs"
             element={
               <Can permission="logs.view">
-                <PlaceholderPage titleKey="nav.items.logs" />
+                <ActivityLogsPage />
               </Can>
             }
           />
