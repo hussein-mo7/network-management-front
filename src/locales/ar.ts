@@ -300,6 +300,20 @@ export interface TranslationSchema {
       addTicket: string;
       deleteAll: string;
     };
+    whatsapp: {
+      sendToGroup: string;
+      sendAction: string;
+      successTitle: string;
+      successSubtitle: string;
+      messageHeader: string;
+      openHint: string;
+      openHintGroup: string;
+      openHintComposeGroup: string;
+      copiedAndOpened: string;
+      composeOpened: string;
+      composeWithGroup: string;
+      previewLabel: string;
+    };
     stats: {
       open: string;
       openHint: string;
@@ -689,6 +703,23 @@ export const ar: TranslationSchema = {
     actions: {
       addTicket: "تذكرة جديدة",
       deleteAll: "حذف كل التذاكر",
+    },
+    whatsapp: {
+      sendToGroup: "إرسال إلى مجموعة واتساب",
+      sendAction: "إرسال التذكرة عبر واتساب",
+      successTitle: "تم إنشاء التذكرة",
+      successSubtitle: "التذكرة {{ticket}} جاهزة — يمكنك مشاركتها مع فريق الدعم على واتساب.",
+      messageHeader: "تذكرة دعم فني",
+      openHint:
+        "سيُفتح واتساب مع نص جاهز. اختر مجموعة الدعم من المحادثات الأخيرة ثم اضغط إرسال.",
+      openHintGroup:
+        "على الجوال: يُفتح رابط المجموعة والنص منسوخ — الصق في المحادثة ثم أرسل.",
+      openHintComposeGroup:
+        "سيُفتح واتساب ويب مع الرسالة جاهزة. اختر مجموعة «{{group}}» من المحادثات الأخيرة ثم اضغط إرسال (سجّل دخول واتساب ويب مرة واحدة إن طُلب منك).",
+      copiedAndOpened: "تم نسخ الرسالة وفتح مجموعة واتساب — الصق ثم أرسل",
+      composeOpened: "تم فتح واتساب مع الرسالة — اختر المجموعة ثم أرسل",
+      composeWithGroup: "الرسالة جاهزة — اختر مجموعة «{{group}}» في واتساب ثم أرسل",
+      previewLabel: "معاينة الرسالة",
     },
     stats: {
       open: "تذاكر مفتوحة",

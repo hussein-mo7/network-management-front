@@ -22,6 +22,7 @@ import {
   useUsernameMutations,
 } from "@/hooks/useAvailableUsernames";
 import { useSpeedsQuery } from "@/hooks/useSpeeds";
+import { getActiveSpeedTiers } from "@/lib/mapSpeedTiers";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import {
   getSpeedPoolCounts,
@@ -48,7 +49,7 @@ export function AvailableUsernamesPage() {
   const { data: allSpeedTiers = [], isLoading: speedsLoading, isError: speedsError, refetch: refetchSpeeds } =
     useSpeedsQuery();
 
-  const speedTiers = allSpeedTiers;
+  const speedTiers = useMemo(() => getActiveSpeedTiers(allSpeedTiers), [allSpeedTiers]);
 
   const [statusFilter, setStatusFilter] = useState<UsernameStatusFilter>("all");
   const [dialog, setDialog] = useState<UsernameDialog | null>(null);

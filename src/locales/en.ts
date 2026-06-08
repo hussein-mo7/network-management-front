@@ -313,6 +313,23 @@ export const en: TranslationSchema = {
       addTicket: "New ticket",
       deleteAll: "Delete all tickets",
     },
+    whatsapp: {
+      sendToGroup: "Send to WhatsApp group",
+      sendAction: "Send ticket via WhatsApp",
+      successTitle: "Ticket created",
+      successSubtitle: "Ticket {{ticket}} is ready — share it with the support group on WhatsApp.",
+      messageHeader: "Support ticket",
+      openHint:
+        "WhatsApp will open with a pre-filled message. Pick your support group from recent chats, then tap Send.",
+      openHintGroup:
+        "On mobile: your group link opens and the message is copied — paste in the chat, then send.",
+      openHintComposeGroup:
+        "WhatsApp Web opens with the message ready. Pick the “{{group}}” group from recent chats, then tap Send (log in to WhatsApp Web once if prompted).",
+      copiedAndOpened: "Message copied — WhatsApp group opened. Paste and send.",
+      composeOpened: "WhatsApp opened with the message — pick the group and send.",
+      composeWithGroup: "Message ready — select the “{{group}}” group in WhatsApp, then send.",
+      previewLabel: "Message preview",
+    },
     stats: {
       open: "Open tickets",
       openHint: "New issues waiting to be picked up",

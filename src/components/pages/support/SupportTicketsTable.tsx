@@ -1,7 +1,10 @@
 import { Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { TicketStatusBadge } from "@/components/pages/support/TicketStatusBadge";
+import { WhatsAppIcon } from "@/components/pages/support/WhatsAppIcon";
 import { Button } from "@/components/ui/buttons";
+import { getWhatsAppGroupName, openSupportTicketWhatsApp } from "@/lib/supportWhatsApp";
 import { StatusBadge } from "@/components/ui/data";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import type { SupportTicket } from "@/types/supportTicket";
@@ -186,6 +189,25 @@ function RowActions({
 
   return (
     <div className="inline-flex justify-end gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        className="text-[#25D366] hover:bg-[#25D366]/10 hover:text-[#1DA851]"
+        aria-label={t("support.whatsapp.sendAction")}
+        onClick={() => {
+          const mode = openSupportTicketWhatsApp(row, t);
+          const groupName = getWhatsAppGroupName();
+          if (mode === "group") {
+            toast.success(t("support.whatsapp.copiedAndOpened"));
+          } else if (groupName) {
+            toast.success(t("support.whatsapp.composeWithGroup", { group: groupName }));
+          } else {
+            toast.success(t("support.whatsapp.composeOpened"));
+          }
+        }}
+      >
+        <WhatsAppIcon />
+      </Button>
       <Button variant="ghost" size="icon" aria-label={t("common.edit")} onClick={() => onEdit?.(row)}>
         <Pencil className="h-4 w-4" />
       </Button>

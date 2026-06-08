@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { speedsService } from "@/services/speeds.service";
+import type { SpeedTier } from "@/types/speeds";
 
 export const SPEEDS_QUERY_KEY = ["speeds"] as const;
 
@@ -37,7 +38,12 @@ export function useSpeedMutations() {
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => speedsService.remove(id),
-    onSuccess: invalidateSpeeds,
+    onSuccess: (_void, deletedId) => {
+      queryClient.setQueryData<SpeedTier[]>(SPEEDS_QUERY_KEY, (prev) =>
+        (prev ?? []).filter((tier) => tier.id !== deletedId),
+      );
+      invalidateSpeeds();
+    },
   });
 
   return { createMutation, updateMutation, deleteMutation };

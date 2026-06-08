@@ -1,5 +1,5 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { SpeedTierCard, SpeedFormModal, type SpeedFormValues } from "@/components/pages/speeds";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/buttons";
 import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
 import { useSpeedMutations, useSpeedsQuery } from "@/hooks/useSpeeds";
+import { getActiveSpeedTiers } from "@/lib/mapSpeedTiers";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { ApiError } from "@/types/api";
 import type { SpeedTier } from "@/types/speeds";
@@ -21,6 +22,7 @@ export function SpeedsPage() {
   const { t } = useTranslation();
   const { canManage } = useRoleAccess();
   const { data: tiers = [], isLoading, isError, error, refetch } = useSpeedsQuery();
+  const activeTiers = useMemo(() => getActiveSpeedTiers(tiers), [tiers]);
   const { createMutation, updateMutation, deleteMutation } = useSpeedMutations();
   const [dialog, setDialog] = useState<SpeedDialog | null>(null);
 
@@ -78,18 +80,6 @@ export function SpeedsPage() {
     }
   };
 
-  const handleRestore = async (tier: SpeedTier) => {
-    try {
-      await createMutation.mutateAsync({
-        valueMbps: tier.valueMbps,
-        price: tier.price,
-      });
-      toast.success(t("speeds.form.restoreSuccess", { speed: tier.label }));
-    } catch (err) {
-      showError(err);
-    }
-  };
-
   const deleteTier = dialog?.type === "delete" ? dialog.tier : null;
   const linkedCount = deleteTier?.activeLinkedCount ?? deleteTier?.totalCount ?? 0;
 
@@ -124,7 +114,7 @@ export function SpeedsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {tiers.map((tier) => (
+          {activeTiers.map((tier) => (
             <SpeedTierCard
               key={tier.id}
               tier={tier}
@@ -133,7 +123,6 @@ export function SpeedsPage() {
               availableCount={tier.availableCount}
               onEdit={() => setDialog({ type: "edit", tier })}
               onDelete={() => setDialog({ type: "delete", tier })}
-              onRestore={tier.deleted ? () => handleRestore(tier) : undefined}
             />
           ))}
         </div>

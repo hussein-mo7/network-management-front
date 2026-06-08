@@ -7,6 +7,7 @@ import {
   SupportStatCards,
   SupportTicketsTable,
   TicketFormModal,
+  TicketWhatsAppSuccessDialog,
   type TicketFormValues,
 } from "@/components/pages/support";
 import { ConfirmDialog } from "@/components/ui/modals";
@@ -36,6 +37,7 @@ export function SupportPage() {
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [dialog, setDialog] = useState<TicketDialog | null>(null);
+  const [whatsappTicket, setWhatsappTicket] = useState<SupportTicket | null>(null);
 
   const stats = useMemo(() => computeSupportStats(tickets), [tickets]);
 
@@ -70,9 +72,10 @@ export function SupportPage() {
 
   const handleCreate = async (values: TicketFormValues) => {
     try {
-      await createMutation.mutateAsync(values);
-      toast.success(t("support.form.createSuccess"));
+      const created = await createMutation.mutateAsync(values);
       setDialog(null);
+      setWhatsappTicket(created);
+      toast.success(t("support.form.createSuccess"));
     } catch (err) {
       showError(err);
     }
@@ -239,6 +242,11 @@ export function SupportPage() {
         confirmLabel={t("common.delete")}
         cancelLabel={t("common.cancel")}
         isLoading={isSubmitting}
+      />
+
+      <TicketWhatsAppSuccessDialog
+        ticket={whatsappTicket}
+        onClose={() => setWhatsappTicket(null)}
       />
 
       <ConfirmDialog
