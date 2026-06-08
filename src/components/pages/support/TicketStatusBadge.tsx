@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { StatusBadge, type StatusBadgeVariant } from "@/components/ui/data";
-import type { TicketStatus } from "@/lib/mocks/supportTickets.mock";
+import type { TicketStatus } from "@/types/supportTicket";
 
 const STATUS_VARIANT: Record<TicketStatus, StatusBadgeVariant> = {
   open: "warning",

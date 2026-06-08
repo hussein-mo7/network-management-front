@@ -9,13 +9,27 @@ export {
 
 export { getSpeedTierById } from "./speeds.mock";
 
+export { getStatisticsMock } from "./statistics.mock";
+
 export {
-  buildTicketNumber,
+  FACILITY_TYPE_OPTIONS,
+  PACKAGE_LINE_OPTIONS,
+  getDistinctSpeeds,
+  getInvoicesForSubscriber,
+  getSpeedHistoryForSubscriber,
+  getSubscriberByLineId,
+  getUsernameHistoryForSubscriber,
+  mockSpeedHistory,
+  mockSubscriberInvoices,
+  mockSubscribers,
+  mockUsernameHistory,
+} from "./subscribers.mock";
+
+export {
   computeSupportStats,
   getChannelChartData,
   getDailyTrendData,
   getStatusChartData,
-  mockSupportTickets,
   type ChartCountItem,
   type DailyTrendPoint,
   type SupportStats,

@@ -1,0 +1,89 @@
+import { apiClient, apiDelete, apiGet, apiPost, apiPut } from "@/lib/apiClient";
+import {
+  mapSubscriberRecord,
+  type BackendSubscriberRow,
+  type BackendSubscribersListResponse,
+} from "@/lib/mapSubscribers";
+import type { Customer } from "@/types/customer";
+import type { CustomerRegistryKindFilter } from "@/lib/customerUtils";
+
+export interface CustomersListParams {
+  search?: string;
+  kind?: CustomerRegistryKindFilter;
+  speed?: number;
+  page?: number;
+  limit?: number;
+}
+
+export const customersService = {
+  async list(params: CustomersListParams = {}): Promise<Customer[]> {
+    const response = await apiClient.get<BackendSubscribersListResponse>("/customers", {
+      params: {
+        page: params.page ?? 1,
+        limit: params.limit ?? 500,
+        kind: params.kind ?? "all",
+        ...(params.search?.trim() ? { search: params.search.trim() } : {}),
+        ...(typeof params.speed === "number" && Number.isFinite(params.speed)
+          ? { speed: params.speed }
+          : {}),
+      },
+    }).then((r) => r.data);
+
+    const rows = response.data?.data ?? [];
+    return rows.map(mapSubscriberRecord);
+  },
+
+  async getByLineId(lineId: string): Promise<Customer> {
+    const response = await apiGet<{ success: boolean; data: BackendSubscriberRow }>(
+      `/customers/line/${encodeURIComponent(lineId)}`,
+    );
+    if (!response.data) throw new Error("Customer not found");
+    return mapSubscriberRecord(response.data);
+  },
+
+  async create(body: {
+    fullName: string;
+    facilityType: string;
+    phone: string;
+    lineId: string;
+    notes?: string | null;
+  }): Promise<Customer> {
+    const response = await apiPost<{ success: boolean; data: BackendSubscriberRow }>("/customers", body);
+    if (!response.data) throw new Error("Invalid create customer response");
+    return mapSubscriberRecord(response.data);
+  },
+
+  async update(
+    id: number,
+    body: {
+      fullName?: string;
+      facilityType?: string | null;
+      phone?: string | null;
+      lineId?: string;
+      notes?: string | null;
+    },
+  ): Promise<Customer> {
+    const response = await apiPut<{ success: boolean; data: BackendSubscriberRow }>(
+      `/customers/${id}`,
+      body,
+    );
+    if (!response.data) throw new Error("Invalid update customer response");
+    return mapSubscriberRecord(response.data);
+  },
+
+  async remove(id: number): Promise<void> {
+    await apiDelete(`/customers/${id}`);
+  },
+
+  async removeBulk(ids: number[]): Promise<number> {
+    const response = await apiPost<{ success: boolean; data: { deleted: number } }>(
+      "/customers/bulk-delete",
+      { ids },
+    );
+    return response.data?.deleted ?? 0;
+  },
+
+  async removeAll(): Promise<void> {
+    await apiDelete("/customers");
+  },
+};

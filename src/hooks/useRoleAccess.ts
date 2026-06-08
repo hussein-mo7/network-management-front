@@ -9,7 +9,9 @@ export function useRoleAccess() {
     roleName,
     isAdmin: isAdminRole(roleName),
     isViewer: isViewerRole(roleName),
-    /** Admin-only write actions (create, edit, delete, import, reveal passwords) */
+    /** Admin-only write actions (create, edit, delete, import) */
     canManage: isAdminRole(roleName),
+    /** Admin-only: reveal subscriber / pool passwords */
+    canViewPasswords: isAdminRole(roleName),
   };
 }

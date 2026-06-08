@@ -94,6 +94,28 @@
   }
 }
 
+@layer utilities {
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--color-muted)) 0%,
+      rgb(var(--color-border) / 0.9) 45%,
+      rgb(var(--color-muted)) 90%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
 @layer components {
   .page-container {
     @apply mx-auto w-full max-w-[1400px] px-3 py-4 sm:px-6 sm:py-6 lg:px-8;

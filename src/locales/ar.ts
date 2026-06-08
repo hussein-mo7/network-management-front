@@ -1,3 +1,18 @@
+import type { CustomersI18n } from "./customers.i18n";
+import { customersAr } from "./customers.i18n";
+import type { ExpiringI18n } from "./expiring.i18n";
+import { expiringAr } from "./expiring.i18n";
+import type { FinanceI18n } from "./finance.i18n";
+import { financeAr } from "./finance.i18n";
+import type { StoppedI18n } from "./stopped.i18n";
+import { stoppedAr } from "./stopped.i18n";
+import type { SmsI18n } from "./sms.i18n";
+import { smsAr } from "./sms.i18n";
+import type { StatisticsI18n } from "./statistics.i18n";
+import { statisticsAr } from "./statistics.i18n";
+import type { SubscribersI18n } from "./subscribers.i18n";
+import { subscribersAr } from "./subscribers.i18n";
+
 export interface TranslationSchema {
   common: {
     loading: string;
@@ -89,12 +104,14 @@ export interface TranslationSchema {
     items: {
       home: string;
       statistics: string;
+      customers: string;
       subscribers: string;
       onlineUsers: string;
       expiring: string;
       stopped: string;
       speeds: string;
       availableUsernames: string;
+      sms: string;
       support: string;
       finance: string;
       users: string;
@@ -252,12 +269,20 @@ export interface TranslationSchema {
       exportSuccess: string;
     };
   };
+  customers: CustomersI18n;
+  stopped: StoppedI18n;
+  expiring: ExpiringI18n;
+  finance: FinanceI18n;
+  statistics: StatisticsI18n;
+  subscribers: SubscribersI18n;
+  sms: SmsI18n;
   support: {
     title: string;
     subtitle: string;
     hint: string;
     actions: {
       addTicket: string;
+      deleteAll: string;
     };
     stats: {
       open: string;
@@ -340,6 +365,9 @@ export interface TranslationSchema {
       deleteSuccess: string;
       deleteTitle: string;
       deleteMessage: string;
+      deleteAllTitle: string;
+      deleteAllMessage: string;
+      deleteAllSuccess: string;
     };
   };
 }
@@ -437,12 +465,14 @@ export const ar: TranslationSchema = {
     items: {
       home: "الرئيسية",
       statistics: "الاحصائيات",
+      customers: "الزبائن",
       subscribers: "المشتركين",
       onlineUsers: "المتصلين",
       expiring: "المنتهية",
       stopped: "المتوقفون",
       speeds: "السرعات",
       availableUsernames: "أسماء متاحة",
+      sms: "إرسال رسائل",
       support: "الدعم الفني",
       finance: "المالية",
       users: "المستخدمين",
@@ -473,7 +503,7 @@ export const ar: TranslationSchema = {
   },
   pages: {
     underDevelopment: "هذه الصفحة قيد التطوير — سيتم ربطها بالـ API قريباً.",
-    expiring: "الاشتراكات المنتهية",
+    expiring: "المنتهية والقريبة من الانتهاء",
     users: "المستخدمين والصلاحيات",
   },
   dev: {
@@ -618,6 +648,13 @@ export const ar: TranslationSchema = {
       exportSuccess: "تم تصدير أسماء {{speed}} (وضع تجريبي)",
     },
   },
+  customers: customersAr,
+  stopped: stoppedAr,
+  expiring: expiringAr,
+  finance: financeAr,
+  statistics: statisticsAr,
+  subscribers: subscribersAr,
+  sms: smsAr,
   support: {
     title: "الدعم الفني",
     subtitle:
@@ -625,6 +662,7 @@ export const ar: TranslationSchema = {
     hint: "التذاكر يُنشئها فريق الدعم يدوياً — المشتركون لا يفتحون تذاكر من الموقع.",
     actions: {
       addTicket: "تذكرة جديدة",
+      deleteAll: "حذف كل التذاكر",
     },
     stats: {
       open: "تذاكر مفتوحة",
@@ -684,7 +722,7 @@ export const ar: TranslationSchema = {
       editTitle: "تعديل {{ticket}}",
       create: "إنشاء تذكرة",
       title: "العنوان",
-      titlePlaceholder: "مثال: انقطاع الإنترنت",
+      titlePlaceholder: "مثال: يحتاج برمجة راوتر",
       titleRequired: "العنوان مطلوب",
       description: "تفاصيل المشكلة",
       descriptionPlaceholder: "صف ما أبلغ عنه المشترك…",
@@ -706,7 +744,10 @@ export const ar: TranslationSchema = {
       updateSuccess: "تم تحديث التذكرة",
       deleteSuccess: "تم حذف التذكرة",
       deleteTitle: "حذف تذكرة",
-      deleteMessage: "هل تريد حذف {{ticket}}؟",
+      deleteMessage: "هل تريد حذف {{ticket}}؟ لا يمكن التراجع.",
+      deleteAllTitle: "حذف كل تذاكر الدعم",
+      deleteAllMessage: "حذف نهائي لجميع التذاكر ({{count}})؟ لا يمكن التراجع.",
+      deleteAllSuccess: "تم حذف {{count}} تذكرة",
     },
   },
 };

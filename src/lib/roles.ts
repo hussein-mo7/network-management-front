@@ -39,8 +39,10 @@ export const ADMIN_PERMISSIONS = [
   "speeds.manage",
 ] as const;
 
+const ADMIN_ROLE_NAMES = new Set(["admin", "super_admin", "system_admin"]);
+
 export function isAdminRole(role?: string): role is typeof ADMIN_ROLE {
-  return role === ADMIN_ROLE;
+  return role !== undefined && ADMIN_ROLE_NAMES.has(role);
 }
 
 export function isViewerRole(role?: string): role is typeof VIEWER_ROLE {

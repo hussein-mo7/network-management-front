@@ -7,6 +7,13 @@ import { AvailableUsernamesPage } from "@/pages/available-usernames";
 import { SpeedsPage } from "@/pages/speeds";
 import { SupportPage } from "@/pages/support";
 import { PlaceholderPage } from "@/pages/_shared/PlaceholderPage";
+import { AddCustomerPage, CustomerProfilePage, CustomersPage } from "@/pages/customers";
+import { ExpiringPage } from "@/pages/expiring/ExpiringPage";
+import { FinancePage } from "@/pages/finance/FinancePage";
+import { SmsPage } from "@/pages/sms";
+import { StoppedPage } from "@/pages/stopped";
+import { StatisticsPage } from "@/pages/statistics/StatisticsPage";
+import { SubscriberProfilePage, SubscribersPage } from "@/pages/subscribers";
 
 export function AppRouter() {
   return (
@@ -25,15 +32,51 @@ export function AppRouter() {
             path="statistics"
             element={
               <Can permission="dashboard.view">
-                <PlaceholderPage titleKey="nav.items.statistics" />
+                <StatisticsPage />
               </Can>
             }
           />
           <Route
-            path="subscribers/*"
+            path="customers"
             element={
               <Can permission="subscribers.view">
-                <PlaceholderPage titleKey="nav.items.subscribers" />
+                <CustomersPage />
+              </Can>
+            }
+          />
+          <Route
+            path="customers/new"
+            element={
+              <Can permission="subscribers.create">
+                <AddCustomerPage />
+              </Can>
+            }
+          />
+          <Route
+            path="customers/:lineId"
+            element={
+              <Can permission="subscribers.view">
+                <CustomerProfilePage />
+              </Can>
+            }
+          />
+          <Route
+            path="subscribers"
+            element={
+              <Can permission="subscribers.view">
+                <SubscribersPage />
+              </Can>
+            }
+          />
+          <Route
+            path="subscribers/new"
+            element={<Navigate to="/customers/new" replace />}
+          />
+          <Route
+            path="subscribers/:subscriberId"
+            element={
+              <Can permission="subscribers.view">
+                <SubscriberProfilePage />
               </Can>
             }
           />
@@ -49,7 +92,7 @@ export function AppRouter() {
             path="expiring"
             element={
               <Can permission="expired.view">
-                <PlaceholderPage titleKey="pages.expiring" />
+                <ExpiringPage />
               </Can>
             }
           />
@@ -57,7 +100,7 @@ export function AppRouter() {
             path="stopped"
             element={
               <Can permission="disabled.view">
-                <PlaceholderPage titleKey="nav.items.stopped" />
+                <StoppedPage />
               </Can>
             }
           />
@@ -77,8 +120,16 @@ export function AppRouter() {
               </Can>
             }
           />
+          <Route
+            path="sms"
+            element={
+              <Can permission="sms.view">
+                <SmsPage />
+              </Can>
+            }
+          />
           <Route path="support" element={<SupportPage />} />
-          <Route path="finance" element={<PlaceholderPage titleKey="nav.items.finance" />} />
+          <Route path="finance" element={<FinancePage />} />
           <Route
             path="users"
             element={

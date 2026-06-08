@@ -1,4 +1,11 @@
 import type { TranslationSchema } from "./ar";
+import { customersEn } from "./customers.i18n";
+import { expiringEn } from "./expiring.i18n";
+import { financeEn } from "./finance.i18n";
+import { statisticsEn } from "./statistics.i18n";
+import { stoppedEn } from "./stopped.i18n";
+import { smsEn } from "./sms.i18n";
+import { subscribersEn } from "./subscribers.i18n";
 
 export const en: TranslationSchema = {
   common: {
@@ -93,12 +100,14 @@ export const en: TranslationSchema = {
     items: {
       home: "Home",
       statistics: "Statistics",
+      customers: "Customers",
       subscribers: "Subscribers",
       onlineUsers: "Online users",
       expiring: "Expiring",
       stopped: "Stopped",
       speeds: "Speeds",
       availableUsernames: "Available usernames",
+      sms: "SMS",
       support: "Support",
       finance: "Finance",
       users: "Users",
@@ -129,7 +138,7 @@ export const en: TranslationSchema = {
   },
   pages: {
     underDevelopment: "This page is under development — it will be connected to the API soon.",
-    expiring: "Expired subscriptions",
+    expiring: "Expiring subscriptions",
     users: "Users & permissions",
   },
   dev: {
@@ -275,6 +284,13 @@ export const en: TranslationSchema = {
       exportSuccess: "Exported {{speed}} usernames (mock)",
     },
   },
+  customers: customersEn,
+  stopped: stoppedEn,
+  expiring: expiringEn,
+  finance: financeEn,
+  statistics: statisticsEn,
+  subscribers: subscribersEn,
+  sms: smsEn,
   support: {
     title: "Support",
     subtitle:
@@ -282,6 +298,7 @@ export const en: TranslationSchema = {
     hint: "Tickets are created manually by the support team — subscribers do not open tickets from the website.",
     actions: {
       addTicket: "New ticket",
+      deleteAll: "Delete all tickets",
     },
     stats: {
       open: "Open tickets",
@@ -341,7 +358,7 @@ export const en: TranslationSchema = {
       editTitle: "Edit {{ticket}}",
       create: "Create ticket",
       title: "Title",
-      titlePlaceholder: "e.g. No internet connection",
+      titlePlaceholder: "e.g. يحتاج برمجة راوتر",
       titleRequired: "Title is required",
       description: "Issue details",
       descriptionPlaceholder: "Describe what the subscriber reported…",
@@ -363,7 +380,11 @@ export const en: TranslationSchema = {
       updateSuccess: "Ticket updated",
       deleteSuccess: "Ticket deleted",
       deleteTitle: "Delete ticket",
-      deleteMessage: "Delete {{ticket}}?",
+      deleteMessage: "Delete {{ticket}}? This cannot be undone.",
+      deleteAllTitle: "Delete all support tickets",
+      deleteAllMessage:
+        "Permanently delete all {{count}} ticket(s) in the system? This cannot be undone.",
+      deleteAllSuccess: "Deleted {{count}} ticket(s)",
     },
   },
 };

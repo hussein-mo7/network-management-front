@@ -13,8 +13,9 @@ import {
 } from "@/components/pages/available-usernames";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
-import { Spinner } from "@/components/ui/feedback";
+import { DataTableSkeleton, LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
+import { useAllSpeedPoolCounts } from "@/hooks/useAllSpeedPoolCounts";
 import {
   useAvailableUsernamesQuery,
   useUsernameMutations,
@@ -63,6 +64,8 @@ export function AvailableUsernamesPage() {
 
   const activeSpeedId = selectedSpeedId ?? speedTiers[0]?.id ?? 0;
 
+  const { countsBySpeedId } = useAllSpeedPoolCounts(speedTiers, speedTiers.length > 0);
+
   const {
     data: rows = [],
     isLoading: rowsLoading,
@@ -96,9 +99,9 @@ export function AvailableUsernamesPage() {
   }, [poolRows, statusFilter]);
 
   const getSpeedCounts = (speedId: number) => {
-    if (speedId === activeSpeedId) {
-      const counts = getSpeedPoolCounts(rows, speedId);
-      return { total: counts.total, available: counts.new };
+    const fromPool = countsBySpeedId.get(speedId);
+    if (fromPool) {
+      return fromPool;
     }
     const tier = speedTiers.find((item) => item.id === speedId);
     return {
@@ -199,11 +202,7 @@ export function AvailableUsernamesPage() {
   };
 
   if (speedsLoading) {
-    return (
-      <div className="flex min-h-[40vh] items-center justify-center">
-        <Spinner className="h-8 w-8" />
-      </div>
-    );
+    return <LoadingState layout="available-usernames" variant="page" />;
   }
 
   if (speedsError || speedTiers.length === 0) {
@@ -337,9 +336,7 @@ export function AvailableUsernamesPage() {
         />
 
         {rowsLoading ? (
-          <div className="flex justify-center py-12">
-            <Spinner className="h-8 w-8" />
-          </div>
+          <DataTableSkeleton rows={7} columns={5} />
         ) : listError ? (
           <div className="rounded-lg border border-dashed border-border bg-muted/30 px-4 py-10 text-center">
             <Text muted>

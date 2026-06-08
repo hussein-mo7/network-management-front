@@ -1,0 +1,108 @@
+export type ExpiringI18n = {
+  title: string;
+  subtitle: string;
+  filters: {
+    label: string;
+    all: string;
+    expired: string;
+    oneDay: string;
+    twoDays: string;
+    soon: string;
+  };
+  urgency: {
+    expired: string;
+    oneDay: string;
+    twoDays: string;
+    soon: string;
+  };
+  table: {
+    sectionSubtitle: string;
+    subscriber: string;
+    lineId: string;
+    fullName: string;
+    username: string;
+    disconnectDate: string;
+    timeLeft: string;
+    daysLeft: string;
+    daysLeftExpired: string;
+    daysLeftToday: string;
+    urgency: string;
+    actions: string;
+    empty: string;
+    emptyHint: string;
+    openProfile: string;
+  };
+};
+
+export const expiringEn: ExpiringI18n = {
+  title: "Expiring",
+  subtitle:
+    "Subscriptions whose cycle ended or will end soon. Renew or follow up before the username is released.",
+  filters: {
+    label: "Status",
+    all: "All",
+    expired: "Expired",
+    oneDay: "1 day left",
+    twoDays: "2 days left",
+    soon: "Soon (3–7 days)",
+  },
+  urgency: {
+    expired: "Expired",
+    oneDay: "1 day",
+    twoDays: "2 days",
+    soon: "Soon",
+  },
+  table: {
+    sectionSubtitle: "{{count}} shown",
+    subscriber: "Subscriber",
+    lineId: "Line ID",
+    fullName: "Name",
+    username: "Username",
+    disconnectDate: "Disconnect date",
+    timeLeft: "Time left",
+    daysLeft: "{{days}} days left",
+    daysLeftExpired: "Expired {{days}} days ago",
+    daysLeftToday: "Expires today",
+    urgency: "Status",
+    actions: "Actions",
+    empty: "No subscriptions match this filter",
+    emptyHint: "Try another filter or clear the search.",
+    openProfile: "Open profile",
+  },
+};
+
+export const expiringAr: ExpiringI18n = {
+  title: "المنتهية",
+  subtitle: "اشتراكات انتهت دورتها أو ستنتهي قريباً. جدّد أو تابع قبل إعادة اسم المستخدم للمجموعة.",
+  filters: {
+    label: "الحالة",
+    all: "الكل",
+    expired: "منتهي",
+    oneDay: "يوم واحد",
+    twoDays: "يومان",
+    soon: "قريباً (3–7 أيام)",
+  },
+  urgency: {
+    expired: "منتهي",
+    oneDay: "يوم واحد",
+    twoDays: "يومان",
+    soon: "قريباً",
+  },
+  table: {
+    sectionSubtitle: "{{count}} ظاهر",
+    subscriber: "المشترك",
+    lineId: "رقم الخط",
+    fullName: "الاسم",
+    username: "اسم المستخدم",
+    disconnectDate: "تاريخ الانقطاع",
+    timeLeft: "الوقت المتبقي",
+    daysLeft: "متبقي {{days}} يوم",
+    daysLeftExpired: "منتهي منذ {{days}} يوم",
+    daysLeftToday: "ينتهي اليوم",
+    urgency: "الحالة",
+    actions: "إجراءات",
+    empty: "لا توجد اشتراكات لهذا الفلتر",
+    emptyHint: "جرّب فلتراً آخر أو امسح البحث.",
+    openProfile: "فتح الملف",
+  },
+};

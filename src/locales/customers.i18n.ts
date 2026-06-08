@@ -1,0 +1,344 @@
+export type CustomersI18n = {
+  title: string;
+  subtitle: string;
+  titleNew: string;
+  titleProfile: string;
+  kind: {
+    customer: string;
+    subscriber: string;
+    stopped: string;
+  };
+  filters: {
+    search: string;
+    searchPlaceholder: string;
+    kind: string;
+    kind_all: string;
+    kind_customer: string;
+    kind_subscriber: string;
+    kind_stopped: string;
+    speed: string;
+  };
+  actions: {
+    add: string;
+    openProfile: string;
+    deleteSelected: string;
+    deleteAll: string;
+    viewSubscription: string;
+  };
+  table: {
+    sectionSubtitle: string;
+    lineId: string;
+    fullName: string;
+    phone: string;
+    type: string;
+    username: string;
+    speed: string;
+    balance: string;
+    actions: string;
+    empty: string;
+    emptyHint: string;
+    selectedCount: string;
+    selectAll: string;
+  };
+  form: {
+    fullName: string;
+    fullNameRequired: string;
+    facilityType: string;
+    facilityTypeOther: string;
+    facilityTypeOtherRequired: string;
+    lineNumber: string;
+    lineNumberRequired: string;
+    phone: string;
+    notes: string;
+    editTitle: string;
+    create: string;
+    createSuccess: string;
+    updateSuccess: string;
+    deleteSuccess: string;
+    deleteTitle: string;
+    deleteMessage: string;
+    deleteBulkTitle: string;
+    deleteBulkMessage: string;
+    deleteBulkSuccess: string;
+    deleteAllTitle: string;
+    deleteAllMessage: string;
+    deleteAllSuccess: string;
+    saveProfile: string;
+  };
+  add: {
+    title: string;
+    hint: string;
+  };
+  profile: {
+    backToList: string;
+    notFound: string;
+    detailsSection: string;
+    assignSection: string;
+    assignHint: string;
+    assignAction: string;
+    assignSuccess: string;
+    restoreSubscriberSuccess: string;
+    noUsername: string;
+    expiringHint: string;
+    subscriberHint: string;
+    stoppedHint: string;
+    stoppedNoDebt: string;
+    balanceOwed: string;
+    afterStoppedTitle: string;
+  };
+  assign: {
+    title: string;
+    hint: string;
+    pickSpeed: string;
+    noSpeedTiers: string;
+    pickUsername: string;
+    confirm: string;
+    mockNote: string;
+  };
+  balance: {
+    sectionTitle: string;
+    sectionHint: string;
+    sectionHintReadOnly: string;
+    recordPayment: string;
+    paymentTitle: string;
+    paymentHint: string;
+    amount: string;
+    amountRequired: string;
+    confirmPayment: string;
+    stillOwes: string;
+    paidOff: string;
+    afterPaidHint: string;
+    editProfileHint: string;
+  };
+};
+
+export const customersEn: CustomersI18n = {
+  title: "Customers",
+  subtitle:
+    "Everyone in the system — including stopped accounts that may still owe money. Assign a username to start a subscription.",
+  titleNew: "Add customer",
+  titleProfile: "Customer profile",
+  kind: {
+    customer: "Customer",
+    subscriber: "Subscriber",
+    stopped: "Stopped",
+  },
+  filters: {
+    search: "Search",
+    searchPlaceholder: "Name, phone, line ID, username…",
+    kind: "Type",
+    kind_all: "All",
+    kind_customer: "Customers only",
+    kind_subscriber: "With username",
+    kind_stopped: "Stopped",
+    speed: "Speed",
+  },
+  actions: {
+    add: "Add customer",
+    openProfile: "Open profile",
+    deleteSelected: "Delete selected ({{count}})",
+    deleteAll: "Delete all",
+    viewSubscription: "Subscription profile",
+  },
+  table: {
+    sectionSubtitle: "{{count}} in registry",
+    lineId: "Line ID",
+    fullName: "Full name",
+    phone: "Phone",
+    type: "Type",
+    username: "Username",
+    speed: "Speed",
+    balance: "Balance",
+    actions: "Actions",
+    empty: "No customers match your filters",
+    emptyHint: "Add a customer or adjust filters.",
+    selectedCount: "{{count}} selected",
+    selectAll: "Select all",
+  },
+  form: {
+    fullName: "Full name",
+    fullNameRequired: "Full name is required",
+    facilityType: "Facility type",
+    facilityTypeOther: "Specify facility type",
+    facilityTypeOtherRequired: "Facility type is required",
+    lineNumber: "Line number",
+    lineNumberRequired: "Line number is required",
+    phone: "Phone",
+    notes: "Notes",
+    editTitle: "Edit {{lineId}}",
+    create: "Create customer",
+    createSuccess: "Customer created",
+    updateSuccess: "Customer updated",
+    deleteSuccess: "Customer deleted",
+    deleteTitle: "Delete customer",
+    deleteMessage: "Delete {{lineId}}? This cannot be undone.",
+    deleteBulkTitle: "Delete selected",
+    deleteBulkMessage: "Delete {{count}} selected?",
+    deleteBulkSuccess: "Deleted {{count}} customer(s)",
+    deleteAllTitle: "Delete all",
+    deleteAllMessage: "Delete all {{count}} customers on this list?",
+    deleteAllSuccess: "All deleted",
+    saveProfile: "Save changes",
+  },
+  add: {
+    title: "Add customer",
+    hint: "Creates a line ID only. Assign a username later to make them a subscriber.",
+  },
+  profile: {
+    backToList: "Back to customers",
+    notFound: "Customer not found",
+    detailsSection: "Customer details",
+    assignSection: "Assign username",
+    assignHint: "Pick an available username from the pool. This starts the subscription and moves them to the Subscribers list.",
+    assignAction: "Assign from pool",
+    assignSuccess: "Username assigned (mock) — now a subscriber",
+    restoreSubscriberSuccess: "Reactivated — returned to Subscribers list",
+    noUsername: "No username yet",
+    expiringHint: "Subscription cycle ended — see Expiring page.",
+    subscriberHint: "Active subscription — open full subscriber profile.",
+    stoppedHint: "Stopped (موقوف) — removed from Subscribers; username returned to pool. Account stays here for balance and history.",
+    stoppedNoDebt: "No outstanding balance — no payment needed.",
+    balanceOwed: "Balance owed",
+    afterStoppedTitle: "After stop — payments & profile",
+  },
+  assign: {
+    title: "Assign username",
+    hint: "Pick an available username from the pool. This starts the subscription and moves them to the Subscribers list.",
+    pickSpeed: "Choose speed tier (username pool)",
+    noSpeedTiers: "No speed tiers configured — add speeds first.",
+    pickUsername: "Available username",
+    confirm: "Assign",
+    mockNote: "Will call API to link usernameId and start billing cycle.",
+  },
+  balance: {
+    sectionTitle: "Balance & payments",
+    sectionHint:
+      "Stopped customer still owes money — record payments here. Balance updates on the customer file.",
+    sectionHintReadOnly: "Invoice history for reference.",
+    recordPayment: "Record payment",
+    paymentTitle: "Record payment",
+    paymentHint: "Adds to balance (mock). API: POST /customers/:lineId/payments",
+    amount: "Amount paid (₪)",
+    amountRequired: "Enter a valid amount",
+    confirmPayment: "Save payment",
+    stillOwes: "Balance is still negative — collect remaining debt before assigning a new username.",
+    paidOff: "No debt on file — you can assign a new username below when ready.",
+    afterPaidHint: "Profile edits save with «Save changes» in customer details.",
+    editProfileHint: "Update phone, notes, or name in customer details anytime.",
+  },
+};
+
+export const customersAr: CustomersI18n = {
+  title: "الزبائن",
+  subtitle:
+    "كل الأشخاص في النظام — بما فيهم الموقوفون الذين قد يبقى عليهم رصيد. عيّن اسمًا من المجموعة لبدء الاشتراك.",
+  titleNew: "إضافة زبون",
+  titleProfile: "ملف الزبون",
+  kind: {
+    customer: "زبون",
+    subscriber: "مشترك",
+    stopped: "موقوف",
+  },
+  filters: {
+    search: "بحث",
+    searchPlaceholder: "اسم، هاتف، رقم الخط، اسم مستخدم…",
+    kind: "النوع",
+    kind_all: "الكل",
+    kind_customer: "زبائن فقط",
+    kind_subscriber: "لديهم اسم مستخدم",
+    kind_stopped: "موقوف",
+    speed: "السرعة",
+  },
+  actions: {
+    add: "إضافة زبون",
+    openProfile: "فتح الملف",
+    deleteSelected: "حذف المحدد ({{count}})",
+    deleteAll: "حذف الكل",
+    viewSubscription: "ملف الاشتراك",
+  },
+  table: {
+    sectionSubtitle: "{{count}} في السجل",
+    lineId: "رقم الخط",
+    fullName: "الاسم",
+    phone: "الهاتف",
+    type: "النوع",
+    username: "اسم المستخدم",
+    speed: "السرعة",
+    balance: "الرصيد",
+    actions: "إجراءات",
+    empty: "لا يوجد زبائن يطابقون الفلتر",
+    emptyHint: "أضف زبونًا أو غيّر الفلاتر.",
+    selectedCount: "{{count}} محدد",
+    selectAll: "تحديد الكل",
+  },
+  form: {
+    fullName: "الاسم الكامل",
+    fullNameRequired: "الاسم مطلوب",
+    facilityType: "نوع المنشأة",
+    facilityTypeOther: "حدد نوع المنشأة",
+    facilityTypeOtherRequired: "نوع المنشأة مطلوب",
+    lineNumber: "رقم الخط",
+    lineNumberRequired: "رقم الخط مطلوب",
+    phone: "الهاتف",
+    notes: "ملاحظات",
+    editTitle: "تعديل {{lineId}}",
+    create: "إنشاء زبون",
+    createSuccess: "تم إنشاء الزبون",
+    updateSuccess: "تم التحديث",
+    deleteSuccess: "تم الحذف",
+    deleteTitle: "حذف زبون",
+    deleteMessage: "حذف {{lineId}}؟ لا يمكن التراجع.",
+    deleteBulkTitle: "حذف المحدد",
+    deleteBulkMessage: "حذف {{count}} محدد؟",
+    deleteBulkSuccess: "تم حذف {{count}}",
+    deleteAllTitle: "حذف الكل",
+    deleteAllMessage: "حذف كل {{count}} زبون في القائمة؟",
+    deleteAllSuccess: "تم حذف الكل",
+    saveProfile: "حفظ التعديلات",
+  },
+  add: {
+    title: "إضافة زبون",
+    hint: "ينشئ رقم خط فقط. عيّن اسم مستخدم لاحقًا ليصبح مشتركًا.",
+  },
+  profile: {
+    backToList: "العودة للزبائن",
+    notFound: "الزبون غير موجود",
+    detailsSection: "بيانات الزبون",
+    assignSection: "تعيين اسم مستخدم",
+    assignHint: "اختر اسمًا من المجموعة المتاحة لبدء الاشتراك ونقله لقائمة المشتركين.",
+    assignAction: "تعيين من المجموعة",
+    assignSuccess: "تم التعيين (تجريبي) — أصبح مشتركًا",
+    restoreSubscriberSuccess: "تمت إعادة التفعيل — عاد إلى قائمة المشتركين",
+    noUsername: "بدون اسم مستخدم",
+    expiringHint: "انتهت دورة الاشتراك — يظهر في صفحة المنتهية.",
+    subscriberHint: "اشتراك نشط — افتح ملف المشترك الكامل.",
+    stoppedHint: "موقوف — أُزيل من المشتركين وأُعيد الاسم للمجموعة. يبقى هنا للرصيد والسجل.",
+    stoppedNoDebt: "لا يوجد رصيد مستحق — لا حاجة لتسجيل دفعة.",
+    balanceOwed: "رصيد مستحق",
+    afterStoppedTitle: "بعد الإيقاف — الدفع والملف",
+  },
+  assign: {
+    title: "تعيين اسم مستخدم",
+    hint: "اختر اسمًا من المجموعة المتاحة لبدء الاشتراك ونقله لقائمة المشتركين.",
+    pickSpeed: "اختر سرعة الباقة (مجموعة الأسماء)",
+    noSpeedTiers: "لا توجد سرعات معرّفة — أضف السرعات أولاً.",
+    pickUsername: "اسم متاح",
+    confirm: "تعيين",
+    mockNote: "سيستدعي الـ API لربط usernameId وبدء الدورة.",
+  },
+  balance: {
+    sectionTitle: "الرصيد والمدفوعات",
+    sectionHint: "زبون موقوف ولا يزال عليه دين — سجّل الدفعات هنا.",
+    sectionHintReadOnly: "سجل الفواتير للمراجعة.",
+    recordPayment: "تسجيل دفعة",
+    paymentTitle: "تسجيل دفعة",
+    paymentHint: "يُضاف للرصيد (تجريبي). API: POST /customers/:lineId/payments",
+    amount: "المبلغ المدفوع (₪)",
+    amountRequired: "أدخل مبلغًا صالحًا",
+    confirmPayment: "حفظ الدفعة",
+    stillOwes: "لا يزال هناك دين — اجمع المتبقي قبل تعيين اسم مستخدم جديد.",
+    paidOff: "لا يوجد دين — يمكنك تعيين اسم مستخدم جديد أدناه عند الجاهزية.",
+    afterPaidHint: "حفظ بيانات الملف عبر «حفظ التعديلات» في تفاصيل الزبون.",
+    editProfileHint: "حدّث الهاتف أو الملاحظات أو الاسم في تفاصيل الزبون في أي وقت.",
+  },
+};

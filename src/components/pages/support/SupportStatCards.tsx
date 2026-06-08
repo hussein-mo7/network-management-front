@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock3, Headphones, Timer } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { StatCard } from "@/components/ui/data";
-import type { SupportStats } from "@/lib/mocks/supportTickets.mock";
+import type { SupportStats } from "@/types/supportTicket";
 
 interface SupportStatCardsProps {
   stats: SupportStats;

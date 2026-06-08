@@ -1,0 +1,143 @@
+import { ArrowLeft } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/buttons";
+import { Input, Textarea } from "@/components/ui/forms";
+import { Heading, Text } from "@/components/ui/typography";
+import { useCustomerMutations } from "@/hooks/useCustomers";
+import { FACILITY_TYPE_OPTIONS } from "@/lib/mocks/subscribers.mock";
+import { ApiError } from "@/types/api";
+
+interface AddFormValues {
+  fullName: string;
+  facilityType: string;
+  facilityTypeOther: string;
+  phone: string;
+  packageLine: number;
+  notes: string;
+}
+
+export function AddCustomerPage() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { createMutation } = useCustomerMutations();
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<AddFormValues>({
+    defaultValues: {
+      fullName: "",
+      facilityType: FACILITY_TYPE_OPTIONS[0],
+      facilityTypeOther: "",
+      phone: "",
+      packageLine: 4,
+      notes: "",
+    },
+  });
+
+  const facilityType = watch("facilityType");
+
+  const onSubmit = async (values: AddFormValues) => {
+    const resolvedFacility =
+      values.facilityType === "أخرى" ? values.facilityTypeOther.trim() : values.facilityType;
+
+    try {
+      await createMutation.mutateAsync({
+        fullName: values.fullName.trim(),
+        facilityType: resolvedFacility,
+        phone: values.phone.trim(),
+        lineId: String(values.packageLine),
+        notes: values.notes.trim() || null,
+      });
+      toast.success(t("customers.form.createSuccess"));
+      navigate("/customers");
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : t("common.unexpectedError"));
+    }
+  };
+
+  return (
+    <div className="mx-auto max-w-2xl space-y-6">
+      <Link
+        to="/customers"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        {t("customers.profile.backToList")}
+      </Link>
+
+      <div>
+        <Heading as="h1">{t("customers.add.title")}</Heading>
+        <Text muted className="mt-2">
+          {t("customers.add.hint")}
+        </Text>
+      </div>
+
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-4 rounded-xl border border-border bg-surface p-4 sm:p-6"
+      >
+        <Input
+          label={t("customers.form.fullName")}
+          error={errors.fullName?.message}
+          {...register("fullName", { required: t("customers.form.fullNameRequired") })}
+        />
+
+        <div>
+          <label className="mb-1.5 block text-sm font-medium">{t("customers.form.facilityType")}</label>
+          <select
+            className="flex h-11 w-full rounded-lg border border-border bg-background px-3 text-sm"
+            {...register("facilityType")}
+          >
+            {FACILITY_TYPE_OPTIONS.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {facilityType === "أخرى" ? (
+          <Input
+            label={t("customers.form.facilityTypeOther")}
+            error={errors.facilityTypeOther?.message}
+            {...register("facilityTypeOther", {
+              required: t("customers.form.facilityTypeOtherRequired"),
+            })}
+          />
+        ) : null}
+
+        <Input
+          label={t("customers.form.phone")}
+          dir="ltr"
+          {...register("phone", { required: t("customers.form.fullNameRequired") })}
+        />
+
+        <Input
+          label={t("customers.form.lineNumber")}
+          type="number"
+          min={1}
+          step={1}
+          inputMode="numeric"
+          error={errors.packageLine?.message}
+          {...register("packageLine", {
+            required: t("customers.form.lineNumberRequired"),
+            valueAsNumber: true,
+            min: { value: 1, message: t("customers.form.lineNumberRequired") },
+          })}
+        />
+
+        <Textarea label={t("customers.form.notes")} rows={3} {...register("notes")} />
+
+        <Button type="submit" isLoading={createMutation.isPending}>
+          {t("customers.form.create")}
+        </Button>
+      </form>
+    </div>
+  );
+}

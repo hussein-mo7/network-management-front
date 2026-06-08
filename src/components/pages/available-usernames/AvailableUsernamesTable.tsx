@@ -7,7 +7,7 @@ import {
   AvailableUsernameStatusBadgeCompact,
 } from "@/components/pages/available-usernames/AvailableUsernameStatusBadge";
 import { Button } from "@/components/ui/buttons";
-import { MaskedPasswordCell } from "@/components/ui/data";
+import { LtrText, MaskedPasswordCell } from "@/components/ui/data";
 import {
   formatCreatedDate,
   getDaysUntilExpiry,
@@ -62,8 +62,8 @@ export function AvailableUsernamesTable({
         onDelete={onDelete}
       />
 
-      <div className="hidden overflow-x-auto rounded-xl border border-border lg:block">
-        <table className="w-full table-fixed text-sm">
+      <div className="hidden w-full overflow-hidden rounded-xl border border-border lg:block">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
               <th className={cn(columns.username, "px-4 py-3 text-start font-semibold")}>
@@ -98,12 +98,12 @@ export function AvailableUsernamesTable({
                 className="border-b border-border last:border-0 hover:bg-muted/30"
               >
                 <td className="px-4 py-3 align-middle font-medium">
-                  <span className="block truncate">{row.username}</span>
+                  <LtrText>{row.username}</LtrText>
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="pe-4 px-4 py-3 align-middle">
                   <MaskedPasswordCell value={row.password} />
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="ps-2 px-4 py-3 align-middle">
                   <AvailableUsernameStatusBadge row={row} />
                 </td>
                 <td className="px-4 py-3 align-middle">

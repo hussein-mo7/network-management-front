@@ -4,7 +4,7 @@ import { TicketStatusBadge } from "@/components/pages/support/TicketStatusBadge"
 import { Button } from "@/components/ui/buttons";
 import { StatusBadge } from "@/components/ui/data";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
-import type { SupportTicket } from "@/lib/mocks/supportTickets.mock";
+import type { SupportTicket } from "@/types/supportTicket";
 import { cn } from "@/lib/cn";
 import { format } from "date-fns";
 
@@ -41,8 +41,8 @@ export function SupportTicketsTable({
         onDelete={onDelete}
       />
 
-      <div className="hidden overflow-x-auto rounded-xl border border-border lg:block">
-        <table className="w-full table-fixed text-sm">
+      <div className="hidden w-full overflow-hidden rounded-xl border border-border lg:block">
+        <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/50">
               <th className="w-[12%] px-4 py-3 text-start font-semibold">{t("support.table.ticket")}</th>

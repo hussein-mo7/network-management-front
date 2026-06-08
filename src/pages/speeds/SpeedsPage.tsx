@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { SpeedTierCard, SpeedFormModal, type SpeedFormValues } from "@/components/pages/speeds";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
-import { Spinner } from "@/components/ui/feedback";
+import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
 import { useSpeedMutations, useSpeedsQuery } from "@/hooks/useSpeeds";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
@@ -112,7 +112,7 @@ export function SpeedsPage() {
       </div>
 
       {isLoading ? (
-        <Spinner className="py-16" />
+        <LoadingState layout="speed-tiers" variant="section" />
       ) : isError ? (
         <div className="rounded-xl border border-border bg-surface p-6 text-center shadow-card">
           <Text muted>

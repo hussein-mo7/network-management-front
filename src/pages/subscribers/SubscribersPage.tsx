@@ -1,0 +1,305 @@
+import { Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
+import {
+  SubscriberFormModal,
+  SubscribersTable,
+  SubscriptionFilters,
+  type SubscriberFormValues,
+} from "@/components/pages/subscribers";
+import { ConfirmDialog } from "@/components/ui/modals";
+import { Button } from "@/components/ui/buttons";
+import { LoadingState } from "@/components/ui/feedback";
+import { Heading, Text } from "@/components/ui/typography";
+import { useSubscriberListMutations, useSubscribersQuery } from "@/hooks/useSubscribers";
+import { useSpeedsQuery } from "@/hooks/useSpeeds";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
+import { isOnSubscribersList } from "@/lib/customerUtils";
+import { getDistinctSpeeds, mergeSpeedFilterOptions } from "@/lib/subscriberUtils";
+import { ApiError } from "@/types/api";
+import type { Subscriber } from "@/types/subscriber";
+
+type Dialog =
+  | { type: "edit"; row: Subscriber }
+  | { type: "delete"; row: Subscriber }
+  | { type: "deleteBulk" }
+  | { type: "deleteAll" };
+
+export function SubscribersPage() {
+  const { t } = useTranslation();
+  const { canManage } = useRoleAccess();
+  const [search, setSearch] = useState("");
+  const [speedMbps, setSpeedMbps] = useState<number | "all">("all");
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [dialog, setDialog] = useState<Dialog | null>(null);
+
+  const { data: speeds = [] } = useSpeedsQuery();
+  const listParams = {
+    suspended: false as const,
+    expired: false as const,
+    search: search.trim() || undefined,
+  };
+
+  const {
+    data: rows = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useSubscribersQuery({
+    ...listParams,
+    speed: speedMbps === "all" ? undefined : speedMbps,
+  });
+
+  const { data: rowsForSpeedOptions = [] } = useSubscribersQuery(listParams, {
+    enabled: speedMbps !== "all",
+  });
+
+  const { updateMutation, deleteMutation, deleteAllMutation } = useSubscriberListMutations();
+
+  const filteredRows = useMemo(
+    () => rows.filter((row) => isOnSubscribersList(row)),
+    [rows],
+  );
+
+  const speedOptions = useMemo(
+    () =>
+      mergeSpeedFilterOptions(
+        speeds.filter((s) => !s.deleted).map((s) => s.valueMbps),
+        getDistinctSpeeds(speedMbps === "all" ? rows : rowsForSpeedOptions),
+      ),
+    [speeds, rows, rowsForSpeedOptions, speedMbps],
+  );
+
+  const isSubmitting =
+    updateMutation.isPending || deleteMutation.isPending || deleteAllMutation.isPending;
+
+  const showError = (err: unknown) => {
+    const message =
+      err instanceof ApiError
+        ? err.message
+        : err instanceof Error
+          ? err.message
+          : t("common.unexpectedError");
+    toast.error(message);
+  };
+
+  const toggleRow = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = (checked: boolean) => {
+    if (checked) setSelectedIds(new Set(filteredRows.map((r) => r.id)));
+    else setSelectedIds(new Set());
+  };
+
+  const handleEdit = async (values: SubscriberFormValues) => {
+    if (dialog?.type !== "edit") return;
+    try {
+      await updateMutation.mutateAsync({
+        id: dialog.row.id,
+        values: {
+          fullName: values.fullName,
+          facilityType: values.facilityType,
+          phone: values.phone || null,
+          notes: values.notes || null,
+        },
+      });
+      toast.success(t("subscribers.form.updateSuccess"));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (dialog?.type !== "delete") return;
+    try {
+      await deleteMutation.mutateAsync(dialog.row.id);
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        next.delete(dialog.row.id);
+        return next;
+      });
+      toast.success(t("subscribers.form.deleteSuccess"));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleDeleteBulk = async () => {
+    const ids = [...selectedIds];
+    try {
+      await Promise.all(ids.map((id) => deleteMutation.mutateAsync(id)));
+      setSelectedIds(new Set());
+      toast.success(t("subscribers.form.deleteBulkSuccess", { count: ids.length }));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    try {
+      await deleteAllMutation.mutateAsync();
+      setSelectedIds(new Set());
+      toast.success(t("subscribers.form.deleteAllSuccess"));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="min-w-0">
+        <Heading as="h1">{t("subscribers.title")}</Heading>
+        <Text muted className="mt-2 max-w-2xl">
+          {t("subscribers.subtitle")}
+        </Text>
+      </div>
+
+      <section className="rounded-xl border border-border bg-surface">
+        <div className="border-b border-border px-4 py-4 sm:px-6">
+          <SubscriptionFilters
+            search={search}
+            onSearchChange={setSearch}
+            speedMbps={speedMbps}
+            onSpeedChange={setSpeedMbps}
+            speedOptions={speedOptions}
+          />
+        </div>
+
+        <div className="px-4 py-4 sm:px-6">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <Text muted className="text-sm">
+              {t("subscribers.table.sectionSubtitle", { count: filteredRows.length })}
+            </Text>
+            {canManage && filteredRows.length > 0 ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground"
+                onClick={() => setDialog({ type: "deleteAll" })}
+              >
+                <Trash2 className="h-4 w-4" />
+                {t("subscribers.actions.deleteAll")}
+              </Button>
+            ) : null}
+          </div>
+
+          {canManage && selectedIds.size > 0 ? (
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
+              <Text className="text-sm">
+                {t("subscribers.table.selectedCount", { count: selectedIds.size })}
+              </Text>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setSelectedIds(new Set())}>
+                  {t("common.cancel")}
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => setDialog({ type: "deleteBulk" })}>
+                  <Trash2 className="h-4 w-4" />
+                  {t("subscribers.actions.deleteSelected", { count: selectedIds.size })}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+
+          {isLoading ? (
+            <LoadingState layout="table" variant="section" />
+          ) : isError ? (
+            <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
+              <Text muted>
+                {error instanceof ApiError ? error.message : t("common.unexpectedError")}
+              </Text>
+              <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
+                {t("common.retry")}
+              </Button>
+            </div>
+          ) : (
+            <SubscribersTable
+              rows={filteredRows}
+              selectedIds={selectedIds}
+              onToggleRow={toggleRow}
+              onToggleAll={toggleAll}
+              showCheckboxes={canManage}
+              onEdit={canManage ? (row) => setDialog({ type: "edit", row }) : undefined}
+              onDelete={canManage ? (row) => setDialog({ type: "delete", row }) : undefined}
+            />
+          )}
+        </div>
+      </section>
+
+      <Text muted className="text-xs">
+        {t("subscribers.registryHint")}{" "}
+        <Link to="/customers" className="font-medium text-foreground underline-offset-2 hover:underline">
+          {t("nav.items.customers")}
+        </Link>
+        {" · "}
+        {t("subscribers.expiringPageHint")}{" "}
+        <Link to="/expiring" className="font-medium text-foreground underline-offset-2 hover:underline">
+          {t("nav.items.expiring")}
+        </Link>
+        {" · "}
+        {t("subscribers.stoppedPageHint")}{" "}
+        <Link to="/stopped" className="font-medium text-foreground underline-offset-2 hover:underline">
+          {t("nav.items.stopped")}
+        </Link>
+      </Text>
+
+      <SubscriberFormModal
+        open={dialog?.type === "edit"}
+        mode="edit"
+        initial={dialog?.type === "edit" ? dialog.row : undefined}
+        onClose={() => setDialog(null)}
+        onSubmit={handleEdit}
+        isSubmitting={isSubmitting}
+      />
+
+      <ConfirmDialog
+        open={dialog?.type === "delete"}
+        onClose={() => setDialog(null)}
+        onConfirm={handleDelete}
+        title={t("subscribers.form.deleteTitle")}
+        message={t("subscribers.form.deleteMessage", {
+          lineId: dialog?.type === "delete" ? dialog.row.lineId : "",
+        })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        isLoading={isSubmitting}
+      />
+
+      <ConfirmDialog
+        open={dialog?.type === "deleteBulk"}
+        onClose={() => setDialog(null)}
+        onConfirm={handleDeleteBulk}
+        title={t("subscribers.form.deleteBulkTitle")}
+        message={t("subscribers.form.deleteBulkMessage", { count: selectedIds.size })}
+        confirmLabel={t("common.delete")}
+        cancelLabel={t("common.cancel")}
+        isLoading={isSubmitting}
+        variant="danger"
+      />
+
+      <ConfirmDialog
+        open={dialog?.type === "deleteAll"}
+        onClose={() => setDialog(null)}
+        onConfirm={handleDeleteAll}
+        title={t("subscribers.form.deleteAllTitle")}
+        message={t("subscribers.form.deleteAllMessage", { count: filteredRows.length })}
+        confirmLabel={t("subscribers.actions.deleteAll")}
+        cancelLabel={t("common.cancel")}
+        isLoading={isSubmitting}
+        variant="danger"
+      />
+    </div>
+  );
+}

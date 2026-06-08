@@ -5,6 +5,7 @@ import {
   Gauge,
   Headphones,
   Home,
+  MessageSquare,
   Tags,
   UserCog,
   Users,
@@ -22,6 +23,7 @@ export interface DashboardNavItem {
 export const dashboardNavItems: DashboardNavItem[] = [
   { labelKey: "nav.items.home", to: "/", icon: Home, permission: "dashboard.view" },
   { labelKey: "nav.items.statistics", to: "/statistics", icon: BarChart3, permission: "dashboard.view" },
+  { labelKey: "nav.items.customers", to: "/customers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.subscribers", to: "/subscribers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.onlineUsers", to: "/online-users", icon: Wifi, permission: "online_users.view" },
   { labelKey: "nav.items.expiring", to: "/expiring", icon: ClipboardList, permission: "expired.view" },
@@ -33,6 +35,7 @@ export const dashboardNavItems: DashboardNavItem[] = [
     icon: Tags,
     permission: "available_usernames.view",
   },
+  { labelKey: "nav.items.sms", to: "/sms", icon: MessageSquare, permission: "sms.view" },
   { labelKey: "nav.items.support", to: "/support", icon: Headphones },
   { labelKey: "nav.items.finance", to: "/finance", icon: Coins },
   { labelKey: "nav.items.users", to: "/users", icon: UserCog, permission: "users.view" },

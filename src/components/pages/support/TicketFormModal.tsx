@@ -8,7 +8,7 @@ import type {
   TicketChannel,
   TicketPriority,
   TicketStatus,
-} from "@/lib/mocks/supportTickets.mock";
+} from "@/types/supportTicket";
 
 export interface TicketFormValues {
   title: string;

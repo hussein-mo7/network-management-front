@@ -1,0 +1,120 @@
+import { Plus } from "lucide-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/buttons";
+import { Input } from "@/components/ui/forms";
+import { Modal, ModalFooterButton } from "@/components/ui/modals";
+import { PaymentMethodSelect } from "@/components/pages/subscribers/PaymentMethodSelect";
+import { SubscriberInvoicesTab } from "@/components/pages/subscribers/SubscriberInvoicesTab";
+import { Heading, Text } from "@/components/ui/typography";
+import type { Customer } from "@/types/customer";
+import type { PaymentMethod, SubscriberInvoice } from "@/types/subscriber";
+
+interface PaymentFormValues {
+  amount: number;
+  paymentMethod: PaymentMethod | "";
+  notes: string;
+}
+
+interface CustomerBalanceSectionProps {
+  customer: Customer;
+  invoices: SubscriberInvoice[];
+  canManage?: boolean;
+  showRecordPayment?: boolean;
+  onRecordPayment: (amount: number, paymentMethod: PaymentMethod, notes?: string) => Promise<void>;
+  isSubmitting?: boolean;
+}
+
+export function CustomerBalanceSection({
+  customer,
+  invoices,
+  canManage = false,
+  showRecordPayment = true,
+  onRecordPayment,
+  isSubmitting = false,
+}: CustomerBalanceSectionProps) {
+  const { t } = useTranslation();
+  const [paymentOpen, setPaymentOpen] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<PaymentFormValues>({
+    defaultValues: {
+      amount: Math.abs(Math.min(0, customer.balance)),
+      paymentMethod: "",
+      notes: "",
+    },
+  });
+
+  const owesMoney = customer.balance < 0;
+  const canRecordPayment = canManage && showRecordPayment && owesMoney;
+
+  const submitPayment = async (values: PaymentFormValues) => {
+    const paid = Number(values.amount) || 0;
+    if (!values.paymentMethod) return;
+    await onRecordPayment(paid, values.paymentMethod as PaymentMethod, values.notes);
+    reset();
+    setPaymentOpen(false);
+  };
+
+  return (
+    <section className="space-y-4">
+      <div>
+        <Heading as="h2" className="text-base font-semibold">
+          {t("customers.balance.sectionTitle")}
+        </Heading>
+        <Text muted className="mt-1 text-sm">
+          {showRecordPayment && owesMoney
+            ? t("customers.balance.sectionHint")
+            : t("customers.balance.sectionHintReadOnly")}
+        </Text>
+      </div>
+
+      <SubscriberInvoicesTab invoices={invoices} balance={customer.balance} canManage={false} />
+
+      {canRecordPayment ? (
+        <>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onClick={() => setPaymentOpen(true)}>
+              <Plus className="h-4 w-4" />
+              {t("customers.balance.recordPayment")}
+            </Button>
+          </div>
+          <Text muted className="text-xs">{t("customers.balance.stillOwes")}</Text>
+        </>
+      ) : null}
+
+      <Modal open={paymentOpen} onClose={() => setPaymentOpen(false)} title={t("customers.balance.paymentTitle")}>
+        <form onSubmit={handleSubmit(submitPayment)} className="space-y-4">
+          <Text muted className="text-sm">{t("customers.balance.paymentHint")}</Text>
+          <Input
+            label={t("customers.balance.amount")}
+            type="number"
+            min={0}
+            step="0.01"
+            error={errors.amount?.message}
+            {...register("amount", {
+              required: t("customers.balance.amountRequired"),
+              valueAsNumber: true,
+              min: { value: 0.01, message: t("customers.balance.amountRequired") },
+            })}
+          />
+          <PaymentMethodSelect register={register} error={errors.paymentMethod} />
+          <Input label={t("customers.form.notes")} {...register("notes")} />
+          <div className="flex justify-end gap-2">
+            <ModalFooterButton variant="outline" type="button" onClick={() => setPaymentOpen(false)}>
+              {t("common.cancel")}
+            </ModalFooterButton>
+            <ModalFooterButton type="submit" isLoading={isSubmitting}>
+              {t("customers.balance.confirmPayment")}
+            </ModalFooterButton>
+          </div>
+        </form>
+      </Modal>
+    </section>
+  );
+}

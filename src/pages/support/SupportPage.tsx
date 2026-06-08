@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -11,31 +11,31 @@ import {
 } from "@/components/pages/support";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
+import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
+import { useSupportMutations, useSupportTicketsQuery } from "@/hooks/useSupport";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
-import {
-  buildTicketNumber,
-  computeSupportStats,
-  mockSupportTickets,
-  type SupportTicket,
-  type TicketStatus,
-} from "@/lib/mocks/supportTickets.mock";
+import { computeSupportStats } from "@/lib/supportAnalytics";
+import { ApiError } from "@/types/api";
+import type { SupportTicket, TicketStatus } from "@/types/supportTicket";
 import { cn } from "@/lib/cn";
 
 type TicketDialog =
   | { type: "add" }
   | { type: "edit"; ticket: SupportTicket }
-  | { type: "delete"; ticket: SupportTicket };
+  | { type: "delete"; ticket: SupportTicket }
+  | { type: "deleteAll" };
 
 type StatusFilter = TicketStatus | "all";
 
 export function SupportPage() {
   const { t } = useTranslation();
   const { canManage } = useRoleAccess();
-  const [tickets, setTickets] = useState<SupportTicket[]>(() => [...mockSupportTickets]);
+  const { data: tickets = [], isLoading, isError, error, refetch } = useSupportTicketsQuery();
+  const { createMutation, updateMutation, deleteMutation, deleteAllMutation } = useSupportMutations();
+
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [dialog, setDialog] = useState<TicketDialog | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const stats = useMemo(() => computeSupportStats(tickets), [tickets]);
 
@@ -44,10 +44,21 @@ export function SupportPage() {
     return tickets.filter((ticket) => ticket.status === statusFilter);
   }, [tickets, statusFilter]);
 
-  const nextId = useMemo(
-    () => (tickets.length > 0 ? Math.max(...tickets.map((ticket) => ticket.id)) + 1 : 1),
-    [tickets],
-  );
+  const isSubmitting =
+    createMutation.isPending ||
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    deleteAllMutation.isPending;
+
+  const showError = (err: unknown) => {
+    const message =
+      err instanceof ApiError
+        ? err.message
+        : err instanceof Error
+          ? err.message
+          : t("common.unexpectedError");
+    toast.error(message);
+  };
 
   const statusFilters: Array<{ value: StatusFilter; label: string }> = [
     { value: "all", label: t("common.all") },
@@ -58,82 +69,64 @@ export function SupportPage() {
   ];
 
   const handleCreate = async (values: TicketFormValues) => {
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 400));
-
-    const now = new Date().toISOString();
-    setTickets((prev) => [
-      {
-        id: nextId,
-        ticketNumber: buildTicketNumber(nextId),
-        title: values.title.trim(),
-        description: values.description.trim(),
-        status: values.status,
-        priority: values.priority,
-        channel: values.channel,
-        subscriberName: values.subscriberName.trim(),
-        subscriberPhone: values.subscriberPhone.trim(),
-        assignedTo: values.assignedTo.trim() || "Unassigned",
-        createdAt: now,
-        updatedAt: now,
-        resolvedAt: values.status === "resolved" ? now : undefined,
-      },
-      ...prev,
-    ]);
-
-    toast.success(t("support.form.createSuccess"));
-    setDialog(null);
-    setIsSubmitting(false);
+    try {
+      await createMutation.mutateAsync(values);
+      toast.success(t("support.form.createSuccess"));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
   };
 
   const handleUpdate = async (values: TicketFormValues) => {
     if (dialog?.type !== "edit") return;
 
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 400));
-
-    const now = new Date().toISOString();
-    setTickets((prev) =>
-      prev.map((ticket) =>
-        ticket.id === dialog.ticket.id
-          ? {
-              ...ticket,
-              title: values.title.trim(),
-              description: values.description.trim(),
-              status: values.status,
-              priority: values.priority,
-              channel: values.channel,
-              subscriberName: values.subscriberName.trim(),
-              subscriberPhone: values.subscriberPhone.trim(),
-              assignedTo: values.assignedTo.trim(),
-              updatedAt: now,
-              resolvedAt:
-                values.status === "resolved"
-                  ? ticket.resolvedAt ?? now
-                  : undefined,
-            }
-          : ticket,
-      ),
-    );
-
-    toast.success(t("support.form.updateSuccess"));
-    setDialog(null);
-    setIsSubmitting(false);
+    try {
+      await updateMutation.mutateAsync({ id: dialog.ticket.id, values });
+      toast.success(t("support.form.updateSuccess"));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
   };
 
   const handleDelete = async () => {
     if (dialog?.type !== "delete") return;
 
-    setIsSubmitting(true);
-    await new Promise((r) => setTimeout(r, 400));
+    try {
+      await deleteMutation.mutateAsync(dialog.ticket.id);
+      toast.success(t("support.form.deleteSuccess"));
+      setDialog(null);
+    } catch (err) {
+      showError(err);
+    }
+  };
 
-    setTickets((prev) => prev.filter((ticket) => ticket.id !== dialog.ticket.id));
-    toast.success(t("support.form.deleteSuccess"));
-    setDialog(null);
-    setIsSubmitting(false);
+  const handleDeleteAll = async () => {
+    try {
+      const result = await deleteAllMutation.mutateAsync();
+      toast.success(t("support.form.deleteAllSuccess", { count: result.deleted }));
+      setDialog(null);
+      setStatusFilter("all");
+    } catch (err) {
+      showError(err);
+    }
   };
 
   const deleteTicket = dialog?.type === "delete" ? dialog.ticket : null;
+
+  if (isError) {
+    return (
+      <div className="space-y-4 text-center">
+        <Text muted>
+          {error instanceof ApiError ? error.message : t("common.unexpectedError")}
+        </Text>
+        <Button variant="outline" onClick={() => refetch()}>
+          {t("common.retry")}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -146,13 +139,34 @@ export function SupportPage() {
         </div>
 
         {canManage ? (
-          <Button size="sm" className="w-full sm:w-auto" onClick={() => setDialog({ type: "add" })}>
-            <Plus className="h-4 w-4" />
-            {t("support.actions.addTicket")}
-          </Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-danger hover:border-danger/50 hover:bg-danger/5"
+              onClick={() => setDialog({ type: "deleteAll" })}
+              disabled={isSubmitting || isLoading || tickets.length === 0}
+            >
+              <Trash2 className="h-4 w-4" />
+              {t("support.actions.deleteAll")}
+            </Button>
+            <Button
+              size="sm"
+              className="w-full sm:w-auto"
+              onClick={() => setDialog({ type: "add" })}
+              disabled={isSubmitting || isLoading}
+            >
+              <Plus className="h-4 w-4" />
+              {t("support.actions.addTicket")}
+            </Button>
+          </div>
         ) : null}
       </div>
 
+      {isLoading ? (
+        <LoadingState layout="support-content" variant="section" />
+      ) : (
+        <>
       <SupportStatCards stats={stats} />
       <SupportChartsSection tickets={tickets} />
 
@@ -192,6 +206,8 @@ export function SupportPage() {
           onDelete={canManage ? (ticket) => setDialog({ type: "delete", ticket }) : undefined}
         />
       </section>
+        </>
+      )}
 
       <Text muted className="text-sm">
         {t("support.hint")}
@@ -223,6 +239,18 @@ export function SupportPage() {
         confirmLabel={t("common.delete")}
         cancelLabel={t("common.cancel")}
         isLoading={isSubmitting}
+      />
+
+      <ConfirmDialog
+        open={dialog?.type === "deleteAll"}
+        onClose={() => setDialog(null)}
+        onConfirm={handleDeleteAll}
+        title={t("support.form.deleteAllTitle")}
+        message={t("support.form.deleteAllMessage", { count: tickets.length })}
+        confirmLabel={t("support.actions.deleteAll")}
+        cancelLabel={t("common.cancel")}
+        isLoading={isSubmitting}
+        variant="danger"
       />
     </div>
   );

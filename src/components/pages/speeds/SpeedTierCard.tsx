@@ -2,7 +2,6 @@ import { Gauge, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/buttons";
 import type { SpeedTier } from "@/types/speeds";
-import { countAvailableBySpeedId, countUsernamesBySpeedId } from "@/lib/mocks";
 import { cn } from "@/lib/cn";
 
 interface SpeedTierCardProps {
@@ -32,8 +31,8 @@ export function SpeedTierCard({
 }: SpeedTierCardProps) {
   const { t } = useTranslation();
   const isDeleted = tier.deleted === true;
-  const total = totalCount ?? tier.totalCount ?? countUsernamesBySpeedId(tier.id);
-  const available = availableCount ?? tier.availableCount ?? countAvailableBySpeedId(tier.id);
+  const total = totalCount ?? tier.totalCount ?? 0;
+  const available = availableCount ?? tier.availableCount ?? 0;
   const isInteractive = Boolean(onSelect);
 
   const content = (

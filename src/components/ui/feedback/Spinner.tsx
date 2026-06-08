@@ -1,27 +1,34 @@
-import { Loader2 } from "lucide-react";
-import { useTranslation } from "react-i18next";
-import { cn } from "@/lib/cn";
+import { LoadingState } from "@/components/ui/feedback/LoadingState";
+import type { LoadingLayout } from "@/components/ui/feedback/LoadingState";
 
 interface SpinnerProps {
   className?: string;
   label?: string;
+  /** @deprecated Prefer LoadingState with layout */
+  mode?: "spinner" | "skeleton";
+  layout?: LoadingLayout;
 }
 
-export function Spinner({ className, label }: SpinnerProps) {
-  const { t } = useTranslation();
-
+/** @deprecated Use LoadingState — kept for gradual migration */
+export function Spinner({ className, label, mode = "spinner", layout = "default" }: SpinnerProps) {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3", className)}>
-      <Loader2 className="h-8 w-8 animate-spin text-primary" aria-hidden />
-      <span className="text-sm text-muted-foreground">{label ?? t("common.loading")}</span>
-    </div>
+    <LoadingState
+      mode={mode}
+      layout={layout}
+      variant="section"
+      label={label}
+      className={className}
+    />
   );
 }
 
 export function FullPageLoader() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <Spinner />
-    </div>
+    <LoadingState
+      mode="spinner"
+      variant="fullscreen"
+      size="lg"
+      className="flex items-center justify-center"
+    />
   );
 }

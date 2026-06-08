@@ -30,6 +30,7 @@ src/
 │   │   ├── auth/
 │   │   ├── speeds/
 │   │   ├── available-usernames/
+│   │   ├── subscribers/
 │   │   └── support/
 │   └── ui/           # Design system only (reusable primitives)
 │       ├── buttons/
@@ -315,7 +316,7 @@ Vite: `/api` → `http://localhost:3000` — frontend base URL is `/api/v1`.
 
 ---
 
-### Support tickets *(UI ready — mock data; API needed)*
+### Support tickets *(connected to API)*
 
 Route: `/support` — tickets are **created manually by support staff** (phone / office visit), not by subscribers online.
 
@@ -344,14 +345,36 @@ Route: `/support` — tickets are **created manually by support staff** (phone /
 | `updatedAt` | ISO datetime | |
 | `resolvedAt` | ISO datetime \| null | Set when status → `resolved` |
 
-#### Endpoints (proposed)
+#### Endpoints (implemented)
 - `GET /api/v1/support/tickets` — list (+ optional `?status=` filter)
-- `GET /api/v1/support/stats` — summary counts + chart aggregates (open, in progress, resolved today/week, avg resolution hours, daily trend, by channel)
 - `POST /api/v1/support/tickets` — create (admin)
 - `PUT /api/v1/support/tickets/:id` — update (admin)
-- `DELETE /api/v1/support/tickets/:id` — delete (admin)
+- `DELETE /api/v1/support/tickets/:id` — delete one (admin)
+- `DELETE /api/v1/support/tickets/all` — delete all tickets (admin)
 
-Frontend mock: `src/lib/mocks/supportTickets.mock.ts`
+Charts/stats are computed on the frontend from the ticket list (`src/lib/supportAnalytics.ts`). Ticket `title` is free text (Arabic in production, e.g. «يحتاج برمجة راوتر»).
+
+Seed: `npm run seed` (API) inserts roles and default admin/viewer users only — no sample subscribers or tickets.
+
+---
+
+### Customers & subscribers *(UI — mock; API spec ready)*
+
+**Backend API (every request for UI pages):** [`docs/backend.md`](docs/backend.md).  
+**Field-level contract:** [`docs/CUSTOMERS_SUBSCRIBERS_API.md`](docs/CUSTOMERS_SUBSCRIBERS_API.md).
+
+**Model:** One DB row per person. Stopped accounts **stay on Customers** (balance/debt). Stop removes them from Subscribers and clears username back to pool.
+
+| Page | Rule |
+|------|------|
+| `/customers` | **All** records (customer, subscriber, expiring, **stopped**) |
+| `/subscribers` | Has username, not stopped (**includes expiring**) |
+| `/expiring` | Username, not stopped, disconnect ≤7 days or past |
+| `/stopped` | **Customers + Stopped only** — `isSuspended`, username cleared |
+
+Excel import/export → **Settings** only.
+
+Helpers: `src/lib/customerUtils.ts`, `src/lib/subscriberUtils.ts`, mock: `src/lib/mocks/subscribers.mock.ts`.
 
 ---
 

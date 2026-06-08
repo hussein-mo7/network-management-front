@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { cn } from "@/lib/cn";
 
-const MASK = "••••••••••••";
+const MASK = "••••••";
 
 interface MaskedPasswordCellProps {
   value: string;
@@ -13,25 +13,35 @@ interface MaskedPasswordCellProps {
 
 export function MaskedPasswordCell({ value, className }: MaskedPasswordCellProps) {
   const { t } = useTranslation();
-  const { canManage } = useRoleAccess();
+  const { canViewPasswords } = useRoleAccess();
   const [visible, setVisible] = useState(false);
 
-  if (!canManage) {
+  if (!canViewPasswords) {
     return (
-      <span className={cn("font-mono text-sm text-muted-foreground", className)}>{MASK}</span>
+      <span className={cn("text-sm text-muted-foreground", className)} aria-hidden>
+        —
+      </span>
     );
   }
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <span className="font-mono text-sm">{visible ? value : MASK}</span>
+    <div className={cn("inline-flex max-w-full min-w-0 items-center gap-1", className)}>
+      <span
+        className={cn(
+          "min-w-0 max-w-[5.5rem] truncate font-mono text-xs sm:text-sm",
+          !visible && "tracking-wider",
+        )}
+        title={visible ? value : undefined}
+      >
+        {visible ? value : MASK}
+      </span>
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
         aria-label={visible ? t("auth.hidePassword") : t("auth.showPassword")}
-        className="rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+        className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
-        {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+        {visible ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
       </button>
     </div>
   );

@@ -21,16 +21,29 @@ import {
   Tooltip,
   XAxis,
 } from "recharts";
-import type {
-  ChartCountItem,
-  DailyTrendPoint,
-  SupportTicket,
-} from "@/lib/mocks/supportTickets.mock";
 import {
   getChannelChartData,
   getDailyTrendData,
   getStatusChartData,
-} from "@/lib/mocks/supportTickets.mock";
+} from "@/lib/supportAnalytics";
+import type {
+  ChartCountItem,
+  DailyTrendPoint,
+  SupportTicket,
+  TicketStatus,
+} from "@/types/supportTicket";
+
+/** Match table badges: resolved = green, open = amber, etc. */
+const TICKET_STATUS_CHART_COLORS: Record<TicketStatus, string> = {
+  open: CHART_COLORS.warning,
+  in_progress: CHART_COLORS.primary,
+  waiting_customer: CHART_COLORS.accent,
+  resolved: CHART_COLORS.success,
+};
+
+function statusChartColor(key: string): string {
+  return TICKET_STATUS_CHART_COLORS[key as TicketStatus] ?? CHART_COLORS.muted;
+}
 
 interface SupportChartsSectionProps {
   tickets: SupportTicket[];
@@ -62,9 +75,9 @@ function StatusDonutChart({ data, title }: { data: ChartCountItem[]; title: stri
       name: t(`support.status.${item.key}`),
     }));
 
-  const legendItems = chartData.map((item, index) => ({
+  const legendItems = chartData.map((item) => ({
     label: item.name,
-    color: CHART_PALETTE[index % CHART_PALETTE.length],
+    color: statusChartColor(item.key),
     type: "square" as const,
   }));
 
@@ -86,8 +99,8 @@ function StatusDonutChart({ data, title }: { data: ChartCountItem[]; title: stri
             outerRadius={88}
             paddingAngle={2}
           >
-            {chartData.map((entry, index) => (
-              <Cell key={entry.key} fill={CHART_PALETTE[index % CHART_PALETTE.length]} />
+            {chartData.map((entry) => (
+              <Cell key={entry.key} fill={statusChartColor(entry.key)} />
             ))}
           </Pie>
           <Tooltip />
@@ -144,7 +157,7 @@ function WeeklyBarChart({ data, title }: { data: DailyTrendPoint[]; title: strin
 
   const legendItems = [
     { label: t("support.charts.created"), color: CHART_COLORS.primary, type: "square" as const },
-    { label: t("support.charts.resolved"), color: CHART_COLORS.accent, type: "square" as const },
+    { label: t("support.charts.resolved"), color: CHART_COLORS.success, type: "square" as const },
   ];
 
   return (
@@ -168,7 +181,7 @@ function WeeklyBarChart({ data, title }: { data: DailyTrendPoint[]; title: strin
           <Bar
             dataKey="resolved"
             name={t("support.charts.resolved")}
-            fill={CHART_COLORS.accent}
+            fill={CHART_COLORS.success}
             radius={[4, 4, 0, 0]}
           />
         </BarChart>
