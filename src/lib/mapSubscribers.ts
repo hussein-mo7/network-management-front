@@ -1,3 +1,4 @@
+import { parsePackageLineFromLineId } from "@/lib/subscriberUtils";
 import type {
   InvoiceStatus,
   PaymentMethod,
@@ -118,7 +119,7 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
     fullName: row.fullName ?? "",
     facilityType: row.facilityType ?? "",
     phone: row.phone ?? null,
-    packageLine: row.speedValue ?? 0,
+    packageLine: parsePackageLineFromLineId(row.lineId),
     speedId: row.speedId ?? null,
     usernameId: row.usernameID ?? null,
     speedMbps: row.speedValue ?? 0,

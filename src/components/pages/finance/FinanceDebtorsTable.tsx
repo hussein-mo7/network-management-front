@@ -60,7 +60,7 @@ export function FinanceDebtorsTable({ rows, className }: FinanceDebtorsTableProp
               <th className="px-4 py-3.5 text-end font-semibold text-muted-foreground">
                 {t("finance.debtors.amountOwed")}
               </th>
-              <th className="w-16 px-4 py-3.5 text-end font-semibold text-muted-foreground">
+              <th className="w-16 px-4 py-3.5 text-center align-middle font-semibold text-muted-foreground">
                 {t("finance.debtors.actions")}
               </th>
             </tr>
@@ -107,7 +107,7 @@ function DebtorDesktopRow({ row, lang }: { row: Customer; lang: string }) {
       <td className="cursor-pointer px-4 py-3.5 align-middle text-end" onClick={openProfile}>
         <span className="font-semibold tabular-nums text-danger">{formatMoney(owed, lang)}</span>
       </td>
-      <td className="px-4 py-3.5 align-middle text-end" onClick={(e) => e.stopPropagation()}>
+      <td className="px-4 py-3.5 text-center align-middle" onClick={(e) => e.stopPropagation()}>
         <Link
           to={customerProfilePath(row.lineId)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

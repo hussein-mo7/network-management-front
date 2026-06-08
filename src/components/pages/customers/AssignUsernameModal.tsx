@@ -26,7 +26,9 @@ export function AssignUsernameModal({
   isSubmitting = false,
 }: AssignUsernameModalProps) {
   const { t } = useTranslation();
-  const resolvedSpeedMbps = speedMbps || customer.speedMbps || 4;
+  if (!speedId || !speedMbps) {
+    return null;
+  }
 
   return (
     <PickAvailableUsernameModal
@@ -34,8 +36,8 @@ export function AssignUsernameModal({
       onClose={onClose}
       title={t("customers.assign.title")}
       hint={t("customers.assign.hint")}
-      speedMbps={resolvedSpeedMbps}
-      packageLine={resolvedSpeedMbps}
+      speedMbps={speedMbps}
+      packageLine={customer.packageLine}
       speedId={speedId}
       onConfirm={onAssign}
       isSubmitting={isSubmitting}

@@ -2,6 +2,8 @@ import { CalendarClock, ExternalLink } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
+  dataTableActionsCellClass,
+  dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
   dataTableFixedClass,
@@ -92,7 +94,7 @@ export function ExpiringTable({ rows, className }: ExpiringTableProps) {
               <th className={dataTableHeadCellClass}>{t("expiring.table.username")}</th>
               <th className={dataTableHeadCellClass}>{t("expiring.table.disconnectDate")}</th>
               <th className={dataTableHeadCellClass}>{t("expiring.table.urgency")}</th>
-              <th className={cn("text-end", dataTableHeadCellClass)}>
+              <th className={dataTableActionsHeadCellClass}>
                 {t("expiring.table.actions")}
               </th>
             </tr>
@@ -144,10 +146,10 @@ function ExpiringDesktopRow({ row }: { row: Customer }) {
           <StatusBadge label={t(`expiring.urgency.${urgencyKey}`)} variant={URGENCY_VARIANT[urgencyKey]} />
         ) : null}
       </td>
-      <td className={cn(dataTableCellClass, "text-end")} onClick={(e) => e.stopPropagation()}>
+      <td className={dataTableActionsCellClass} onClick={(e) => e.stopPropagation()}>
         <Link
           to={profilePath(row.lineId)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label={t("expiring.table.openProfile")}
         >
           <ExternalLink className="h-4 w-4" />

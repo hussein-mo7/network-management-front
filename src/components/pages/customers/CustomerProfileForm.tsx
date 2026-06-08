@@ -3,7 +3,8 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/buttons";
 import { Input, Textarea } from "@/components/ui/forms";
-import { Heading } from "@/components/ui/typography";
+import { ProfileSection } from "@/components/ui/profile";
+import { Text } from "@/components/ui/typography";
 import { FACILITY_TYPE_OPTIONS } from "@/lib/mocks/subscribers.mock";
 import type { Customer } from "@/types/customer";
 
@@ -62,12 +63,8 @@ export function CustomerProfileForm({
   }, [customer, reset]);
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
-      <Heading as="h2" className="text-base font-semibold">
-        {t("customers.profile.detailsSection")}
-      </Heading>
-
-      <form onSubmit={handleSubmit(onSave)} className="mt-4 space-y-4">
+    <ProfileSection title={t("customers.profile.detailsSection")}>
+      <form onSubmit={handleSubmit(onSave)} className="space-y-4">
         <Input
           label={t("customers.form.fullName")}
           disabled={!canManage}
@@ -103,20 +100,25 @@ export function CustomerProfileForm({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label={t("customers.form.phone")} disabled={!canManage} dir="ltr" {...register("phone")} />
-          <Input
-            label={t("customers.form.lineNumber")}
-            type="number"
-            min={1}
-            step={1}
-            inputMode="numeric"
-            disabled={!canManage}
-            error={errors.packageLine?.message}
-            {...register("packageLine", {
-              required: t("customers.form.lineNumberRequired"),
-              valueAsNumber: true,
-              min: { value: 1, message: t("customers.form.lineNumberRequired") },
-            })}
-          />
+          <div>
+            <Input
+              label={t("customers.form.lineNumber")}
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              disabled={!canManage}
+              error={errors.packageLine?.message}
+              {...register("packageLine", {
+                required: t("customers.form.lineNumberRequired"),
+                valueAsNumber: true,
+                min: { value: 1, message: t("customers.form.lineNumberRequired") },
+              })}
+            />
+            <Text muted className="mt-1.5 text-xs" dir="ltr">
+              {t("customers.form.subscriberId")}: {customer.lineId}
+            </Text>
+          </div>
         </div>
 
         <Textarea label={t("customers.form.notes")} disabled={!canManage} rows={3} {...register("notes")} />
@@ -127,6 +129,6 @@ export function CustomerProfileForm({
           </Button>
         ) : null}
       </form>
-    </section>
+    </ProfileSection>
   );
 }

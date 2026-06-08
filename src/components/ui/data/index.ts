@@ -7,6 +7,8 @@ export { StatCard } from "./StatCard";
 export { StatusBadge } from "./StatusBadge";
 export type { StatusBadgeVariant } from "./StatusBadge";
 export {
+  dataTableActionsCellClass,
+  dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
   dataTableClass,

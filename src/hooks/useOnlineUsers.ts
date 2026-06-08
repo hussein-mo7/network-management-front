@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { onlineUsersService } from "@/services/onlineUsers.service";
 
 export const onlineUsersQueryKey = ["online-users"] as const;
@@ -12,6 +12,7 @@ export function useOnlineUsersQuery(options?: { enabled?: boolean }) {
     enabled: options?.enabled ?? true,
     refetchInterval: REFRESH_MS,
     refetchIntervalInBackground: false,
-    staleTime: REFRESH_MS / 2,
+    staleTime: REFRESH_MS,
+    placeholderData: keepPreviousData,
   });
 }

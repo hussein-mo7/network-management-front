@@ -112,13 +112,15 @@ export function AvailableUsernamesTable({
                 <td className="whitespace-nowrap px-4 py-3 align-middle text-muted-foreground">
                   {formatCreatedDate(row.createdAt, i18n.language)}
                 </td>
-                <td className="px-4 py-3 align-middle">
+                <td className="px-4 py-3 text-center align-middle">
+                  <div className="flex justify-center">
                   <RowActions
                     row={row}
                     onDetails={() => setDetailsRow(row)}
                     onEdit={onEdit}
                     onDelete={onDelete}
                   />
+                  </div>
                 </td>
               </tr>
             ))}

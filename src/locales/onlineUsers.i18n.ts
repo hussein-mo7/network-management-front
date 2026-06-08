@@ -3,6 +3,7 @@ export type OnlineUsersI18n = {
   subtitle: string;
   liveCount: string;
   autoRefresh: string;
+  syncing: string;
   refresh: string;
   lastUpdated: string;
   mikrotikError: string;
@@ -35,19 +36,20 @@ export const onlineUsersEn: OnlineUsersI18n = {
   subtitle: "PPPoE sessions active on MikroTik — refreshes every 30 seconds.",
   liveCount: "{{count}} connected",
   autoRefresh: "Auto-refresh 30s",
+  syncing: "Syncing…",
   refresh: "Refresh now",
   lastUpdated: "Router snapshot",
   mikrotikError: "Could not reach MikroTik. Check server settings and network.",
   notConfigured: "MikroTik is not configured on the server (MIKROTIK_HOST / USERNAME / PASSWORD).",
   filters: {
     search: "Search",
-    searchPlaceholder: "Username, name, IP, MAC…",
+    searchPlaceholder: "Username, subscriber name, IP, MAC…",
   },
   table: {
     sectionSubtitle: "{{count}} shown",
     index: "#",
     username: "Username",
-    fullName: "Customer name",
+    fullName: "Subscriber name",
     ipAddress: "IP address",
     callerId: "MAC / Caller ID",
     service: "Service",
@@ -58,7 +60,7 @@ export const onlineUsersEn: OnlineUsersI18n = {
     empty: "No one is connected right now",
     emptyHint: "When subscribers connect via PPPoE they will appear here.",
     noResults: "No matches for your search",
-    openProfile: "Open profile",
+    openProfile: "Open subscriber profile",
   },
 };
 
@@ -67,19 +69,20 @@ export const onlineUsersAr: OnlineUsersI18n = {
   subtitle: "جلسات PPPoE النشطة على MikroTik — يتم التحديث كل 30 ثانية.",
   liveCount: "{{count}} متصل",
   autoRefresh: "تحديث تلقائي كل 30 ث",
+  syncing: "جاري التحديث…",
   refresh: "تحديث الآن",
   lastUpdated: "لقطة من الراوتر",
   mikrotikError: "تعذّر الاتصال بـ MikroTik. تحقق من إعدادات الخادم والشبكة.",
   notConfigured: "لم يُضبط MikroTik على الخادم (MIKROTIK_HOST / USERNAME / PASSWORD).",
   filters: {
     search: "بحث",
-    searchPlaceholder: "اسم مستخدم، اسم زبون، IP، MAC…",
+    searchPlaceholder: "اسم مستخدم، اسم مشترك، IP، MAC…",
   },
   table: {
     sectionSubtitle: "{{count}} معروض",
     index: "#",
     username: "اسم المستخدم",
-    fullName: "اسم الزبون",
+    fullName: "اسم المشترك",
     ipAddress: "عنوان IP",
     callerId: "MAC / Caller ID",
     service: "الخدمة",
@@ -90,6 +93,6 @@ export const onlineUsersAr: OnlineUsersI18n = {
     empty: "لا يوجد متصلون حالياً",
     emptyHint: "عند اتصال المشتركين عبر PPPoE ستظهر أسماؤهم هنا.",
     noResults: "لا توجد نتائج للبحث",
-    openProfile: "فتح الملف",
+    openProfile: "فتح ملف المشترك",
   },
 };

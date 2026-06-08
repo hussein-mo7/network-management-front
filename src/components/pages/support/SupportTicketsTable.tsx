@@ -53,7 +53,7 @@ export function SupportTicketsTable({
               <th className="w-[12%] px-4 py-3 text-start font-semibold">{t("support.table.status")}</th>
               <th className="w-[10%] px-4 py-3 text-start font-semibold">{t("support.table.createdAt")}</th>
               {canManage ? (
-                <th className="w-[10%] px-4 py-3 text-end font-semibold">{t("support.table.actions")}</th>
+                <th className="w-[10%] px-4 py-3 text-center align-middle font-semibold">{t("support.table.actions")}</th>
               ) : null}
             </tr>
           </thead>
@@ -84,7 +84,7 @@ export function SupportTicketsTable({
                   {format(new Date(row.createdAt), "yyyy-MM-dd")}
                 </td>
                 {canManage ? (
-                  <td className="px-4 py-3 align-middle text-end">
+                  <td className="px-4 py-3 text-center align-middle">
                     <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
                   </td>
                 ) : null}

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InvoiceFormValues } from "@/components/pages/subscribers/InvoiceFormModal";
+import { customersService } from "@/services/customers.service";
 import { subscribersService, type SubscribersListParams } from "@/services/subscribers.service";
 import type { Subscriber } from "@/types/subscriber";
 
@@ -100,20 +101,42 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   };
 
   const updateMutation = useMutation({
-    mutationFn: (patch: Partial<Subscriber> & { password?: string | null; speedId?: number }) =>
-      subscribersService.update(subscriberId, {
-        fullName: patch.fullName,
-        facilityType: patch.facilityType,
-        phone: patch.phone,
-        notes: patch.notes,
-        isSuspended: patch.isSuspended,
-        isPaused: patch.isPaused,
-        monthlyPrice: patch.monthlyPrice,
-        speedId: patch.speedId,
-        password: patch.password,
-      }),
+    mutationFn: async (patch: Partial<Subscriber> & { password?: string | null; speedId?: number }) => {
+      if (patch.packageLine !== undefined) {
+        await customersService.update(subscriberId, { lineId: String(patch.packageLine) });
+      }
+
+      const hasSubscriberFields =
+        patch.fullName !== undefined ||
+        patch.facilityType !== undefined ||
+        patch.phone !== undefined ||
+        patch.notes !== undefined ||
+        patch.isSuspended !== undefined ||
+        patch.isPaused !== undefined ||
+        patch.monthlyPrice !== undefined ||
+        patch.speedId !== undefined ||
+        patch.password !== undefined;
+
+      if (hasSubscriberFields) {
+        return subscribersService.update(subscriberId, {
+          fullName: patch.fullName,
+          facilityType: patch.facilityType,
+          phone: patch.phone,
+          notes: patch.notes,
+          isSuspended: patch.isSuspended,
+          isPaused: patch.isPaused,
+          monthlyPrice: patch.monthlyPrice,
+          speedId: patch.speedId,
+          password: patch.password,
+        });
+      }
+
+      const profile = await subscribersService.getProfile(subscriberId);
+      return profile.subscriber;
+    },
     onSuccess: (_data, patch) => {
       invalidateProfile();
+      queryClient.invalidateQueries({ queryKey: ["customers"] });
       if (patch.speedId !== undefined) {
         queryClient.invalidateQueries({ queryKey: subscriberSpeedHistoryQueryKey(subscriberId) });
       }

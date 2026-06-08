@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/buttons";
 import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
 import { useOnlineUsersQuery } from "@/hooks/useOnlineUsers";
-import { filterOnlineUsers } from "@/lib/onlineUsersUtils";
+import { useSubscribersQuery } from "@/hooks/useSubscribers";
+import { enrichOnlineUsersWithSubscribers, filterOnlineUsers } from "@/lib/onlineUsersUtils";
 import { ApiError } from "@/types/api";
 
 export function OnlineUsersPage() {
@@ -15,8 +16,15 @@ export function OnlineUsersPage() {
 
   const { data: apiRows = [], isLoading, isError, error, refetch, isFetching, dataUpdatedAt } =
     useOnlineUsersQuery();
+  const { data: subscribers = [] } = useSubscribersQuery({ limit: 500, includePaused: true });
 
-  const rows = useMemo(() => filterOnlineUsers(apiRows, search), [apiRows, search]);
+  const showInitialLoading = isLoading && apiRows.length === 0;
+  const isBackgroundRefresh = isFetching && !showInitialLoading;
+
+  const rows = useMemo(() => {
+    const filtered = filterOnlineUsers(apiRows, search);
+    return enrichOnlineUsersWithSubscribers(filtered, subscribers);
+  }, [apiRows, search, subscribers]);
   const lastSnapshot = apiRows[0]?.lastUpdated;
   const errorMessage =
     error instanceof ApiError
@@ -39,12 +47,18 @@ export function OnlineUsersPage() {
             <Wifi className="h-4 w-4" aria-hidden />
             {t("onlineUsers.liveCount", { count: apiRows.length })}
           </span>
+          {isBackgroundRefresh ? (
+            <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+              <RefreshCw className="h-3.5 w-3.5 animate-spin" aria-hidden />
+              {t("onlineUsers.syncing")}
+            </span>
+          ) : null}
           <Button
             variant="outline"
             size="sm"
             onClick={() => refetch()}
-            isLoading={isFetching && !isLoading}
-            disabled={isLoading}
+            isLoading={isBackgroundRefresh}
+            disabled={showInitialLoading}
           >
             <RefreshCw className="h-4 w-4" />
             {t("onlineUsers.refresh")}
@@ -71,9 +85,9 @@ export function OnlineUsersPage() {
             </Text>
           </div>
 
-          {isLoading ? (
+          {showInitialLoading ? (
             <LoadingState layout="table" variant="section" />
-          ) : isError ? (
+          ) : isError && apiRows.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
               <Text muted>
                 {isNotConfigured ? t("onlineUsers.notConfigured") : errorMessage}

@@ -5,6 +5,8 @@ import { CustomerKindBadge } from "@/components/pages/customers/CustomerKindBadg
 import { Button } from "@/components/ui/buttons";
 import { buttonBaseClassName, buttonSizes, buttonVariants } from "@/components/ui/buttons/buttonStyles";
 import {
+  dataTableActionsCellClass,
+  dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
   dataTableFixedClass,
@@ -193,7 +195,7 @@ export function CustomersTable({
               {t("customers.table.balance")}
             </th>
             {showActions ? (
-              <th className={cn("text-end", dataTableHeadCellClass)}>
+              <th className={dataTableActionsHeadCellClass}>
                 {t("customers.table.actions")}
               </th>
             ) : null}
@@ -258,8 +260,8 @@ export function CustomersTable({
                   {row.balance}
                 </td>
                 {showActions ? (
-                  <td className={cn(dataTableCellClass, "text-end")}>
-                    <div className="inline-flex gap-0.5">
+                  <td className={dataTableActionsCellClass}>
+                    <div className="inline-flex justify-center gap-0.5">
                       <Link
                         to={customerProfilePath(row.lineId)}
                         aria-label={t("customers.actions.openProfile")}

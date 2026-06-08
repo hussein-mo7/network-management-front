@@ -1,8 +1,11 @@
+import type { ReactNode } from "react";
 import { ExternalLink, Wifi } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { buttonBaseClassName, buttonSizes, buttonVariants } from "@/components/ui/buttons/buttonStyles";
 import {
+  dataTableActionsCellClass,
+  dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
   dataTableFixedClass,
@@ -21,6 +24,9 @@ interface OnlineUsersTableProps {
   hasSearch: boolean;
   className?: string;
 }
+
+const externalLinkClass =
+  "text-primary underline-offset-2 transition-colors hover:text-primary/80 hover:underline";
 
 export function OnlineUsersTable({ rows, hasSearch, className }: OnlineUsersTableProps) {
   const { t } = useTranslation();
@@ -77,7 +83,7 @@ export function OnlineUsersTable({ rows, hasSearch, className }: OnlineUsersTabl
               <th className={dataTableHeadCellClass}>{t("onlineUsers.table.uptime")}</th>
               <th className={dataTableHeadCellClass}>{t("onlineUsers.table.status")}</th>
               <th className={dataTableHeadCellClass}>{t("onlineUsers.table.updatedAt")}</th>
-              <th className={cn("text-end", dataTableHeadCellClass)} aria-hidden />
+              <th className={dataTableActionsHeadCellClass} aria-hidden />
             </tr>
           </thead>
           <tbody>
@@ -85,15 +91,32 @@ export function OnlineUsersTable({ rows, hasSearch, className }: OnlineUsersTabl
               <tr key={`${row.username}-${row.ipAddress}`} className={dataTableBodyRowClass}>
                 <td className={cn("text-muted-foreground", dataTableCellClass)}>{index + 1}</td>
                 <td className={dataTableCellClass}>
-                  <LtrText className="font-mono text-sm font-medium">{row.username}</LtrText>
+                  <SubscriberProfileLink lineId={row.lineId} className="font-mono text-sm font-medium">
+                    {row.username}
+                  </SubscriberProfileLink>
                 </td>
                 <td className={dataTableCellClass}>
-                  {row.fullName || <span className="text-muted-foreground">—</span>}
+                  {row.fullName ? (
+                    <SubscriberProfileLink lineId={row.lineId} className="text-sm">
+                      {row.fullName}
+                    </SubscriberProfileLink>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </td>
                 <td className={dataTableCellClass}>
-                  <a href={`http://${row.ipAddress}`} target="_blank" rel="noopener noreferrer">
-                  <LtrText className="font-mono text-sm">{row.ipAddress || "—"}</LtrText>
-                  </a>
+                  {row.ipAddress ? (
+                    <a
+                      href={`http://${row.ipAddress}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={externalLinkClass}
+                    >
+                      <LtrText className="font-mono text-sm">{row.ipAddress}</LtrText>
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </td>
                 <td className={dataTableCellClass}>
                   <LtrText className="font-mono text-xs">{row.callerId || "—"}</LtrText>
@@ -110,11 +133,11 @@ export function OnlineUsersTable({ rows, hasSearch, className }: OnlineUsersTabl
                 <td className={dataTableCellClass}>
                   <LtrText className="text-xs text-muted-foreground">{row.lastUpdated}</LtrText>
                 </td>
-                <td className={cn("text-end", dataTableCellClass)}>
+                <td className={dataTableActionsCellClass}>
                   {row.lineId ? (
                     <Link
                       to={subscriberProfilePath(row.lineId, "stats")}
-                      className={cn(buttonBaseClassName, buttonVariants.ghost, buttonSizes.sm, "h-8 w-8 p-0")}
+                      className={cn(buttonBaseClassName, buttonVariants.ghost, buttonSizes.sm, "mx-auto h-8 w-8 p-0")}
                       title={t("onlineUsers.table.openProfile")}
                     >
                       <ExternalLink className="h-4 w-4" />
@@ -127,6 +150,29 @@ export function OnlineUsersTable({ rows, hasSearch, className }: OnlineUsersTabl
         </table>
       </div>
     </div>
+  );
+}
+
+function SubscriberProfileLink({
+  lineId,
+  children,
+  className,
+}: {
+  lineId?: string | null;
+  children: ReactNode;
+  className?: string;
+}) {
+  if (!lineId) {
+    return <span className={className}>{children}</span>;
+  }
+
+  return (
+    <Link
+      to={subscriberProfilePath(lineId, "stats")}
+      className={cn("text-foreground hover:text-primary hover:underline", className)}
+    >
+      {children}
+    </Link>
   );
 }
 
@@ -148,8 +194,14 @@ function OnlineUserMobileCard({ row, index }: { row: OnlineUser; index: number }
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground">#{index}</p>
-          <LtrText className="mt-1 font-mono text-sm font-semibold">{row.username}</LtrText>
-          {row.fullName ? <p className="mt-1 text-sm">{row.fullName}</p> : null}
+          <SubscriberProfileLink lineId={row.lineId} className="mt-1 block font-mono text-sm font-semibold">
+            {row.username}
+          </SubscriberProfileLink>
+          {row.fullName ? (
+            <SubscriberProfileLink lineId={row.lineId} className="mt-1 block text-sm">
+              {row.fullName}
+            </SubscriberProfileLink>
+          ) : null}
         </div>
         <OnlineStatusBadge />
       </div>
@@ -158,7 +210,13 @@ function OnlineUserMobileCard({ row, index }: { row: OnlineUser; index: number }
         <div>
           <dt className="text-xs text-muted-foreground">{t("onlineUsers.table.ipAddress")}</dt>
           <dd className="mt-0.5">
-            <LtrText className="font-mono text-xs">{row.ipAddress || "—"}</LtrText>
+            {row.ipAddress ? (
+              <a href={`http://${row.ipAddress}`} target="_blank" rel="noopener noreferrer" className={externalLinkClass}>
+                <LtrText className="font-mono text-xs">{row.ipAddress}</LtrText>
+              </a>
+            ) : (
+              <span className="text-muted-foreground">—</span>
+            )}
           </dd>
         </div>
         <div>

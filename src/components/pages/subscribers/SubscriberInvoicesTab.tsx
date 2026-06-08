@@ -93,7 +93,7 @@ export function SubscriberInvoicesTab({
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.paymentMethod")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.table.createdAt")}</th>
                 {showActions ? (
-                  <th className="w-14 px-4 py-3 text-end font-semibold">{t("subscribers.table.actions")}</th>
+                  <th className="w-14 px-4 py-3 text-center align-middle font-semibold">{t("subscribers.table.actions")}</th>
                 ) : null}
               </tr>
             </thead>
@@ -116,7 +116,7 @@ export function SubscriberInvoicesTab({
                     {format(parseISO(inv.createdAt), "yyyy-MM-dd")}
                   </td>
                   {showActions ? (
-                    <td className="px-4 py-3 text-end">
+                    <td className="px-4 py-3 text-center align-middle">
                       <Button
                         variant="ghost"
                         size="icon"

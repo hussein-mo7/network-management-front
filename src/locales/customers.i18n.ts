@@ -48,6 +48,7 @@ export type CustomersI18n = {
     facilityTypeOtherRequired: string;
     lineNumber: string;
     lineNumberRequired: string;
+    subscriberId: string;
     phone: string;
     notes: string;
     editTitle: string;
@@ -90,6 +91,8 @@ export type CustomersI18n = {
     title: string;
     hint: string;
     pickSpeed: string;
+    pickSpeedHint: string;
+    poolForSpeed: string;
     noSpeedTiers: string;
     pickUsername: string;
     confirm: string;
@@ -168,6 +171,7 @@ export const customersEn: CustomersI18n = {
     facilityTypeOtherRequired: "Facility type is required",
     lineNumber: "Line number",
     lineNumberRequired: "Line number is required",
+    subscriberId: "Subscriber ID",
     phone: "Phone",
     notes: "Notes",
     editTitle: "Edit {{lineId}}",
@@ -208,8 +212,10 @@ export const customersEn: CustomersI18n = {
   },
   assign: {
     title: "Assign username",
-    hint: "Pick an available username from the pool. This starts the subscription and moves them to the Subscribers list.",
-    pickSpeed: "Choose speed tier (username pool)",
+    hint: "Pick an available username from the selected speed pool. This starts the subscription and moves them to the Subscribers list.",
+    pickSpeed: "Speed tier (username pool)",
+    pickSpeedHint: "Choose any speed — usernames are listed per tier.",
+    poolForSpeed: "Username pool for",
     noSpeedTiers: "No speed tiers configured — add speeds first.",
     pickUsername: "Available username",
     confirm: "Assign",
@@ -289,6 +295,7 @@ export const customersAr: CustomersI18n = {
     facilityTypeOtherRequired: "نوع المنشأة مطلوب",
     lineNumber: "رقم الخط",
     lineNumberRequired: "رقم الخط مطلوب",
+    subscriberId: "رقم المشترك",
     phone: "الهاتف",
     notes: "ملاحظات",
     editTitle: "تعديل {{lineId}}",
@@ -329,8 +336,10 @@ export const customersAr: CustomersI18n = {
   },
   assign: {
     title: "تعيين اسم مستخدم",
-    hint: "اختر اسمًا من المجموعة المتاحة لبدء الاشتراك ونقله لقائمة المشتركين.",
-    pickSpeed: "اختر سرعة الباقة (مجموعة الأسماء)",
+    hint: "اختر اسمًا من مجموعة السرعة المحددة لبدء الاشتراك ونقله لقائمة المشتركين.",
+    pickSpeed: "سرعة الباقة (مجموعة الأسماء)",
+    pickSpeedHint: "اختر أي سرعة — الأسماء المتاحة تظهر حسب السرعة.",
+    poolForSpeed: "مجموعة الأسماء لـ",
     noSpeedTiers: "لا توجد سرعات معرّفة — أضف السرعات أولاً.",
     pickUsername: "اسم متاح",
     confirm: "تعيين",

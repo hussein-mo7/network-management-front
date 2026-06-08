@@ -2,10 +2,12 @@ import { Calendar, Clock, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { SubscriberRouterSection } from "@/components/pages/subscribers/SubscriberRouterSection";
 import { SpeedTierPicker } from "@/components/pages/speeds";
 import { Button } from "@/components/ui/buttons";
 import { Input, PasswordInput, Textarea } from "@/components/ui/forms";
 import { StatCard } from "@/components/ui/data";
+import { ProfileSection } from "@/components/ui/profile";
 import { Text } from "@/components/ui/typography";
 import { getDaysUntilDisconnect, getUsageDays, buildSpeedLabel } from "@/lib/subscriberUtils";
 import type { SpeedTier } from "@/types/speeds";
@@ -28,6 +30,7 @@ interface ProfileFormValues {
   phone: string;
   notes: string;
   password: string;
+  packageLine: number;
 }
 
 export function SubscriberStatsTab({
@@ -63,6 +66,7 @@ export function SubscriberStatsTab({
       phone: subscriber.phone ?? "",
       notes: subscriber.notes ?? "",
       password: subscriber.password ?? "",
+      packageLine: subscriber.packageLine,
     },
   });
 
@@ -72,9 +76,11 @@ export function SubscriberStatsTab({
       phone: subscriber.phone ?? "",
       notes: subscriber.notes ?? "",
       password: subscriber.password ?? "",
+      packageLine: subscriber.packageLine,
     });
   }, [
     subscriber.lineId,
+    subscriber.packageLine,
     subscriber.fullName,
     subscriber.phone,
     subscriber.notes,
@@ -93,6 +99,8 @@ export function SubscriberStatsTab({
 
   return (
     <div className="space-y-6">
+      <SubscriberRouterSection subscriber={subscriber} canManage={canManage} />
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard
           label={t("subscribers.profile.stats.usageDays")}
@@ -116,6 +124,7 @@ export function SubscriberStatsTab({
         />
       </div>
 
+      <ProfileSection title={t("subscribers.profile.formSection")} bodyClassName="p-0">
       <form
         onSubmit={handleSubmit(async (values) => {
           const patch: Partial<Subscriber> & { speedId?: number } = {
@@ -131,14 +140,29 @@ export function SubscriberStatsTab({
           if (canEditSpeed && selectedSpeedId && selectedSpeedId !== resolvedSpeedId) {
             patch.speedId = selectedSpeedId;
           }
+          if (canManage && values.packageLine !== subscriber.packageLine) {
+            patch.packageLine = values.packageLine;
+          }
           await onSave?.(patch);
         })}
-        className="space-y-4 rounded-xl border border-border bg-surface p-4 sm:p-5"
+        className="space-y-4 p-4 sm:p-6"
       >
-        <Text className="text-sm font-semibold">{t("subscribers.profile.formSection")}</Text>
-
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label={t("subscribers.table.lineId")} value={subscriber.lineId} readOnly disabled />
+          <Input
+            label={t("subscribers.form.lineNumber")}
+            type="number"
+            min={1}
+            step={1}
+            inputMode="numeric"
+            disabled={!canManage}
+            error={errors.packageLine?.message}
+            {...register("packageLine", {
+              required: t("subscribers.form.lineNumberRequired"),
+              valueAsNumber: true,
+              min: { value: 1, message: t("subscribers.form.lineNumberRequired") },
+            })}
+          />
           <Input
             label={t("subscribers.table.username")}
             value={subscriber.username ?? "—"}
@@ -221,6 +245,7 @@ export function SubscriberStatsTab({
           </div>
         ) : null}
       </form>
+      </ProfileSection>
     </div>
   );
 }

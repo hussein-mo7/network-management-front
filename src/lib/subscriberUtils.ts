@@ -5,6 +5,14 @@ export function buildSpeedLabel(mbps: number): string {
   return `${mbps} Mbps`;
 }
 
+/** Package line from display ID — e.g. W04-101 → 4 */
+export function parsePackageLineFromLineId(lineId: string): number {
+  const match = /^W(\d+)-/i.exec(lineId.trim());
+  if (!match) return 0;
+  const parsed = parseInt(match[1], 10);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 /** Unique Mbps values from loaded rows (e.g. 4, 8, 16, 32). */
 export function getDistinctSpeeds(rows: { speedMbps: number }[]): number[] {
   return [...new Set(rows.map((r) => r.speedMbps).filter((m) => m > 0))].sort((a, b) => a - b);

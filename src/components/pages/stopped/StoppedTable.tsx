@@ -5,6 +5,8 @@ import { customerOwesMoney } from "@/lib/customerUtils";
 import { formatMoney } from "@/lib/formatMoney";
 import { getSubscriberInitials } from "@/lib/subscriberUtils";
 import {
+  dataTableActionsCellClass,
+  dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
   dataTableFixedClass,
@@ -82,7 +84,7 @@ export function StoppedTable({ rows, className }: StoppedTableProps) {
                 {t("stopped.table.balance")}
               </th>
               <th className={dataTableHeadCellClass}>{t("stopped.table.stoppedAt")}</th>
-              <th className={cn("text-end", dataTableHeadCellClass)}>
+              <th className={dataTableActionsHeadCellClass}>
                 {t("stopped.table.actions")}
               </th>
             </tr>
@@ -147,10 +149,10 @@ function StoppedDesktopRow({ row, lang }: { row: Customer; lang: string }) {
       >
         {formatStoppedAt(row.updatedAt)}
       </td>
-      <td className={cn(dataTableCellClass, "text-end")} onClick={(e) => e.stopPropagation()}>
+      <td className={dataTableActionsCellClass} onClick={(e) => e.stopPropagation()}>
         <Link
           to={profilePath(row.lineId)}
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="mx-auto inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label={t("stopped.table.openProfile")}
         >
           <ExternalLink className="h-4 w-4" />

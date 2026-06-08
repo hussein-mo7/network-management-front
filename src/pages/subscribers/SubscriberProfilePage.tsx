@@ -101,10 +101,13 @@ export function SubscriberProfilePage() {
   };
 
   const handleSave = async (patch: Partial<Subscriber> & { speedId?: number }) => {
+    if (!subscriber) return;
+    const previousLineId = subscriber.lineId;
     try {
-      await updateMutation.mutateAsync(patch);
+      const updated = await updateMutation.mutateAsync(patch);
       const hadPasswordChange = patch.password !== undefined;
       const hadSpeedChange = patch.speedId !== undefined;
+      const hadLineChange = patch.packageLine !== undefined;
       toast.success(
         hadPasswordChange
           ? t("subscribers.username.passwordUpdated")
@@ -114,6 +117,9 @@ export function SubscriberProfilePage() {
       );
       if (hadSpeedChange) {
         await speedHistoryQuery.refetch();
+      }
+      if (hadLineChange && updated.lineId !== previousLineId) {
+        navigate(subscriberProfilePath(updated.lineId, parsedTab ?? "stats"), { replace: true });
       }
     } catch (err) {
       showError(err);

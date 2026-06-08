@@ -17,5 +17,10 @@ export const dataTableHeadCellClass =
 
 export const dataTableCellClass = "min-w-0 px-3 py-2.5 align-middle text-start";
 
+export const dataTableActionsHeadCellClass =
+  "px-3 py-2.5 text-center align-middle text-xs font-semibold text-muted-foreground";
+
+export const dataTableActionsCellClass = "min-w-0 px-3 py-2.5 text-center align-middle";
+
 export const dataTableBodyRowClass =
   "border-b border-border last:border-0 transition-colors hover:bg-muted/20";

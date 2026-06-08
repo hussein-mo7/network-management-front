@@ -1,4 +1,5 @@
 export { AssignUsernameModal } from "./AssignUsernameModal";
+export { CustomerAssignUsernameSection } from "./CustomerAssignUsernameSection";
 export { CustomerBalanceSection } from "./CustomerBalanceSection";
 export { CustomerFilters, type CustomerKindFilter } from "./CustomerFilters";
 export { CustomerFormModal, type CustomerFormValues } from "./CustomerFormModal";

@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { SubscriberStatusBadge } from "@/components/pages/subscribers/SubscriberStatusBadge";
 import { Button } from "@/components/ui/buttons";
 import {
+  dataTableActionsCellClass,
+  dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
   dataTableFixedClass,
@@ -136,7 +138,7 @@ export function SubscribersTable({
               </th>
               <th className={dataTableHeadCellClass}>{t("subscribers.table.disconnect")}</th>
               <th className={dataTableHeadCellClass}>{t("subscribers.table.status")}</th>
-              <th className={cn("text-end", dataTableHeadCellClass)}>
+              <th className={dataTableActionsHeadCellClass}>
                 {t("subscribers.table.actions")}
               </th>
             </tr>
@@ -248,8 +250,10 @@ function SubscriberDesktopRow({
       <td className={cn("cursor-pointer", dataTableCellClass)} onClick={openProfile}>
         <SubscriberStatusBadge status={listStatus} />
       </td>
-      <td className={cn(dataTableCellClass, "text-end")} onClick={(e) => e.stopPropagation()}>
-        <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
+      <td className={dataTableActionsCellClass} onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-center">
+          <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
+        </div>
       </td>
     </tr>
   );
