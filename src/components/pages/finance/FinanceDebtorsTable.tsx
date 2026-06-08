@@ -5,12 +5,9 @@ import { CustomerKindBadge } from "@/components/pages/customers/CustomerKindBadg
 import { getAmountOwed, getCustomerKind } from "@/lib/customerUtils";
 import { formatMoney } from "@/lib/formatMoney";
 import { getSubscriberInitials } from "@/lib/subscriberUtils";
+import { customerProfilePath } from "@/lib/routePaths";
 import type { Customer } from "@/types/customer";
 import { cn } from "@/lib/cn";
-
-function profilePath(lineId: string): string {
-  return `/customers/${encodeURIComponent(lineId)}`;
-}
 
 interface FinanceDebtorsTableProps {
   rows: Customer[];
@@ -86,7 +83,7 @@ function DebtorDesktopRow({ row, lang }: { row: Customer; lang: string }) {
   const kind = getCustomerKind(row);
   const owed = getAmountOwed(row);
 
-  const openProfile = () => navigate(profilePath(row.lineId));
+  const openProfile = () => navigate(customerProfilePath(row.lineId));
 
   return (
     <tr className="group border-b border-border last:border-0 transition-colors hover:bg-muted/20">
@@ -112,7 +109,7 @@ function DebtorDesktopRow({ row, lang }: { row: Customer; lang: string }) {
       </td>
       <td className="px-4 py-3.5 align-middle text-end" onClick={(e) => e.stopPropagation()}>
         <Link
-          to={profilePath(row.lineId)}
+          to={customerProfilePath(row.lineId)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label={t("finance.debtors.recordPayment")}
         >
@@ -131,7 +128,7 @@ function DebtorMobileCard({ row, lang }: { row: Customer; lang: string }) {
 
   return (
     <article className="overflow-hidden rounded-xl border border-border bg-background">
-      <Link to={profilePath(row.lineId)} className="block p-4">
+      <Link to={customerProfilePath(row.lineId)} className="block p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
             {initials}
@@ -157,7 +154,7 @@ function DebtorMobileCard({ row, lang }: { row: Customer; lang: string }) {
 
       <div className="flex items-center justify-end border-t border-border bg-muted/20 px-4 py-2.5">
         <Link
-          to={profilePath(row.lineId)}
+          to={customerProfilePath(row.lineId)}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:underline"
         >
           {t("finance.debtors.recordPayment")}

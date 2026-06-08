@@ -10,7 +10,7 @@ export type SmsAudienceFilter =
 
 export type SmsRecipientMode = "subscribers" | "customers" | "custom";
 
-export type SmsTemplateId = "renewal" | "expired" | "support" | "blank";
+export type SmsTemplateId = "renewal" | "expired" | "support" | "blank" | number;
 
 export interface SmsRecipient {
   id: number;
@@ -24,6 +24,30 @@ export interface SmsRecipient {
 }
 
 export interface SmsTemplate {
-  id: SmsTemplateId;
+  id: number;
+  name: string;
   body: string;
+  isSystem: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdByUserId?: number | null;
+  createdByUsername?: string | null;
+}
+
+export interface SmsLog {
+  id: number;
+  phone: string;
+  message: string;
+  recipientType: string;
+  status: "sent" | "failed";
+  errorMessage: string | null;
+  createdAt: string;
+  sentByUserId: number;
+  sentByUsername: string | null;
+  sentByName: string | null;
+  subscriberId: number | null;
+  subscriberLineId: string | null;
+  subscriberName: string | null;
+  templateId: number | null;
+  templateName: string | null;
 }

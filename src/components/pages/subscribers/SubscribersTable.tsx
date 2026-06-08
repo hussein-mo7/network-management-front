@@ -9,6 +9,7 @@ import {
   dataTableFixedClass,
   dataTableHeadCellClass,
   dataTableHeadRowClass,
+  dataTableScrollMinClass,
   dataTableWrapClass,
   LtrText,
   MaskedPasswordCell,
@@ -19,9 +20,10 @@ import {
   buildSpeedLabel,
   getDaysUntilDisconnect,
   getSubscriberInitials,
-  getSubscriberLifecycleStatus,
+  getSubscriberListStatus,
 } from "@/lib/subscriberUtils";
 import type { Subscriber } from "@/types/subscriber";
+import { subscriberProfilePath } from "@/lib/routePaths";
 import { cn } from "@/lib/cn";
 import { format, parseISO } from "date-fns";
 
@@ -45,8 +47,8 @@ function formatDate(value: string | null): string {
   }
 }
 
-function profilePath(subscriberId: number): string {
-  return `/subscribers/${subscriberId}`;
+function profilePath(lineId: string): string {
+  return subscriberProfilePath(lineId, "stats");
 }
 
 export function SubscribersTable({
@@ -102,7 +104,7 @@ export function SubscribersTable({
       />
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-        <table className={dataTableFixedClass}>
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass)}>
           <colgroup>
             {columnWidths.map((width, index) => (
               <col key={index} className={width} />
@@ -178,16 +180,20 @@ function SubscriberDesktopRow({
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const listStatus =
-    getSubscriberLifecycleStatus(row) === "no_subscription" ? "no_subscription" : "active";
+  const listStatus = getSubscriberListStatus(row);
   const daysLeft = getDaysUntilDisconnect(row);
   const initials = getSubscriberInitials(row.fullName);
 
-  const openProfile = () => navigate(profilePath(row.id));
+  const openProfile = () => navigate(profilePath(row.lineId));
 
   return (
     <tr
-      className={cn("group", dataTableBodyRowClass, selected && "bg-muted/40")}
+      className={cn(
+        "group",
+        dataTableBodyRowClass,
+        selected && "bg-muted/40",
+        row.isPaused && "bg-accent/[0.03]",
+      )}
     >
       {showCheckboxes ? (
         <td className="px-4 py-3 text-center align-middle" onClick={(e) => e.stopPropagation()}>
@@ -269,8 +275,7 @@ function SubscribersMobileList({
   return (
     <div className="space-y-3 lg:hidden">
       {rows.map((row) => {
-        const listStatus =
-          getSubscriberLifecycleStatus(row) === "no_subscription" ? "no_subscription" : "active";
+        const listStatus = getSubscriberListStatus(row);
         const daysLeft = getDaysUntilDisconnect(row);
         const initials = getSubscriberInitials(row.fullName);
 
@@ -278,11 +283,12 @@ function SubscribersMobileList({
           <article
             key={row.id}
             className={cn(
-              "border border-border bg-background",
+              "overflow-hidden rounded-xl border border-border bg-background",
               selectedIds.has(row.id) && "bg-muted/30",
+              row.isPaused && "border-accent/40 bg-accent/[0.04]",
             )}
           >
-            <div className="flex items-start gap-3 p-4 pb-0">
+            <div className="flex items-start gap-3 p-4">
               {showCheckboxes ? (
                 <input
                   type="checkbox"
@@ -292,72 +298,72 @@ function SubscribersMobileList({
                   aria-label={row.lineId}
                 />
               ) : null}
-              <Link to={profilePath(row.id)} className="min-w-0 flex-1">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
-                  {initials}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="truncate font-medium text-foreground">{row.fullName}</p>
-                      <p className="text-xs text-muted-foreground">{row.facilityType}</p>
+              <div className="min-w-0 flex-1">
+                <Link to={profilePath(row.lineId)} className="block">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+                      {initials}
                     </div>
-                    <SubscriberStatusBadge status={listStatus} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="truncate font-medium text-foreground">{row.fullName}</p>
+                          <p className="text-xs text-muted-foreground">{row.facilityType}</p>
+                        </div>
+                        <SubscriberStatusBadge status={listStatus} />
+                      </div>
+                      <p className="mt-2 font-mono text-xs text-muted-foreground">{row.lineId}</p>
+                    </div>
                   </div>
-                  <p className="mt-2 font-mono text-xs text-muted-foreground">{row.lineId}</p>
-                </div>
-              </div>
+                </Link>
 
-              <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/80 pt-4 text-sm pb-4">
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">
-                    {t("subscribers.table.username")}
-                  </dt>
-                  <dd className="mt-1 font-medium" dir="ltr">
-                    {row.username ?? "—"}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">
-                    {t("subscribers.table.speed")}
-                  </dt>
-                  <dd className="mt-1">{buildSpeedLabel(row.speedMbps)}</dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">
-                    {t("subscribers.table.disconnect")}
-                  </dt>
-                  <dd className="mt-1 text-muted-foreground">
-                    {formatDate(row.disconnectionDate)}
-                    {daysLeft !== null && daysLeft <= 7 ? (
-                      <span className="text-foreground"> ({daysLeft}d)</span>
-                    ) : null}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-medium text-muted-foreground">
-                    {t("subscribers.table.phone")}
-                  </dt>
-                  <dd className="mt-1" dir="ltr">
-                    {row.phone ?? "—"}
-                  </dd>
-                </div>
-              </dl>
-              </Link>
+                <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/80 pt-4 text-sm">
+                  <div>
+                    <dt className="text-xs font-medium text-muted-foreground">
+                      {t("subscribers.table.username")}
+                    </dt>
+                    <dd className="mt-1 font-medium" dir="ltr">
+                      {row.username ?? "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted-foreground">
+                      {t("subscribers.table.speed")}
+                    </dt>
+                    <dd className="mt-1">{buildSpeedLabel(row.speedMbps)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted-foreground">
+                      {t("subscribers.table.disconnect")}
+                    </dt>
+                    <dd className="mt-1 text-muted-foreground">
+                      {formatDate(row.disconnectionDate)}
+                      {daysLeft !== null && daysLeft <= 7 ? (
+                        <span className="text-foreground"> ({daysLeft}d)</span>
+                      ) : null}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted-foreground">
+                      {t("subscribers.table.phone")}
+                    </dt>
+                    <dd className="mt-1" dir="ltr">
+                      {row.phone ?? "—"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
             </div>
 
-            {(onEdit || onDelete) && (
-              <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-2">
-                <Link
-                  to={profilePath(row.id)}
-                  className="text-xs font-medium text-muted-foreground hover:text-foreground"
-                >
-                  {t("subscribers.actions.openProfile")}
-                </Link>
-                <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
-              </div>
-            )}
+            <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-2">
+              <Link
+                to={profilePath(row.lineId)}
+                className="text-xs font-medium text-muted-foreground hover:text-foreground"
+              >
+                {t("subscribers.actions.openProfile")}
+              </Link>
+              <RowActions row={row} onEdit={onEdit} onDelete={onDelete} />
+            </div>
           </article>
         );
       })}
@@ -379,7 +385,7 @@ function RowActions({
   return (
     <div className="inline-flex justify-end gap-0.5 opacity-80 transition-opacity group-hover:opacity-100">
       <Link
-        to={profilePath(row.id)}
+        to={profilePath(row.lineId)}
         className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         aria-label={t("subscribers.actions.openProfile")}
       >

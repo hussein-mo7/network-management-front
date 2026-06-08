@@ -1,5 +1,6 @@
 import { Download, Plus, Trash2, Upload } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { SpeedTierPicker } from "@/components/pages/speeds";
@@ -27,6 +28,7 @@ import {
   getUsernameLifecycleStatus,
   isInAvailablePool,
 } from "@/types/availableUsername";
+import { availableUsernamesPath } from "@/lib/routePaths";
 import { ApiError } from "@/types/api";
 import type { AvailableUsername } from "@/types/availableUsername";
 import type { SpeedTier } from "@/types/speeds";
@@ -40,29 +42,20 @@ type UsernameDialog =
 
 export function AvailableUsernamesPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { speedValue: speedValueParam } = useParams<{ speedValue?: string }>();
   const { canManage } = useRoleAccess();
   const { data: allSpeedTiers = [], isLoading: speedsLoading, isError: speedsError, refetch: refetchSpeeds } =
     useSpeedsQuery();
 
   const speedTiers = allSpeedTiers;
 
-  const [selectedSpeedId, setSelectedSpeedId] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<UsernameStatusFilter>("all");
   const [dialog, setDialog] = useState<UsernameDialog | null>(null);
 
-  useEffect(() => {
-    if (speedTiers.length > 0 && selectedSpeedId === null) {
-      setSelectedSpeedId(speedTiers[0].id);
-    }
-  }, [speedTiers, selectedSpeedId]);
-
-  useEffect(() => {
-    if (speedTiers.length > 0 && !speedTiers.some((tier) => tier.id === selectedSpeedId)) {
-      setSelectedSpeedId(speedTiers[0].id);
-    }
-  }, [speedTiers, selectedSpeedId]);
-
-  const activeSpeedId = selectedSpeedId ?? speedTiers[0]?.id ?? 0;
+  const speedValueFromUrl = Number(speedValueParam);
+  const matchedSpeed = speedTiers.find((tier) => tier.valueMbps === speedValueFromUrl);
+  const activeSpeedId = matchedSpeed?.id ?? speedTiers[0]?.id ?? 0;
 
   const { countsBySpeedId } = useAllSpeedPoolCounts(speedTiers, speedTiers.length > 0);
 
@@ -216,6 +209,14 @@ export function AvailableUsernamesPage() {
     );
   }
 
+  if (!speedValueParam) {
+    return <Navigate to={availableUsernamesPath(speedTiers[0].valueMbps)} replace />;
+  }
+
+  if (speedValueParam && !matchedSpeed) {
+    return <Navigate to={availableUsernamesPath(speedTiers[0].valueMbps)} replace />;
+  }
+
   if (!selectedTier) return null;
 
   const deleteRow = dialog?.type === "delete" ? dialog.row : null;
@@ -238,7 +239,7 @@ export function AvailableUsernamesPage() {
           tiers={speedTiers}
           selectedId={activeSpeedId}
           onSelect={(tier: SpeedTier) => {
-            setSelectedSpeedId(tier.id);
+            navigate(availableUsernamesPath(tier.valueMbps));
             setStatusFilter("all");
           }}
           getCounts={getSpeedCounts}

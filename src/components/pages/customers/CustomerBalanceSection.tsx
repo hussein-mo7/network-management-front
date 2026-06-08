@@ -37,6 +37,9 @@ export function CustomerBalanceSection({
   const { t } = useTranslation();
   const [paymentOpen, setPaymentOpen] = useState(false);
 
+  const owesMoney = customer.balance < 0;
+  const canRecordPayment = canManage && showRecordPayment;
+
   const {
     register,
     handleSubmit,
@@ -44,14 +47,20 @@ export function CustomerBalanceSection({
     formState: { errors },
   } = useForm<PaymentFormValues>({
     defaultValues: {
-      amount: Math.abs(Math.min(0, customer.balance)),
+      amount: 0,
       paymentMethod: "",
       notes: "",
     },
   });
 
-  const owesMoney = customer.balance < 0;
-  const canRecordPayment = canManage && showRecordPayment && owesMoney;
+  const openPaymentModal = () => {
+    reset({
+      amount: owesMoney ? Math.abs(customer.balance) : 0,
+      paymentMethod: "",
+      notes: "",
+    });
+    setPaymentOpen(true);
+  };
 
   const submitPayment = async (values: PaymentFormValues) => {
     const paid = Number(values.amount) || 0;
@@ -68,7 +77,7 @@ export function CustomerBalanceSection({
           {t("customers.balance.sectionTitle")}
         </Heading>
         <Text muted className="mt-1 text-sm">
-          {showRecordPayment && owesMoney
+          {canRecordPayment
             ? t("customers.balance.sectionHint")
             : t("customers.balance.sectionHintReadOnly")}
         </Text>
@@ -79,12 +88,14 @@ export function CustomerBalanceSection({
       {canRecordPayment ? (
         <>
           <div className="flex flex-wrap gap-2">
-            <Button size="sm" variant="outline" onClick={() => setPaymentOpen(true)}>
+            <Button size="sm" variant="outline" onClick={openPaymentModal}>
               <Plus className="h-4 w-4" />
               {t("customers.balance.recordPayment")}
             </Button>
           </div>
-          <Text muted className="text-xs">{t("customers.balance.stillOwes")}</Text>
+          {owesMoney ? (
+            <Text muted className="text-xs">{t("customers.balance.stillOwes")}</Text>
+          ) : null}
         </>
       ) : null}
 

@@ -8,6 +8,9 @@ export const subscribersQueryKey = (params?: SubscribersListParams) =>
 
 export const subscriberProfileQueryKey = (id: number) => ["subscribers", "profile", id] as const;
 
+export const subscriberByLineIdQueryKey = (lineId: string) =>
+  ["subscribers", "line", lineId] as const;
+
 export const subscriberInvoicesQueryKey = (id: number) => ["subscribers", id, "invoices"] as const;
 
 export const subscriberUsernameHistoryQueryKey = (id: number) =>
@@ -55,6 +58,14 @@ export function useSubscriberProfileQuery(subscriberId: number, enabled = true) 
   });
 }
 
+export function useSubscriberByLineIdQuery(lineId: string, enabled = true) {
+  return useQuery({
+    queryKey: subscriberByLineIdQueryKey(lineId),
+    queryFn: () => subscribersService.getByLineId(lineId),
+    enabled: enabled && Boolean(lineId.trim()),
+  });
+}
+
 export function useSubscriberUsernameHistoryQuery(subscriberId: number, lineId: string) {
   return useQuery({
     queryKey: subscriberUsernameHistoryQueryKey(subscriberId),
@@ -84,25 +95,39 @@ export function useSubscriberProfileMutations(subscriberId: number) {
 
   const invalidateProfile = () => {
     queryClient.invalidateQueries({ queryKey: subscriberProfileQueryKey(subscriberId) });
+    queryClient.invalidateQueries({ queryKey: ["subscribers", "line"] });
     queryClient.invalidateQueries({ queryKey: ["subscribers"] });
   };
 
   const updateMutation = useMutation({
-    mutationFn: (patch: Partial<Subscriber> & { password?: string | null }) =>
+    mutationFn: (patch: Partial<Subscriber> & { password?: string | null; speedId?: number }) =>
       subscribersService.update(subscriberId, {
         fullName: patch.fullName,
         facilityType: patch.facilityType,
         phone: patch.phone,
         notes: patch.notes,
         isSuspended: patch.isSuspended,
+        isPaused: patch.isPaused,
         monthlyPrice: patch.monthlyPrice,
+        speedId: patch.speedId,
         password: patch.password,
       }),
-    onSuccess: invalidateProfile,
+    onSuccess: (_data, patch) => {
+      invalidateProfile();
+      if (patch.speedId !== undefined) {
+        queryClient.invalidateQueries({ queryKey: subscriberSpeedHistoryQueryKey(subscriberId) });
+      }
+    },
   });
 
   const stopMutation = useMutation({
     mutationFn: () => subscribersService.update(subscriberId, { isSuspended: true }),
+    onSuccess: invalidateProfile,
+  });
+
+  const pauseMutation = useMutation({
+    mutationFn: (paused: boolean) =>
+      subscribersService.update(subscriberId, { isPaused: paused }),
     onSuccess: invalidateProfile,
   });
 
@@ -112,12 +137,14 @@ export function useSubscriberProfileMutations(subscriberId: number) {
     onSuccess: () => {
       invalidateProfile();
       queryClient.invalidateQueries({ queryKey: subscriberInvoicesQueryKey(subscriberId) });
+      queryClient.invalidateQueries({ queryKey: subscriberUsernameHistoryQueryKey(subscriberId) });
+      queryClient.invalidateQueries({ queryKey: subscriberSpeedHistoryQueryKey(subscriberId) });
       queryClient.invalidateQueries({ queryKey: ["available-usernames"] });
       queryClient.invalidateQueries({ queryKey: ["subscribers"] });
     },
   });
 
-  return { updateMutation, stopMutation, assignUsernameMutation, invalidateProfile };
+  return { updateMutation, stopMutation, pauseMutation, assignUsernameMutation, invalidateProfile };
 }
 
 export function useSubscriberInvoiceMutations(subscriberId: number, lineId: string) {
@@ -146,6 +173,48 @@ export function useSubscriberInvoiceMutations(subscriberId: number, lineId: stri
   });
 
   return { createMutation, deleteMutation };
+}
+
+export function useSubscriberUsernameHistoryMutations(subscriberId: number, lineId: string) {
+  const queryClient = useQueryClient();
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: subscriberUsernameHistoryQueryKey(subscriberId) });
+  };
+
+  const createMutation = useMutation({
+    mutationFn: (body: {
+      oldUsername: string;
+      oldPassword?: string | null;
+      usageStartDate?: string | null;
+      usageEndDate?: string | null;
+    }) => subscribersService.createUsernameHistoryEntry(subscriberId, lineId, body),
+    onSuccess: invalidate,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({
+      historyId,
+      body,
+    }: {
+      historyId: number;
+      body: {
+        oldUsername: string;
+        oldPassword?: string | null;
+        usageStartDate?: string | null;
+        usageEndDate?: string | null;
+      };
+    }) => subscribersService.updateUsernameHistoryEntry(subscriberId, lineId, historyId, body),
+    onSuccess: invalidate,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (historyId: number) =>
+      subscribersService.deleteUsernameHistoryEntry(subscriberId, historyId),
+    onSuccess: invalidate,
+  });
+
+  return { createMutation, updateMutation, deleteMutation };
 }
 
 export function useSubscriberListMutations() {

@@ -1,22 +1,25 @@
 import { Calendar, Clock, Wallet } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { SpeedTierPicker } from "@/components/pages/speeds";
 import { Button } from "@/components/ui/buttons";
 import { Input, PasswordInput, Textarea } from "@/components/ui/forms";
 import { StatCard } from "@/components/ui/data";
 import { Text } from "@/components/ui/typography";
 import { getDaysUntilDisconnect, getUsageDays, buildSpeedLabel } from "@/lib/subscriberUtils";
+import type { SpeedTier } from "@/types/speeds";
 import type { Subscriber } from "@/types/subscriber";
 import { format, parseISO } from "date-fns";
 
 interface SubscriberStatsTabProps {
   subscriber: Subscriber;
+  speedTiers?: SpeedTier[];
   canManage?: boolean;
   canViewPasswords?: boolean;
   daysGone?: number | null;
   daysRemaining?: number | null;
-  onSave?: (patch: Partial<Subscriber>) => void | Promise<void>;
+  onSave?: (patch: Partial<Subscriber> & { speedId?: number }) => void | Promise<void>;
   isSubmitting?: boolean;
 }
 
@@ -29,6 +32,7 @@ interface ProfileFormValues {
 
 export function SubscriberStatsTab({
   subscriber,
+  speedTiers = [],
   canManage = false,
   canViewPasswords = false,
   daysGone = null,
@@ -39,6 +43,14 @@ export function SubscriberStatsTab({
   const { t } = useTranslation();
   const usageDays = daysGone ?? getUsageDays(subscriber);
   const daysLeft = daysRemaining ?? getDaysUntilDisconnect(subscriber);
+  const resolvedSpeedId =
+    subscriber.speedId ?? speedTiers.find((tier) => tier.valueMbps === subscriber.speedMbps)?.id ?? null;
+  const [selectedSpeedId, setSelectedSpeedId] = useState<number | null>(resolvedSpeedId);
+  const canEditSpeed = canManage && Boolean(subscriber.username) && speedTiers.length > 0;
+
+  useEffect(() => {
+    setSelectedSpeedId(resolvedSpeedId);
+  }, [subscriber.id, resolvedSpeedId]);
 
   const {
     register,
@@ -106,7 +118,7 @@ export function SubscriberStatsTab({
 
       <form
         onSubmit={handleSubmit(async (values) => {
-          const patch: Partial<Subscriber> = {
+          const patch: Partial<Subscriber> & { speedId?: number } = {
             fullName: values.fullName.trim(),
             phone: values.phone.trim() || null,
             notes: values.notes.trim() || null,
@@ -115,6 +127,9 @@ export function SubscriberStatsTab({
           const previous = (subscriber.password ?? "").trim();
           if (canManage && password !== previous) {
             patch.password = password || null;
+          }
+          if (canEditSpeed && selectedSpeedId && selectedSpeedId !== resolvedSpeedId) {
+            patch.speedId = selectedSpeedId;
           }
           await onSave?.(patch);
         })}
@@ -145,12 +160,26 @@ export function SubscriberStatsTab({
               })}
             />
           ) : null}
-          <Input
-            label={t("subscribers.table.speed")}
-            value={buildSpeedLabel(subscriber.speedMbps)}
-            readOnly
-            disabled
-          />
+          {canEditSpeed ? (
+            <div className="space-y-2 sm:col-span-2">
+              <Text className="text-xs font-medium text-muted-foreground">
+                {t("subscribers.table.speed")}
+              </Text>
+              <SpeedTierPicker
+                tiers={speedTiers}
+                selectedId={selectedSpeedId ?? speedTiers[0]?.id ?? 0}
+                onSelect={(tier) => setSelectedSpeedId(tier.id)}
+              />
+              <Text muted className="text-xs">{t("subscribers.profile.speedEditHint")}</Text>
+            </div>
+          ) : (
+            <Input
+              label={t("subscribers.table.speed")}
+              value={subscriber.speedMbps ? buildSpeedLabel(subscriber.speedMbps) : "—"}
+              readOnly
+              disabled
+            />
+          )}
           <Input
             label={t("subscribers.form.fullName")}
             {...register("fullName")}

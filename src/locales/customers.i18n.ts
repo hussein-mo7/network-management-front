@@ -94,9 +94,14 @@ export type CustomersI18n = {
     pickUsername: string;
     confirm: string;
     mockNote: string;
+    currentSpeed: string;
+    speedReadOnlyHint: string;
+    speedMissingHint: string;
+    openSubscriberProfile: string;
   };
   balance: {
     sectionTitle: string;
+    currentBalance: string;
     sectionHint: string;
     sectionHintReadOnly: string;
     recordPayment: string;
@@ -209,15 +214,20 @@ export const customersEn: CustomersI18n = {
     pickUsername: "Available username",
     confirm: "Assign",
     mockNote: "Will call API to link usernameId and start billing cycle.",
+    currentSpeed: "Subscription speed",
+    speedReadOnlyHint: "Speed is shown for reference only — change it on the subscriber Statistics tab.",
+    speedMissingHint: "Speed is not set yet. Set it on the subscriber Statistics tab before assigning a username.",
+    openSubscriberProfile: "Open subscriber profile (Statistics)",
   },
   balance: {
     sectionTitle: "Balance & payments",
+    currentBalance: "Current balance",
     sectionHint:
-      "Stopped customer still owes money — record payments here. Balance updates on the customer file.",
+      "Record a payment anytime — whether the customer owes money or not. The amount is added to their balance.",
     sectionHintReadOnly: "Invoice history for reference.",
     recordPayment: "Record payment",
     paymentTitle: "Record payment",
-    paymentHint: "Adds to balance (mock). API: POST /customers/:lineId/payments",
+    paymentHint: "Payment amount is added to the customer balance.",
     amount: "Amount paid (₪)",
     amountRequired: "Enter a valid amount",
     confirmPayment: "Save payment",
@@ -325,14 +335,20 @@ export const customersAr: CustomersI18n = {
     pickUsername: "اسم متاح",
     confirm: "تعيين",
     mockNote: "سيستدعي الـ API لربط usernameId وبدء الدورة.",
+    currentSpeed: "سرعة الاشتراك",
+    speedReadOnlyHint: "السرعة للعرض فقط — غيّرها من تبويب الإحصائيات في ملف المشترك.",
+    speedMissingHint: "لم تُحدَّد السرعة بعد. حدّدها من تبويب الإحصائيات قبل تعيين اسم مستخدم.",
+    openSubscriberProfile: "فتح ملف المشترك (الإحصائيات)",
   },
   balance: {
     sectionTitle: "الرصيد والمدفوعات",
-    sectionHint: "زبون موقوف ولا يزال عليه دين — سجّل الدفعات هنا.",
+    currentBalance: "الرصيد الحالي",
+    sectionHint:
+      "سجّل دفعة في أي وقت — سواء كان عليه دين أم لا. المبلغ يُضاف إلى رصيده.",
     sectionHintReadOnly: "سجل الفواتير للمراجعة.",
     recordPayment: "تسجيل دفعة",
     paymentTitle: "تسجيل دفعة",
-    paymentHint: "يُضاف للرصيد (تجريبي). API: POST /customers/:lineId/payments",
+    paymentHint: "يُضاف مبلغ الدفعة إلى رصيد الزبون.",
     amount: "المبلغ المدفوع (₪)",
     amountRequired: "أدخل مبلغًا صالحًا",
     confirmPayment: "حفظ الدفعة",

@@ -9,14 +9,25 @@ const ROUTE_TITLE_KEYS: Array<{ match: (path: string) => boolean; titleKey: stri
   { match: (path) => /^\/customers\/[^/]+$/.test(path) && path !== "/customers/new", titleKey: "customers.titleProfile" },
   { match: (path) => path.startsWith("/customers"), titleKey: "customers.title" },
   { match: (path) => path === "/subscribers/new", titleKey: "customers.titleNew" },
-  { match: (path) => /^\/subscribers\/[^/]+$/.test(path) && path !== "/subscribers/new", titleKey: "subscribers.titleProfile" },
+  {
+    match: (path) =>
+      /^\/subscribers\/[^/]+(\/(stats|invoices|username))?$/.test(path) && path !== "/subscribers/new",
+    titleKey: "subscribers.titleProfile",
+  },
   { match: (path) => path.startsWith("/subscribers"), titleKey: "subscribers.title" },
   { match: (path) => path === "/online-users", titleKey: "nav.items.onlineUsers" },
   { match: (path) => path === "/expiring", titleKey: "pages.expiring" },
   { match: (path) => path === "/stopped", titleKey: "nav.items.stopped" },
   { match: (path) => path === "/speeds", titleKey: "speeds.title" },
-  { match: (path) => path === "/available-usernames", titleKey: "availableUsernames.title" },
-  { match: (path) => path === "/sms", titleKey: "sms.title" },
+  {
+    match: (path) =>
+      path === "/available-usernames" || /^\/available-usernames\/\d+$/.test(path),
+    titleKey: "availableUsernames.title",
+  },
+  {
+    match: (path) => path === "/sms" || /^\/sms\/(logs|templates)$/.test(path),
+    titleKey: "sms.title",
+  },
   { match: (path) => path === "/support", titleKey: "support.title" },
   { match: (path) => path === "/finance", titleKey: "nav.items.finance" },
   { match: (path) => path === "/users", titleKey: "pages.users" },

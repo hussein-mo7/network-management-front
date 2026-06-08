@@ -4,6 +4,7 @@ import { Modal, ModalFooterButton } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
 import { useAvailableUsernamesQuery } from "@/hooks/useAvailableUsernames";
 import { getAvailablePoolForSubscriber } from "@/lib/availableUsernamePool";
+import { buildSpeedLabel } from "@/lib/subscriberUtils";
 import { isInAvailablePool } from "@/types/availableUsername";
 import { cn } from "@/lib/cn";
 
@@ -54,12 +55,13 @@ export function PickAvailableUsernameModal({
 
     if (!excludeUsername) return list;
     return list.filter((u) => u.username !== excludeUsername);
-  }, [useApi, apiRows, speedMbps, packageLine, excludeUsername, open]);
+  }, [useApi, apiRows, speedMbps, packageLine, excludeUsername]);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (open) setSelectedId(pool[0]?.id ?? null);
+    if (!open) return;
+    setSelectedId(pool[0]?.id ?? null);
   }, [open, pool]);
 
   const selected = pool.find((u) => u.id === selectedId);
@@ -69,6 +71,16 @@ export function PickAvailableUsernameModal({
       <Text muted className="mb-4 text-sm">
         {hint}
       </Text>
+
+      {speedMbps > 0 ? (
+        <div className="mb-4 rounded-lg border border-border bg-muted/20 px-4 py-3">
+          <Text className="text-xs font-medium text-muted-foreground">
+            {t("subscribers.username.poolSpeedLabel")}
+          </Text>
+          <Text className="mt-1 text-sm font-medium">{buildSpeedLabel(speedMbps)}</Text>
+          <Text muted className="mt-1 text-xs">{t("subscribers.username.poolSpeedHint")}</Text>
+        </div>
+      ) : null}
 
       <div className="max-h-52 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
         {poolLoading ? (
@@ -96,10 +108,6 @@ export function PickAvailableUsernameModal({
           ))
         )}
       </div>
-
-      <Text muted className="mt-3 text-xs">
-        {t("subscribers.username.poolOnlyHint")}
-      </Text>
 
       <div className="mt-6 flex justify-end gap-2">
         <ModalFooterButton variant="outline" onClick={onClose}>

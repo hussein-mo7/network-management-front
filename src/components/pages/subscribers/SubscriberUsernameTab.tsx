@@ -1,8 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { SpeedTierPicker } from "@/components/pages/speeds";
 import { Button } from "@/components/ui/buttons";
 import { Text } from "@/components/ui/typography";
-import type { SpeedTier } from "@/types/speeds";
+import { buildSpeedLabel } from "@/lib/subscriberUtils";
 import type { SpeedHistoryEntry, UsernameHistoryEntry } from "@/types/subscriber";
 import { format, parseISO } from "date-fns";
 
@@ -14,9 +13,8 @@ interface SubscriberUsernameTabProps {
   currentUsername?: string | null;
   showAssign?: boolean;
   showChange?: boolean;
-  speedTiers?: SpeedTier[];
-  assignSpeedId?: number | null;
-  onAssignSpeedChange?: (speedId: number) => void;
+  poolSpeedMbps?: number | null;
+  poolSpeedId?: number | null;
   onPickUsername?: () => void;
 }
 
@@ -37,12 +35,14 @@ export function SubscriberUsernameTab({
   currentUsername = null,
   showAssign = false,
   showChange = false,
-  speedTiers = [],
-  assignSpeedId = null,
-  onAssignSpeedChange,
+  poolSpeedMbps = null,
+  poolSpeedId = null,
   onPickUsername,
 }: SubscriberUsernameTabProps) {
   const { t } = useTranslation();
+
+  const canPickFromPool = Boolean(poolSpeedId && poolSpeedMbps);
+  const speedLabel = poolSpeedMbps ? buildSpeedLabel(poolSpeedMbps) : "—";
 
   return (
     <div className="space-y-6">
@@ -62,42 +62,44 @@ export function SubscriberUsernameTab({
           <Text className="text-sm font-semibold">{t("subscribers.username.assignFromPool")}</Text>
           <Text muted className="text-sm">{t("subscribers.username.assignHint")}</Text>
 
-          {speedTiers.length > 0 ? (
-            <div className="space-y-2">
-              <Text className="text-xs font-medium text-muted-foreground">
-                {t("subscribers.username.pickSpeedForPool")}
-              </Text>
-              <SpeedTierPicker
-                tiers={speedTiers}
-                selectedId={assignSpeedId ?? speedTiers[0]?.id ?? 0}
-                onSelect={(tier) => onAssignSpeedChange?.(tier.id)}
-              />
-            </div>
-          ) : (
-            <Text muted className="text-sm">{t("subscribers.username.noSpeedTiers")}</Text>
-          )}
+          <div className="rounded-lg border border-border bg-surface px-4 py-3">
+            <Text className="text-xs font-medium text-muted-foreground">
+              {t("subscribers.username.poolSpeedLabel")}
+            </Text>
+            <Text className="mt-1 text-sm font-medium">{speedLabel}</Text>
+            <Text muted className="mt-1 text-xs">{t("subscribers.username.poolSpeedHint")}</Text>
+          </div>
 
-          <Button
-            size="sm"
-            onClick={onPickUsername}
-            disabled={!assignSpeedId && speedTiers.length > 0}
-          >
+          <Button size="sm" onClick={onPickUsername} disabled={!canPickFromPool}>
             {t("subscribers.username.assignFromPool")}
           </Button>
+          {!canPickFromPool ? (
+            <Text muted className="text-xs">{t("subscribers.username.poolSpeedMissing")}</Text>
+          ) : null}
         </div>
       ) : null}
 
       {canManage && showChange ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-muted/20 px-4 py-3">
-          <Text muted className="text-sm">{t("subscribers.username.changeHint")}</Text>
-          <Button size="sm" onClick={onPickUsername}>
-            {t("subscribers.username.changeUsername")}
-          </Button>
+        <div className="space-y-3 rounded-xl border border-border bg-muted/20 px-4 py-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Text muted className="text-sm">{t("subscribers.username.changeHint")}</Text>
+            <Button size="sm" onClick={onPickUsername} disabled={!canPickFromPool}>
+              {t("subscribers.username.changeUsername")}
+            </Button>
+          </div>
+          <div className="rounded-lg border border-border bg-surface px-4 py-3">
+            <Text className="text-xs font-medium text-muted-foreground">
+              {t("subscribers.username.poolSpeedLabel")}
+            </Text>
+            <Text className="mt-1 text-sm font-medium">{speedLabel}</Text>
+            <Text muted className="mt-1 text-xs">{t("subscribers.username.poolSpeedHint")}</Text>
+          </div>
         </div>
       ) : null}
 
       <section className="space-y-3">
         <Text className="font-semibold">{t("subscribers.username.historyTitle")}</Text>
+
         {usernameHistory.length === 0 ? (
           <Text muted className="text-sm">{t("subscribers.username.historyEmpty")}</Text>
         ) : (

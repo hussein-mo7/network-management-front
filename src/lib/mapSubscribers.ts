@@ -22,6 +22,7 @@ export interface BackendSubscriberRow {
   startDate?: string | Date | null;
   endDate?: string | Date | null;
   isSuspended?: boolean | null;
+  isPaused?: boolean | null;
   notes?: string | null;
   balance?: string | number | null;
   createdAt?: string | Date | null;
@@ -127,6 +128,7 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
     disconnectionDate: endDate,
     isActive: !row.isSuspended,
     isSuspended: Boolean(row.isSuspended),
+    isPaused: Boolean(row.isPaused),
     isOwnerUsername: false,
     balance: toNumber(row.balance, 0),
     notes: row.notes ?? null,

@@ -11,3 +11,7 @@ export { SubscriberStatusBadge } from "./SubscriberStatusBadge";
 export { SubscribersImportModal } from "./SubscribersImportModal";
 export { SubscribersTable } from "./SubscribersTable";
 export { SubscriberUsernameTab } from "./SubscriberUsernameTab";
+export {
+  UsernameHistoryFormModal,
+  type UsernameHistoryFormValues,
+} from "./UsernameHistoryFormModal";

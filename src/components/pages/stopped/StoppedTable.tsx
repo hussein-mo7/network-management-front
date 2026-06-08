@@ -10,16 +10,18 @@ import {
   dataTableFixedClass,
   dataTableHeadCellClass,
   dataTableHeadRowClass,
+  dataTableScrollMinClass,
   dataTableWrapClass,
   LtrText,
   TableSubscriberCell,
 } from "@/components/ui/data";
+import { subscriberProfilePath } from "@/lib/routePaths";
 import type { Customer } from "@/types/customer";
 import { cn } from "@/lib/cn";
 import { format, parseISO } from "date-fns";
 
-function profilePath(subscriberId: number): string {
-  return `/subscribers/${subscriberId}`;
+function profilePath(lineId: string): string {
+  return subscriberProfilePath(lineId, "username");
 }
 
 function formatStoppedAt(value: string): string {
@@ -62,7 +64,7 @@ export function StoppedTable({ rows, className }: StoppedTableProps) {
       </div>
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-        <table className={dataTableFixedClass}>
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass)}>
           <colgroup>
             <col className="w-[24%]" />
             <col className="w-[9%]" />
@@ -111,7 +113,7 @@ function StoppedDesktopRow({ row, lang }: { row: Customer; lang: string }) {
   const initials = getSubscriberInitials(row.fullName);
   const owes = customerOwesMoney(row);
 
-  const openProfile = () => navigate(profilePath(row.id));
+  const openProfile = () => navigate(profilePath(row.lineId));
 
   return (
     <tr className={cn("group", dataTableBodyRowClass)}>
@@ -147,7 +149,7 @@ function StoppedDesktopRow({ row, lang }: { row: Customer; lang: string }) {
       </td>
       <td className={cn(dataTableCellClass, "text-end")} onClick={(e) => e.stopPropagation()}>
         <Link
-          to={profilePath(row.id)}
+          to={profilePath(row.lineId)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label={t("stopped.table.openProfile")}
         >
@@ -165,7 +167,7 @@ function StoppedMobileCard({ row, lang }: { row: Customer; lang: string }) {
 
   return (
     <article className="overflow-hidden rounded-xl border border-border bg-background">
-      <Link to={profilePath(row.id)} className="block p-4">
+      <Link to={profilePath(row.lineId)} className="block p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
             {initials}
@@ -203,7 +205,7 @@ function StoppedMobileCard({ row, lang }: { row: Customer; lang: string }) {
 
       <div className="flex items-center justify-end border-t border-border bg-muted/20 px-4 py-2.5">
         <Link
-          to={profilePath(row.id)}
+          to={profilePath(row.lineId)}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:underline"
         >
           {t("stopped.table.openProfile")}

@@ -1,4 +1,4 @@
-import { apiClient, apiDelete, apiGet, apiPost, apiPut } from "@/lib/apiClient";
+import { apiClient, apiDelete, apiPost, apiPut } from "@/lib/apiClient";
 import {
   mapSubscriberRecord,
   type BackendSubscriberRow,
@@ -34,11 +34,12 @@ export const customersService = {
   },
 
   async getByLineId(lineId: string): Promise<Customer> {
-    const response = await apiGet<{ success: boolean; data: BackendSubscriberRow }>(
-      `/customers/line/${encodeURIComponent(lineId)}`,
-    );
-    if (!response.data) throw new Error("Customer not found");
-    return mapSubscriberRecord(response.data);
+    const trimmed = lineId.trim();
+    if (!trimmed) throw new Error("Customer not found");
+    const rows = await this.list({ search: trimmed, kind: "all", limit: 500 });
+    const match = rows.find((row) => row.lineId === trimmed);
+    if (!match) throw new Error("Customer not found");
+    return match;
   },
 
   async create(body: {

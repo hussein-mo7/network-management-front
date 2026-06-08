@@ -1,19 +1,20 @@
 import { Lightbulb, Send, Signal } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/buttons";
 import { Text } from "@/components/ui/typography";
+import { smsPath } from "@/lib/routePaths";
 import { SMS_MAX_LENGTH } from "@/lib/smsUtils";
 import { cn } from "@/lib/cn";
-import type { SmsRecipientMode, SmsTemplateId } from "@/types/sms";
-
-const TEMPLATE_IDS: SmsTemplateId[] = ["renewal", "expired", "support", "blank"];
+import type { SmsRecipientMode, SmsTemplate } from "@/types/sms";
 
 interface SmsComposePanelProps {
   recipientMode: SmsRecipientMode;
   message: string;
   onMessageChange: (value: string) => void;
-  activeTemplate: SmsTemplateId;
-  onTemplateChange: (id: SmsTemplateId) => void;
+  templates: SmsTemplate[];
+  activeTemplateId: number | null;
+  onTemplateChange: (template: SmsTemplate) => void;
   customPhone: string;
   onCustomPhoneChange: (value: string) => void;
   recipientCount: number;
@@ -27,7 +28,8 @@ export function SmsComposePanel({
   recipientMode,
   message,
   onMessageChange,
-  activeTemplate,
+  templates,
+  activeTemplateId,
   onTemplateChange,
   customPhone,
   onCustomPhoneChange,
@@ -76,22 +78,28 @@ export function SmsComposePanel({
         )}
 
         <div className="mt-4 space-y-2">
-          <Text className="text-xs font-medium text-muted-foreground">{t("sms.compose.templatesLabel")}</Text>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <Text className="text-xs font-medium text-muted-foreground">
+              {t("sms.compose.templatesLabel")}
+            </Text>
+            <Link to={smsPath("templates")} className="text-xs font-medium text-foreground hover:underline">
+              {t("sms.compose.manageTemplates")}
+            </Link>
+          </div>
           <div className="flex flex-wrap gap-2">
-            {TEMPLATE_IDS.filter((id) => id !== "blank").map((id) => (
+            {templates.map((template) => (
               <button
-                key={id}
+                key={template.id}
                 type="button"
-                onClick={() => onTemplateChange(id)}
+                onClick={() => onTemplateChange(template)}
                 className={cn(
                   "rounded-lg border px-3 py-1.5 text-xs font-medium transition-colors",
-                  activeTemplate === id
+                  activeTemplateId === template.id
                     ? "border-foreground bg-foreground text-background"
                     : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
-                {t(`sms.templates.${id}`).slice(0, 42)}
-                {t(`sms.templates.${id}`).length > 42 ? "…" : ""}
+                {template.name}
               </button>
             ))}
           </div>

@@ -5,6 +5,7 @@ import { financeEn } from "./finance.i18n";
 import { statisticsEn } from "./statistics.i18n";
 import { stoppedEn } from "./stopped.i18n";
 import { smsEn } from "./sms.i18n";
+import { onlineUsersEn } from "./onlineUsers.i18n";
 import { subscribersEn } from "./subscribers.i18n";
 
 export const en: TranslationSchema = {
@@ -287,6 +288,7 @@ export const en: TranslationSchema = {
   customers: customersEn,
   stopped: stoppedEn,
   expiring: expiringEn,
+  onlineUsers: onlineUsersEn,
   finance: financeEn,
   statistics: statisticsEn,
   subscribers: subscribersEn,

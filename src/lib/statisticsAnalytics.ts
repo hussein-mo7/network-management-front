@@ -239,6 +239,7 @@ export function computeStatisticsData(input: ComputeStatisticsInput): Statistics
       const sub = subscribers.find((s) => s.lineId === h.subscriberLineId);
       return {
         id: h.id,
+        subscriberId: sub?.id ?? null,
         lineId: h.subscriberLineId,
         fullName: sub?.fullName ?? "—",
         phone: sub?.phone ?? null,

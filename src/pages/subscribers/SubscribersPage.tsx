@@ -17,7 +17,12 @@ import { useSubscriberListMutations, useSubscribersQuery } from "@/hooks/useSubs
 import { useSpeedsQuery } from "@/hooks/useSpeeds";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { isOnSubscribersList } from "@/lib/customerUtils";
-import { getDistinctSpeeds, mergeSpeedFilterOptions } from "@/lib/subscriberUtils";
+import {
+  type SubscriberListStatusFilter,
+  filterSubscribers,
+  getDistinctSpeeds,
+  mergeSpeedFilterOptions,
+} from "@/lib/subscriberUtils";
 import { ApiError } from "@/types/api";
 import type { Subscriber } from "@/types/subscriber";
 
@@ -31,6 +36,7 @@ export function SubscribersPage() {
   const { t } = useTranslation();
   const { canManage } = useRoleAccess();
   const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<SubscriberListStatusFilter>("all");
   const [speedMbps, setSpeedMbps] = useState<number | "all">("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [dialog, setDialog] = useState<Dialog | null>(null);
@@ -59,10 +65,10 @@ export function SubscribersPage() {
 
   const { updateMutation, deleteMutation, deleteAllMutation } = useSubscriberListMutations();
 
-  const filteredRows = useMemo(
-    () => rows.filter((row) => isOnSubscribersList(row)),
-    [rows],
-  );
+  const filteredRows = useMemo(() => {
+    const onList = rows.filter((row) => isOnSubscribersList(row));
+    return filterSubscribers(onList, { search, status, speedMbps });
+  }, [rows, search, status, speedMbps]);
 
   const speedOptions = useMemo(
     () =>
@@ -172,6 +178,8 @@ export function SubscribersPage() {
           <SubscriptionFilters
             search={search}
             onSearchChange={setSearch}
+            status={status}
+            onStatusChange={setStatus}
             speedMbps={speedMbps}
             onSpeedChange={setSpeedMbps}
             speedOptions={speedOptions}

@@ -69,7 +69,7 @@ export function matchesSubscriberSearch(subscriber: Subscriber, query: string): 
   return haystack.includes(q);
 }
 
-export type SubscriberListStatusFilter = "all" | "active" | "no_subscription";
+export type SubscriberListStatusFilter = "all" | "active" | "paused" | "no_subscription";
 
 export function filterSubscribers(
   rows: Subscriber[],
@@ -82,10 +82,27 @@ export function filterSubscribers(
   return rows.filter((row) => {
     if (isStoppedSubscriber(row)) return false;
     if (!matchesSubscriberSearch(row, filters.search)) return false;
-    if (filters.status !== "all" && getSubscriberLifecycleStatus(row) !== filters.status) return false;
+    if (filters.status === "paused" && !row.isPaused) return false;
+    if (filters.status === "active") {
+      if (row.isPaused) return false;
+      if (getSubscriberLifecycleStatus(row) !== "active") return false;
+    }
+    if (filters.status === "no_subscription") {
+      if (row.isPaused) return false;
+      if (getSubscriberLifecycleStatus(row) !== "no_subscription") return false;
+    }
     if (filters.speedMbps !== "all" && row.speedMbps !== filters.speedMbps) return false;
     return true;
   });
+}
+
+export function getSubscriberListStatus(
+  row: Subscriber,
+): Extract<import("@/types/subscriber").SubscriberLifecycleStatus, "active" | "no_subscription" | "suspended"> | "paused" {
+  if (row.isPaused) return "paused";
+  const lifecycle = getSubscriberLifecycleStatus(row);
+  if (lifecycle === "no_subscription") return "no_subscription";
+  return "active";
 }
 
 export function getSubscriberInitials(fullName: string): string {

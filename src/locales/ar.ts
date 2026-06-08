@@ -10,6 +10,8 @@ import type { SmsI18n } from "./sms.i18n";
 import { smsAr } from "./sms.i18n";
 import type { StatisticsI18n } from "./statistics.i18n";
 import { statisticsAr } from "./statistics.i18n";
+import type { OnlineUsersI18n } from "./onlineUsers.i18n";
+import { onlineUsersAr } from "./onlineUsers.i18n";
 import type { SubscribersI18n } from "./subscribers.i18n";
 import { subscribersAr } from "./subscribers.i18n";
 
@@ -272,6 +274,7 @@ export interface TranslationSchema {
   customers: CustomersI18n;
   stopped: StoppedI18n;
   expiring: ExpiringI18n;
+  onlineUsers: OnlineUsersI18n;
   finance: FinanceI18n;
   statistics: StatisticsI18n;
   subscribers: SubscribersI18n;
@@ -651,6 +654,7 @@ export const ar: TranslationSchema = {
   customers: customersAr,
   stopped: stoppedAr,
   expiring: expiringAr,
+  onlineUsers: onlineUsersAr,
   finance: financeAr,
   statistics: statisticsAr,
   subscribers: subscribersAr,

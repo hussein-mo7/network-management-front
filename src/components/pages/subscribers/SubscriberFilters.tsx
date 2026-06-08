@@ -28,7 +28,7 @@ export function SubscriberFilters({
 }: SubscriberFiltersProps) {
   const { t } = useTranslation();
 
-  const statusFilters: SubscriberStatusFilter[] = ["all", "active", "no_subscription"];
+  const statusFilters: SubscriberStatusFilter[] = ["all", "active", "paused", "no_subscription"];
 
   return (
     <div className={cn("space-y-4", className)}>

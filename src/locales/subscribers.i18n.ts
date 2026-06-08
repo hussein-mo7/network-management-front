@@ -10,6 +10,7 @@ export type SubscribersI18n = {
   status: {
     active: string;
     suspended: string;
+    paused: string;
     no_subscription: string;
     stopped: string;
   };
@@ -19,6 +20,7 @@ export type SubscribersI18n = {
     status: string;
     status_all: string;
     status_active: string;
+    status_paused: string;
     status_no_subscription: string;
     speed: string;
   };
@@ -110,11 +112,28 @@ export type SubscribersI18n = {
     stopMessage: string;
     stopConfirm: string;
     stopSuccess: string;
+    pauseSubscriber: string;
+    pauseTitle: string;
+    pauseMessage: string;
+    pauseConfirm: string;
+    pauseSuccess: string;
+    unpauseSubscriber: string;
+    unpauseSuccess: string;
     firstContact: string;
     disconnection: string;
     formSection: string;
     newPassword: string;
     passwordEditHint: string;
+    speedEditHint: string;
+    speedUpdateSuccess: string;
+    router: {
+      sectionTitle: string;
+      sectionHint: string;
+      nameLabel: string;
+      imageAlt: string;
+      noImage: string;
+      empty: string;
+    };
     tabs: { stats: string; invoices: string; username: string };
     stats: {
       usageDays: string;
@@ -170,7 +189,6 @@ export type SubscribersI18n = {
     pickSpeedForPool: string;
     noSpeedTiers: string;
     confirmPick: string;
-    poolOnlyHint: string;
     poolEmpty: string;
     current: string;
     editPassword: string;
@@ -181,6 +199,22 @@ export type SubscribersI18n = {
     passwordUpdated: string;
     historyTitle: string;
     historyEmpty: string;
+    historyAdd: string;
+    historyAddTitle: string;
+    historyAddHint: string;
+    historyEdit: string;
+    historyEditTitle: string;
+    historyEditHint: string;
+    historyDelete: string;
+    historyDeleteTitle: string;
+    historyDeleteMessage: string;
+    historyUsernameRequired: string;
+    historyCreateSuccess: string;
+    historyUpdateSuccess: string;
+    historyDeleteSuccess: string;
+    poolSpeedLabel: string;
+    poolSpeedHint: string;
+    poolSpeedMissing: string;
     speedHistoryTitle: string;
     speedHistoryEmpty: string;
     usageStart: string;
@@ -205,6 +239,7 @@ export const subscribersEn: SubscribersI18n = {
   status: {
     active: "Active",
     suspended: "Suspended",
+    paused: "Paused temporarily",
     no_subscription: "No subscription",
     stopped: "Stopped",
   },
@@ -214,6 +249,7 @@ export const subscribersEn: SubscribersI18n = {
     status: "Status",
     status_all: "All",
     status_active: "Active",
+    status_paused: "Paused temporarily",
     status_no_subscription: "No username",
     speed: "Speed",
   },
@@ -305,11 +341,28 @@ export const subscribersEn: SubscribersI18n = {
     stopMessage: "Move {{name}} to stopped list and return username to the pool?",
     stopConfirm: "Stop",
     stopSuccess: "Subscriber stopped — username returned to pool when not expired",
+    pauseSubscriber: "Pause temporarily",
+    pauseTitle: "Pause temporarily",
+    pauseMessage: "Mark {{name}} as temporarily paused?",
+    pauseConfirm: "Pause",
+    pauseSuccess: "Subscriber paused temporarily",
+    unpauseSubscriber: "Resume subscription",
+    unpauseSuccess: "Subscriber resumed",
     firstContact: "First contact",
     disconnection: "Disconnect date",
     formSection: "Subscriber details",
     newPassword: "New password",
     passwordEditHint: "Leave blank to keep the current password. Username cannot be changed here.",
+    speedEditHint: "Change speed here. Username pool picks use this speed — edit it on the Statistics tab, not when assigning.",
+    speedUpdateSuccess: "Speed updated",
+    router: {
+      sectionTitle: "Router / CPE",
+      sectionHint: "Customer premises equipment linked to this subscription (API connection coming soon).",
+      nameLabel: "Router name",
+      imageAlt: "Router photo",
+      noImage: "No router image",
+      empty: "No router assigned yet — will appear here when connected to the server.",
+    },
     tabs: { stats: "Statistics", invoices: "Invoices", username: "Username" },
     stats: {
       usageDays: "Days in cycle",
@@ -370,8 +423,7 @@ export const subscribersEn: SubscribersI18n = {
     pickSpeedForPool: "Speed tier (pool)",
     noSpeedTiers: "Add speed tiers first, then add available usernames for that speed.",
     confirmPick: "Confirm",
-    poolOnlyHint: "New usernames are added only under Available usernames — not from this screen.",
-    poolEmpty: "No available usernames for this speed. Add some in Available usernames first.",
+    poolEmpty: "No usernames available for this speed. Add them from Available Usernames.",
     current: "Current credentials",
     editPassword: "Change password",
     editPasswordHint: "Username cannot be changed here. Enter a new password for this subscriber.",
@@ -381,6 +433,22 @@ export const subscribersEn: SubscribersI18n = {
     passwordUpdated: "Password updated",
     historyTitle: "Username history",
     historyEmpty: "No previous usernames.",
+    historyAdd: "Add entry",
+    historyAddTitle: "Add username history",
+    historyAddHint: "Manual record for a past username (e.g. migrated data).",
+    historyEdit: "Edit entry",
+    historyEditTitle: "Edit username history",
+    historyEditHint: "Update username, password, or usage dates.",
+    historyDelete: "Delete entry",
+    historyDeleteTitle: "Delete history entry?",
+    historyDeleteMessage: "Remove {{username}} from the history log?",
+    historyUsernameRequired: "Username is required",
+    historyCreateSuccess: "History entry added",
+    historyUpdateSuccess: "History entry updated",
+    historyDeleteSuccess: "History entry deleted",
+    poolSpeedLabel: "Pool speed",
+    poolSpeedHint: "Usernames are loaded from this speed tier. Change speed on the Statistics tab.",
+    poolSpeedMissing: "Set the subscriber speed on the Statistics tab before picking from the pool.",
     speedHistoryTitle: "Speed history",
     speedHistoryEmpty: "No speed changes recorded.",
     usageStart: "Usage start",
@@ -405,6 +473,7 @@ export const subscribersAr: SubscribersI18n = {
   status: {
     active: "نشط",
     suspended: "موقوف",
+    paused: "موقف مؤقتاً",
     no_subscription: "بدون اشتراك",
     stopped: "متوقف",
   },
@@ -414,6 +483,7 @@ export const subscribersAr: SubscribersI18n = {
     status: "الحالة",
     status_all: "الكل",
     status_active: "نشط",
+    status_paused: "موقف مؤقتاً",
     status_no_subscription: "بدون اسم مستخدم",
     speed: "السرعة",
   },
@@ -505,11 +575,28 @@ export const subscribersAr: SubscribersI18n = {
     stopMessage: "نقل {{name}} لقائمة المتوقفين وإرجاع الاسم للمجموعة؟",
     stopConfirm: "إيقاف",
     stopSuccess: "تم إيقاف المشترك — يُعاد الاسم للمجموعة إن لم يكن منتهيًا",
+    pauseSubscriber: "توقيف مؤقت",
+    pauseTitle: "توقيف مؤقت",
+    pauseMessage: "تعليم {{name}} كموقف مؤقتاً؟",
+    pauseConfirm: "توقيف مؤقت",
+    pauseSuccess: "تم التوقيف المؤقت للمشترك",
+    unpauseSubscriber: "إلغاء التوقيف المؤقت",
+    unpauseSuccess: "تم استئناف الاشتراك",
     firstContact: "أول اتصال",
     disconnection: "تاريخ الفصل",
     formSection: "بيانات المشترك",
     newPassword: "كلمة مرور جديدة",
     passwordEditHint: "اترك الحقل فارغاً للإبقاء على كلمة المرور الحالية. لا يمكن تغيير اسم المستخدم من هنا.",
+    speedEditHint: "غيّر السرعة من هنا. اختيار الاسم من المجموعة يستخدم هذه السرعة — عدّلها من تبويب الإحصائيات وليس عند التعيين.",
+    speedUpdateSuccess: "تم تحديث السرعة",
+    router: {
+      sectionTitle: "الراوتر / جهاز العميل",
+      sectionHint: "جهاز الاشتراك في موقع الزبون (سيتم الربط بالسيرفر لاحقاً).",
+      nameLabel: "اسم الراوتر",
+      imageAlt: "صورة الراوتر",
+      noImage: "لا توجد صورة",
+      empty: "لم يُعيَّن راوتر بعد — سيظهر هنا عند الربط بالسيرفر.",
+    },
     tabs: { stats: "الإحصائيات", invoices: "الفواتير", username: "اسم المستخدم" },
     stats: {
       usageDays: "أيام في الدورة",
@@ -569,8 +656,7 @@ export const subscribersAr: SubscribersI18n = {
     pickSpeedForPool: "سرعة الباقة (المجموعة)",
     noSpeedTiers: "أضف سرعات أولًا، ثم أسماء مستخدمين متاحة لهذه السرعة.",
     confirmPick: "تأكيد",
-    poolOnlyHint: "الأسماء الجديدة تُضاف فقط من صفحة الأسماء المتاحة — وليس من هنا.",
-    poolEmpty: "لا توجد أسماء متاحة لهذه السرعة. أضف من صفحة الأسماء المتاحة.",
+    poolEmpty: "لا توجد أسماء متاحة لهذه السرعة. أضفها من صفحة الأسماء المتاحة.",
     current: "بيانات الدخول الحالية",
     editPassword: "تغيير كلمة المرور",
     editPasswordHint: "لا يمكن تغيير اسم المستخدم من هنا. أدخل كلمة مرور جديدة لهذا المشترك.",
@@ -580,6 +666,22 @@ export const subscribersAr: SubscribersI18n = {
     passwordUpdated: "تم تحديث كلمة المرور",
     historyTitle: "سجل أسماء المستخدمين",
     historyEmpty: "لا يوجد أسماء سابقة.",
+    historyAdd: "إضافة سجل",
+    historyAddTitle: "إضافة سجل اسم مستخدم",
+    historyAddHint: "سجل يدوي لاسم مستخدم سابق (مثلاً بيانات قديمة).",
+    historyEdit: "تعديل السجل",
+    historyEditTitle: "تعديل سجل اسم المستخدم",
+    historyEditHint: "تحديث اسم المستخدم أو كلمة المرور أو تواريخ الاستخدام.",
+    historyDelete: "حذف السجل",
+    historyDeleteTitle: "حذف سجل من السجل؟",
+    historyDeleteMessage: "إزالة {{username}} من سجل الأسماء؟",
+    historyUsernameRequired: "اسم المستخدم مطلوب",
+    historyCreateSuccess: "تمت إضافة السجل",
+    historyUpdateSuccess: "تم تحديث السجل",
+    historyDeleteSuccess: "تم حذف السجل",
+    poolSpeedLabel: "سرعة المجموعة",
+    poolSpeedHint: "تُحمَّل الأسماء من هذه السرعة. غيّر السرعة من تبويب الإحصائيات.",
+    poolSpeedMissing: "حدّد سرعة المشترك من تبويب الإحصائيات قبل الاختيار من المجموعة.",
     speedHistoryTitle: "سجل تغيير السرعة",
     speedHistoryEmpty: "لا يوجد تغييرات سرعة.",
     usageStart: "بداية الاستخدام",

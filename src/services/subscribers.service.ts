@@ -55,6 +55,18 @@ export const subscribersService = {
     return mapSubscriberProfileResponse(response);
   },
 
+  /** Resolve line ID via list search, then load profile (subscribers controller only). */
+  async getByLineId(lineId: string): Promise<SubscriberProfileDto> {
+    const trimmed = lineId.trim();
+    const [activeRows, stoppedRows] = await Promise.all([
+      this.list({ search: trimmed, limit: 200, suspended: false, expired: false }),
+      this.list({ search: trimmed, limit: 200, suspended: true }),
+    ]);
+    const match = [...activeRows, ...stoppedRows].find((row) => row.lineId === trimmed);
+    if (!match) throw new Error("Subscriber not found");
+    return this.getProfile(match.id);
+  },
+
   async update(
     id: number,
     body: {
@@ -64,6 +76,8 @@ export const subscribersService = {
       password?: string | null;
       monthlyPrice?: number;
       isSuspended?: boolean;
+      isPaused?: boolean;
+      speedId?: number;
       notes?: string | null;
     },
   ): Promise<Subscriber> {
@@ -100,6 +114,59 @@ export const subscribersService = {
       `/subscribers/${subscriberId}/username-history`,
     );
     return mapUsernameHistory(response.data ?? [], lineId);
+  },
+
+  async createUsernameHistoryEntry(
+    subscriberId: number,
+    lineId: string,
+    body: {
+      oldUsername: string;
+      oldPassword?: string | null;
+      usageStartDate?: string | null;
+      usageEndDate?: string | null;
+    },
+  ): Promise<UsernameHistoryEntry> {
+    const response = await apiPost<ApiListEnvelope<BackendUsernameHistoryRow>>(
+      `/subscribers/${subscriberId}/username-history`,
+      {
+        oldUsername: body.oldUsername,
+        oldPassword: body.oldPassword ?? null,
+        usageStartDate: body.usageStartDate || null,
+        usageEndDate: body.usageEndDate || null,
+      },
+    );
+    const row = response.data;
+    if (!row) throw new Error("Invalid username history response");
+    return mapUsernameHistory([row], lineId)[0];
+  },
+
+  async updateUsernameHistoryEntry(
+    subscriberId: number,
+    lineId: string,
+    historyId: number,
+    body: {
+      oldUsername: string;
+      oldPassword?: string | null;
+      usageStartDate?: string | null;
+      usageEndDate?: string | null;
+    },
+  ): Promise<UsernameHistoryEntry> {
+    const response = await apiPut<ApiListEnvelope<BackendUsernameHistoryRow>>(
+      `/subscribers/${subscriberId}/username-history/${historyId}`,
+      {
+        oldUsername: body.oldUsername,
+        oldPassword: body.oldPassword ?? null,
+        usageStartDate: body.usageStartDate || null,
+        usageEndDate: body.usageEndDate || null,
+      },
+    );
+    const row = response.data;
+    if (!row) throw new Error("Invalid username history response");
+    return mapUsernameHistory([row], lineId)[0];
+  },
+
+  async deleteUsernameHistoryEntry(subscriberId: number, historyId: number): Promise<void> {
+    await apiDelete(`/subscribers/${subscriberId}/username-history/${historyId}`);
   },
 
   async getSpeedHistory(subscriberId: number, lineId: string): Promise<SpeedHistoryEntry[]> {

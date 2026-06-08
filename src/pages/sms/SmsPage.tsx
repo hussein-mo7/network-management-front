@@ -1,29 +1,58 @@
 import { useEffect, useMemo, useState } from "react";
+import { Navigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { SmsAudienceFilters, SmsComposePanel, SmsRecipientTable } from "@/components/pages/sms";
+import {
+  SmsAudienceFilters,
+  SmsComposePanel,
+  SmsLogsTable,
+  SmsRecipientTable,
+  SmsSectionNav,
+  SmsTemplatesPanel,
+} from "@/components/pages/sms";
 import { Button } from "@/components/ui/buttons";
 import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
+import {
+  useSendSmsMutation,
+  useSmsLogsQuery,
+  useSmsRecipientsQuery,
+  useSmsTemplatesQuery,
+} from "@/hooks/useSms";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
-import { useSendSmsMutation, useSmsRecipientsQuery } from "@/hooks/useSms";
-import type { SmsAudienceFilter, SmsRecipientMode, SmsTemplateId } from "@/types/sms";
+import { smsPath, type SmsSection } from "@/lib/routePaths";
+import type { SmsAudienceFilter, SmsRecipientMode, SmsTemplate } from "@/types/sms";
 import { ApiError } from "@/types/api";
+
+const SMS_SECTIONS: SmsSection[] = ["send", "logs", "templates"];
 
 export function SmsPage() {
   const { t } = useTranslation();
   const { canManage } = useRoleAccess();
+  const { section: sectionParam } = useParams<{ section?: string }>();
+  const section: SmsSection =
+    sectionParam && SMS_SECTIONS.includes(sectionParam as SmsSection)
+      ? (sectionParam as SmsSection)
+      : "send";
+
+  if (sectionParam && !SMS_SECTIONS.includes(sectionParam as SmsSection)) {
+    return <Navigate to={smsPath("send")} replace />;
+  }
 
   const [recipientMode, setRecipientMode] = useState<SmsRecipientMode>("subscribers");
   const [audience, setAudience] = useState<SmsAudienceFilter>("expires1Day");
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [message, setMessage] = useState("");
-  const [activeTemplate, setActiveTemplate] = useState<SmsTemplateId>("renewal");
+  const [activeTemplateId, setActiveTemplateId] = useState<number | null>(null);
   const [customPhone, setCustomPhone] = useState("");
+  const [logsPage, setLogsPage] = useState(1);
 
   const listAudience: SmsAudienceFilter =
     recipientMode === "customers" ? "customers" : audience;
+
+  const templatesQuery = useSmsTemplatesQuery();
+  const templates = templatesQuery.data ?? [];
 
   const {
     data: filteredRows = [],
@@ -31,8 +60,9 @@ export function SmsPage() {
     isError,
     error,
     refetch,
-  } = useSmsRecipientsQuery(listAudience, search, recipientMode !== "custom");
+  } = useSmsRecipientsQuery(listAudience, search, section === "send" && recipientMode !== "custom");
 
+  const logsQuery = useSmsLogsQuery(logsPage);
   const sendMutation = useSendSmsMutation();
 
   useEffect(() => {
@@ -40,9 +70,10 @@ export function SmsPage() {
   }, [audience, search, recipientMode]);
 
   useEffect(() => {
-    if (activeTemplate === "blank") return;
-    setMessage(t(`sms.templates.${activeTemplate}`));
-  }, [activeTemplate, t]);
+    if (!templates.length || activeTemplateId != null) return;
+    setActiveTemplateId(templates[0].id);
+    setMessage(templates[0].body);
+  }, [templates, activeTemplateId]);
 
   const selectedRecipients = useMemo(
     () => filteredRows.filter((r) => selectedIds.has(r.id)),
@@ -61,6 +92,11 @@ export function SmsPage() {
   const toggleAll = (checked: boolean) => {
     if (checked) setSelectedIds(new Set(filteredRows.map((r) => r.id)));
     else setSelectedIds(new Set());
+  };
+
+  const handleTemplateChange = (template: SmsTemplate) => {
+    setActiveTemplateId(template.id);
+    setMessage(template.body);
   };
 
   const handleSend = async () => {
@@ -82,6 +118,7 @@ export function SmsPage() {
           recipientType: "custom",
           phone: customPhone.trim(),
           message: trimmed,
+          templateId: activeTemplateId ?? undefined,
         });
         toast.success(t("sms.toast.sent", { count: result.sentCount }));
         return;
@@ -97,6 +134,7 @@ export function SmsPage() {
         subscriberIds: selectedRecipients.map((r) => r.id),
         phones: selectedRecipients.map((r) => r.phone!).filter(Boolean),
         message: trimmed,
+        templateId: activeTemplateId ?? undefined,
       });
 
       if (result.failedCount > 0) {
@@ -118,81 +156,133 @@ export function SmsPage() {
         </Text>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)]">
-        <section className="space-y-4 rounded-xl border border-border bg-surface p-4 sm:p-6">
-          <SmsAudienceFilters
-            search={search}
-            onSearchChange={setSearch}
-            audience={audience}
-            onAudienceChange={setAudience}
-            recipientMode={recipientMode}
-            onRecipientModeChange={setRecipientMode}
-          />
+      <SmsSectionNav />
 
-          {recipientMode === "subscribers" || recipientMode === "customers" ? (
+      {section === "send" ? (
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)]">
+          <section className="space-y-4 rounded-xl border border-border bg-surface p-4 sm:p-6">
+            <SmsAudienceFilters
+              search={search}
+              onSearchChange={setSearch}
+              audience={audience}
+              onAudienceChange={setAudience}
+              recipientMode={recipientMode}
+              onRecipientModeChange={setRecipientMode}
+            />
+
+            {recipientMode === "subscribers" || recipientMode === "customers" ? (
+              <>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Text muted className="text-sm">
+                    {t("sms.table.sectionSubtitle", {
+                      count: filteredRows.length,
+                      selected: selectedIds.size,
+                    })}
+                  </Text>
+                  <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
+                      {t("sms.table.selectAll")}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedIds(new Set())}
+                      disabled={selectedIds.size === 0}
+                    >
+                      {t("sms.table.clearSelection")}
+                    </Button>
+                  </div>
+                </div>
+
+                {isLoading ? (
+                  <LoadingState layout="table" variant="section" />
+                ) : isError ? (
+                  <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
+                    <Text muted>
+                      {error instanceof ApiError ? error.message : t("common.unexpectedError")}
+                    </Text>
+                    <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
+                      {t("common.retry")}
+                    </Button>
+                  </div>
+                ) : (
+                  <SmsRecipientTable
+                    rows={filteredRows}
+                    selectedIds={selectedIds}
+                    onToggleRow={toggleRow}
+                    onToggleAll={toggleAll}
+                  />
+                )}
+              </>
+            ) : null}
+          </section>
+
+          <SmsComposePanel
+            recipientMode={recipientMode}
+            message={message}
+            onMessageChange={setMessage}
+            templates={templates}
+            activeTemplateId={activeTemplateId}
+            onTemplateChange={handleTemplateChange}
+            customPhone={customPhone}
+            onCustomPhoneChange={setCustomPhone}
+            recipientCount={selectedRecipients.length}
+            onSend={handleSend}
+            isSending={sendMutation.isPending}
+            canSend={canManage}
+          />
+        </div>
+      ) : null}
+
+      {section === "logs" ? (
+        <section className="space-y-4 rounded-xl border border-border bg-surface p-4 sm:p-6">
+          <Text muted className="text-sm">{t("sms.logs.subtitle")}</Text>
+          {logsQuery.isLoading ? (
+            <LoadingState layout="table" variant="section" />
+          ) : logsQuery.isError ? (
+            <div className="text-center">
+              <Text muted>{t("common.unexpectedError")}</Text>
+              <Button variant="outline" size="sm" className="mt-4" onClick={() => logsQuery.refetch()}>
+                {t("common.retry")}
+              </Button>
+            </div>
+          ) : (
             <>
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <Text muted className="text-sm">
-                  {t("sms.table.sectionSubtitle", {
-                    count: filteredRows.length,
-                    selected: selectedIds.size,
-                  })}
-                </Text>
-                <div className="flex flex-wrap gap-2">
-                  <Button variant="outline" size="sm" onClick={() => toggleAll(true)}>
-                    {t("sms.table.selectAll")}
+              <SmsLogsTable rows={logsQuery.data?.items ?? []} />
+              {(logsQuery.data?.total ?? 0) > (logsQuery.data?.limit ?? 50) ? (
+                <div className="flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    disabled={logsPage <= 1}
+                    onClick={() => setLogsPage((p) => Math.max(1, p - 1))}
+                  >
+                    {t("sms.logs.previous")}
                   </Button>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
-                    onClick={() => setSelectedIds(new Set())}
-                    disabled={selectedIds.size === 0}
+                    disabled={logsPage * (logsQuery.data?.limit ?? 50) >= (logsQuery.data?.total ?? 0)}
+                    onClick={() => setLogsPage((p) => p + 1)}
                   >
-                    {t("sms.table.clearSelection")}
+                    {t("sms.logs.next")}
                   </Button>
                 </div>
-              </div>
-
-              {isLoading ? (
-                <LoadingState layout="table" variant="section" />
-              ) : isError ? (
-                <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
-                  <Text muted>
-                    {error instanceof ApiError ? error.message : t("common.unexpectedError")}
-                  </Text>
-                  <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
-                    {t("common.retry")}
-                  </Button>
-                </div>
-              ) : (
-                <SmsRecipientTable
-                  rows={filteredRows}
-                  selectedIds={selectedIds}
-                  onToggleRow={toggleRow}
-                  onToggleAll={toggleAll}
-                />
-              )}
+              ) : null}
             </>
-          ) : null}
+          )}
         </section>
+      ) : null}
 
-        <SmsComposePanel
-          recipientMode={recipientMode}
-          message={message}
-          onMessageChange={(value) => {
-            setMessage(value);
-            setActiveTemplate("blank");
-          }}
-          activeTemplate={activeTemplate}
-          onTemplateChange={setActiveTemplate}
-          customPhone={customPhone}
-          onCustomPhoneChange={setCustomPhone}
-          recipientCount={selectedRecipients.length}
-          onSend={handleSend}
-          isSending={sendMutation.isPending}
-          canSend={canManage}
-        />
-      </div>
+      {section === "templates" ? (
+        <section className="rounded-xl border border-border bg-surface p-4 sm:p-6">
+          <SmsTemplatesPanel
+            templates={templates}
+            canManage={canManage}
+            isLoading={templatesQuery.isLoading}
+          />
+        </section>
+      ) : null}
     </div>
   );
 }

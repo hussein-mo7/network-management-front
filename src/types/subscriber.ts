@@ -25,6 +25,7 @@ export interface Subscriber {
   disconnectionDate: string | null;
   isActive: boolean;
   isSuspended: boolean;
+  isPaused: boolean;
   isOwnerUsername: boolean;
   balance: number;
   notes: string | null;

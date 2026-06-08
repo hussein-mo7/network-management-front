@@ -7,6 +7,7 @@ import { AvailableUsernamesPage } from "@/pages/available-usernames";
 import { SpeedsPage } from "@/pages/speeds";
 import { SupportPage } from "@/pages/support";
 import { PlaceholderPage } from "@/pages/_shared/PlaceholderPage";
+import { OnlineUsersPage } from "@/pages/online-users/OnlineUsersPage";
 import { AddCustomerPage, CustomerProfilePage, CustomersPage } from "@/pages/customers";
 import { ExpiringPage } from "@/pages/expiring/ExpiringPage";
 import { FinancePage } from "@/pages/finance/FinancePage";
@@ -73,7 +74,7 @@ export function AppRouter() {
             element={<Navigate to="/customers/new" replace />}
           />
           <Route
-            path="subscribers/:subscriberId"
+            path="subscribers/:lineId/:tab?"
             element={
               <Can permission="subscribers.view">
                 <SubscriberProfilePage />
@@ -84,7 +85,7 @@ export function AppRouter() {
             path="online-users"
             element={
               <Can permission="online_users.view">
-                <PlaceholderPage titleKey="nav.items.onlineUsers" />
+                <OnlineUsersPage />
               </Can>
             }
           />
@@ -121,7 +122,23 @@ export function AppRouter() {
             }
           />
           <Route
+            path="available-usernames/:speedValue"
+            element={
+              <Can permission="available_usernames.view">
+                <AvailableUsernamesPage />
+              </Can>
+            }
+          />
+          <Route
             path="sms"
+            element={
+              <Can permission="sms.view">
+                <SmsPage />
+              </Can>
+            }
+          />
+          <Route
+            path="sms/:section"
             element={
               <Can permission="sms.view">
                 <SmsPage />

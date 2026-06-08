@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -10,8 +10,8 @@ import {
   SubscriberProfileTabs,
   SubscriberStatsTab,
   SubscriberUsernameTab,
-  type SubscriberProfileTab,
 } from "@/components/pages/subscribers";
+import { parseSubscriberProfileTab, subscriberProfilePath } from "@/lib/routePaths";
 import { useSpeedsQuery } from "@/hooks/useSpeeds";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
@@ -19,10 +19,10 @@ import { LoadingState } from "@/components/ui/feedback";
 import { Text } from "@/components/ui/typography";
 import { buttonBaseClassName, buttonSizes, buttonVariants } from "@/components/ui/buttons/buttonStyles";
 import {
+  useSubscriberByLineIdQuery,
   useSubscriberInvoiceMutations,
   useSubscriberInvoicesQuery,
   useSubscriberProfileMutations,
-  useSubscriberProfileQuery,
   useSubscriberSpeedHistoryQuery,
   useSubscriberUsernameHistoryQuery,
 } from "@/hooks/useSubscribers";
@@ -34,28 +34,31 @@ import { cn } from "@/lib/cn";
 export function SubscriberProfilePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { subscriberId: subscriberIdParam } = useParams<{ subscriberId: string }>();
-  const subscriberId = Number(subscriberIdParam);
+  const { lineId: lineIdParam, tab: tabParam } = useParams<{
+    lineId: string;
+    tab?: string;
+  }>();
+  const decodedLineId = lineIdParam ? decodeURIComponent(lineIdParam) : "";
+  const parsedTab = parseSubscriberProfileTab(tabParam);
   const { canManage, canViewPasswords } = useRoleAccess();
-
-  const [activeTab, setActiveTab] = useState<SubscriberProfileTab>("stats");
   const [stopDialogOpen, setStopDialogOpen] = useState(false);
+  const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
   const [pickUsernameOpen, setPickUsernameOpen] = useState(false);
-  const [assignSpeedId, setAssignSpeedId] = useState<number | null>(null);
   const { data: speedTiers = [] } = useSpeedsQuery();
 
-  const profileQuery = useSubscriberProfileQuery(subscriberId, Number.isFinite(subscriberId));
-  const lineId = profileQuery.data?.subscriber.lineId ?? "";
+  const profileQuery = useSubscriberByLineIdQuery(decodedLineId, Boolean(decodedLineId));
+
+  const subscriber = profileQuery.data?.subscriber;
+  const subscriberId = subscriber?.id ?? 0;
+  const lineId = subscriber?.lineId ?? decodedLineId;
 
   const invoicesQuery = useSubscriberInvoicesQuery(subscriberId, lineId);
   const usernameHistoryQuery = useSubscriberUsernameHistoryQuery(subscriberId, lineId);
   const speedHistoryQuery = useSubscriberSpeedHistoryQuery(subscriberId, lineId);
 
-  const { updateMutation, stopMutation, assignUsernameMutation } =
+  const { updateMutation, stopMutation, pauseMutation, assignUsernameMutation } =
     useSubscriberProfileMutations(subscriberId);
   const { createMutation, deleteMutation } = useSubscriberInvoiceMutations(subscriberId, lineId);
-
-  const subscriber = profileQuery.data?.subscriber;
   const daysGone = profileQuery.data?.daysGone ?? null;
   const daysRemaining = profileQuery.data?.daysRemaining ?? null;
 
@@ -65,18 +68,26 @@ export function SubscriberProfilePage() {
     return speedTiers.find((t) => t.valueMbps === subscriber.speedMbps)?.id ?? null;
   }, [subscriber, speedTiers]);
 
-  useEffect(() => {
-    if (!subscriber?.isSuspended) return;
-    setActiveTab("username");
-    setAssignSpeedId(resolvedSpeedId ?? speedTiers[0]?.id ?? null);
-  }, [subscriber?.id, subscriber?.isSuspended, resolvedSpeedId, speedTiers]);
+  const poolSpeedMbps = useMemo(() => {
+    if (!subscriber) return null;
+    if (subscriber.speedMbps) return subscriber.speedMbps;
+    const fromHistory = speedHistoryQuery.data?.[0]?.newSpeedMbps;
+    return fromHistory && fromHistory > 0 ? fromHistory : null;
+  }, [subscriber, speedHistoryQuery.data]);
+
+  const poolSpeedId = useMemo(() => {
+    if (resolvedSpeedId) return resolvedSpeedId;
+    if (!poolSpeedMbps) return null;
+    return speedTiers.find((tier) => tier.valueMbps === poolSpeedMbps)?.id ?? null;
+  }, [resolvedSpeedId, poolSpeedMbps, speedTiers]);
 
   const isSubmitting =
     updateMutation.isPending ||
     stopMutation.isPending ||
     assignUsernameMutation.isPending ||
     createMutation.isPending ||
-    deleteMutation.isPending;
+    deleteMutation.isPending ||
+    pauseMutation.isPending;
 
   const showError = (err: unknown) => {
     const message =
@@ -88,15 +99,21 @@ export function SubscriberProfilePage() {
     toast.error(message);
   };
 
-  const handleSave = async (patch: Partial<Subscriber>) => {
+  const handleSave = async (patch: Partial<Subscriber> & { speedId?: number }) => {
     try {
       await updateMutation.mutateAsync(patch);
       const hadPasswordChange = patch.password !== undefined;
+      const hadSpeedChange = patch.speedId !== undefined;
       toast.success(
         hadPasswordChange
           ? t("subscribers.username.passwordUpdated")
-          : t("subscribers.form.updateSuccess"),
+          : hadSpeedChange
+            ? t("subscribers.profile.speedUpdateSuccess")
+            : t("subscribers.form.updateSuccess"),
       );
+      if (hadSpeedChange) {
+        await speedHistoryQuery.refetch();
+      }
     } catch (err) {
       showError(err);
     }
@@ -131,13 +148,52 @@ export function SubscriberProfilePage() {
     }
   };
 
-  if (!Number.isFinite(subscriberId) || subscriberId <= 0) {
+  const handlePause = async () => {
+    try {
+      await pauseMutation.mutateAsync(true);
+      toast.success(t("subscribers.profile.pauseSuccess"));
+      setPauseDialogOpen(false);
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleUnpause = async () => {
+    try {
+      await pauseMutation.mutateAsync(false);
+      toast.success(t("subscribers.profile.unpauseSuccess"));
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  if (!decodedLineId) {
     return <Navigate to="/subscribers" replace />;
   }
 
   if (profileQuery.isLoading) {
     return <LoadingState layout="default" variant="page" />;
   }
+
+  if (!tabParam && subscriber) {
+    return (
+      <Navigate
+        to={subscriberProfilePath(lineId, subscriber.isSuspended ? "username" : "stats")}
+        replace
+      />
+    );
+  }
+
+  if (tabParam && !parsedTab) {
+    return (
+      <Navigate
+        to={subscriberProfilePath(subscriber?.lineId ?? decodedLineId, "stats")}
+        replace
+      />
+    );
+  }
+
+  const activeTab = parsedTab ?? "stats";
 
   if (profileQuery.isError || !subscriber) {
     return (
@@ -167,7 +223,7 @@ export function SubscriberProfilePage() {
       );
       setPickUsernameOpen(false);
       if (subscriber?.isSuspended) {
-        navigate("/subscribers");
+        navigate(subscriberProfilePath(lineId, "stats"));
       }
     } catch (err) {
       showError(err);
@@ -180,15 +236,19 @@ export function SubscriberProfilePage() {
         subscriber={subscriber}
         canManage={canManage}
         onStop={subscriber.isSuspended ? undefined : () => setStopDialogOpen(true)}
+        onPause={subscriber.isSuspended ? undefined : () => setPauseDialogOpen(true)}
+        onUnpause={subscriber.isSuspended ? undefined : handleUnpause}
         isStopping={stopMutation.isPending}
+        isPausing={pauseMutation.isPending}
       />
 
-      <SubscriberProfileTabs active={activeTab} onChange={setActiveTab} />
+      <SubscriberProfileTabs lineId={lineId} />
 
       <div>
         {activeTab === "stats" ? (
           <SubscriberStatsTab
             subscriber={subscriber}
+            speedTiers={speedTiers}
             canManage={canManage}
             canViewPasswords={canViewPasswords}
             daysGone={daysGone}
@@ -218,9 +278,8 @@ export function SubscriberProfilePage() {
             currentUsername={subscriber.username}
             showAssign={subscriber.isSuspended && canManage}
             showChange={!subscriber.isSuspended && Boolean(subscriber.username)}
-            speedTiers={speedTiers}
-            assignSpeedId={assignSpeedId}
-            onAssignSpeedChange={setAssignSpeedId}
+            poolSpeedMbps={poolSpeedMbps}
+            poolSpeedId={poolSpeedId}
             onPickUsername={() => setPickUsernameOpen(true)}
           />
         ) : null}
@@ -239,15 +298,9 @@ export function SubscriberProfilePage() {
             ? t("subscribers.username.assignHint")
             : t("subscribers.username.changeModalHint")
         }
-        speedMbps={
-          speedTiers.find((t) => t.id === assignSpeedId)?.valueMbps ??
-          (subscriber.speedMbps || speedTiers[0]?.valueMbps || 4)
-        }
-        packageLine={
-          speedTiers.find((t) => t.id === assignSpeedId)?.valueMbps ??
-          (subscriber.packageLine || subscriber.speedMbps || speedTiers[0]?.valueMbps || 4)
-        }
-        speedId={assignSpeedId ?? resolvedSpeedId ?? speedTiers[0]?.id ?? null}
+        speedMbps={poolSpeedMbps ?? subscriber.speedMbps ?? 0}
+        packageLine={poolSpeedMbps ?? subscriber.packageLine ?? subscriber.speedMbps ?? 0}
+        speedId={poolSpeedId}
         excludeUsername={subscriber.username}
         onConfirm={handleAssignUsername}
         isSubmitting={assignUsernameMutation.isPending}
@@ -263,6 +316,18 @@ export function SubscriberProfilePage() {
         cancelLabel={t("common.cancel")}
         isLoading={isSubmitting}
         variant="danger"
+      />
+
+      <ConfirmDialog
+        open={pauseDialogOpen}
+        onClose={() => setPauseDialogOpen(false)}
+        onConfirm={handlePause}
+        title={t("subscribers.profile.pauseTitle")}
+        message={t("subscribers.profile.pauseMessage", { name: subscriber.fullName })}
+        confirmLabel={t("subscribers.profile.pauseConfirm")}
+        cancelLabel={t("common.cancel")}
+        isLoading={pauseMutation.isPending}
+        variant="default"
       />
     </div>
   );

@@ -9,7 +9,8 @@ export function CustomerKindBadge({ kind }: { kind: CustomerKind }) {
     <span
       className={cn(
         "inline-flex rounded-md border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground",
-        (kind === "subscriber" || kind === "stopped") && "text-foreground",
+        kind === "subscriber" && "border-primary/30 bg-primary/10 text-primary",
+        kind === "stopped" && "border-warning/40 bg-warning/10 text-warning",
       )}
     >
       {t(`customers.kind.${kind}`)}

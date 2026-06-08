@@ -1,5 +1,5 @@
-import { apiClient, apiPost } from "@/lib/apiClient";
-import type { SmsAudienceFilter, SmsRecipient } from "@/types/sms";
+import { apiClient, apiDelete, apiPost, apiPut } from "@/lib/apiClient";
+import type { SmsAudienceFilter, SmsLog, SmsRecipient, SmsTemplate } from "@/types/sms";
 
 interface SmsRecipientsResponse {
   success: boolean;
@@ -15,6 +15,7 @@ export interface SendSmsPayload {
   subscriberIds?: number[];
   phone?: string;
   phones?: string[];
+  templateId?: number;
 }
 
 export interface SendSmsResult {
@@ -31,6 +32,23 @@ interface SendSmsResponse {
   data: SendSmsResult;
 }
 
+interface SmsLogsResponse {
+  success: boolean;
+  data: {
+    items: SmsLog[];
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
+
+interface SmsTemplatesResponse {
+  success: boolean;
+  data: {
+    items: SmsTemplate[];
+  };
+}
+
 export const smsService = {
   async listRecipients(audience: SmsAudienceFilter, search?: string): Promise<SmsRecipient[]> {
     const { data: response } = await apiClient.get<SmsRecipientsResponse>("/sms/recipients", {
@@ -40,6 +58,35 @@ export const smsService = {
       },
     });
     return response.data?.items ?? [];
+  },
+
+  async listLogs(page = 1, limit = 50): Promise<SmsLogsResponse["data"]> {
+    const { data: response } = await apiClient.get<SmsLogsResponse>("/sms/logs", {
+      params: { page, limit },
+    });
+    if (!response.data) throw new Error("Invalid SMS logs response");
+    return response.data;
+  },
+
+  async listTemplates(): Promise<SmsTemplate[]> {
+    const { data: response } = await apiClient.get<SmsTemplatesResponse>("/sms/templates");
+    return response.data?.items ?? [];
+  },
+
+  async createTemplate(payload: { name: string; body: string }): Promise<SmsTemplate> {
+    const response = await apiPost<{ success: boolean; data: SmsTemplate }>("/sms/templates", payload);
+    if (!response.data) throw new Error("Invalid template response");
+    return response.data;
+  },
+
+  async updateTemplate(id: number, payload: { name?: string; body?: string }): Promise<SmsTemplate> {
+    const response = await apiPut<{ success: boolean; data: SmsTemplate }>(`/sms/templates/${id}`, payload);
+    if (!response.data) throw new Error("Invalid template response");
+    return response.data;
+  },
+
+  async deleteTemplate(id: number): Promise<void> {
+    await apiDelete(`/sms/templates/${id}`);
   },
 
   async send(payload: SendSmsPayload): Promise<SendSmsResult> {

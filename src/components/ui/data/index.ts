@@ -14,5 +14,6 @@ export {
   dataTableHeadCellClass,
   dataTableHeadRowClass,
   dataTableWrapClass,
+  dataTableScrollMinClass,
 } from "./tableClasses";
 export { TableSubscriberCell } from "./TableSubscriberCell";

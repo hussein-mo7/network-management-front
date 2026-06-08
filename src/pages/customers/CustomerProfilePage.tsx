@@ -1,15 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   AssignUsernameModal,
   CustomerBalanceSection,
-  CustomerKindBadge,
   CustomerProfileForm,
+  CustomerProfileHeader,
   type CustomerProfileFormValues,
 } from "@/components/pages/customers";
-import { SpeedTierPicker } from "@/components/pages/speeds";
 import type { PickedUsername } from "@/components/pages/subscribers/PickAvailableUsernameModal";
 import { Button } from "@/components/ui/buttons";
 import { LoadingState } from "@/components/ui/feedback";
@@ -19,16 +18,17 @@ import {
   useSubscriberInvoiceMutations,
   useSubscriberInvoicesQuery,
   useSubscriberProfileMutations,
+  useSubscriberSpeedHistoryQuery,
 } from "@/hooks/useSubscribers";
 import { useSpeedsQuery } from "@/hooks/useSpeeds";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import {
   customerOwesMoney,
-  getCustomerKind,
   isOnSubscribersList,
 } from "@/lib/customerUtils";
 import { isOnExpiringPage } from "@/lib/expiringUtils";
-import { getSubscriberInitials, isStoppedSubscriber } from "@/lib/subscriberUtils";
+import { subscriberProfilePath } from "@/lib/routePaths";
+import { buildSpeedLabel, isStoppedSubscriber } from "@/lib/subscriberUtils";
 import { ApiError } from "@/types/api";
 import type { PaymentMethod } from "@/types/subscriber";
 
@@ -40,7 +40,6 @@ export function CustomerProfilePage() {
   const decodedLineId = lineId ? decodeURIComponent(lineId) : "";
 
   const [assignOpen, setAssignOpen] = useState(false);
-  const [assignSpeedId, setAssignSpeedId] = useState<number | null>(null);
 
   const {
     data: customer,
@@ -60,46 +59,50 @@ export function CustomerProfilePage() {
   );
 
   const { data: speedTiers = [] } = useSpeedsQuery();
+  const speedHistoryQuery = useSubscriberSpeedHistoryQuery(customer?.id ?? 0, customer?.lineId ?? "");
 
-  useEffect(() => {
-    if (!speedTiers.length) return;
-    if (customer?.speedId) {
-      setAssignSpeedId(customer.speedId);
-      return;
-    }
-    if (customer?.speedMbps) {
-      const match = speedTiers.find((tier) => tier.valueMbps === customer.speedMbps);
-      setAssignSpeedId(match?.id ?? speedTiers[0].id);
-      return;
-    }
-    setAssignSpeedId(speedTiers[0].id);
-  }, [customer?.id, customer?.speedId, customer?.speedMbps, speedTiers]);
+  const poolSpeedMbps = useMemo(() => {
+    if (!customer) return null;
+    if (customer.speedMbps) return customer.speedMbps;
+    const fromHistory = speedHistoryQuery.data?.[0]?.newSpeedMbps;
+    return fromHistory && fromHistory > 0 ? fromHistory : null;
+  }, [customer, speedHistoryQuery.data]);
 
-  const assignSpeedTier = useMemo(
-    () => speedTiers.find((tier) => tier.id === assignSpeedId) ?? speedTiers[0] ?? null,
-    [assignSpeedId, speedTiers],
-  );
+  const poolSpeedId = useMemo(() => {
+    if (!customer) return null;
+    if (customer.speedId) return customer.speedId;
+    if (poolSpeedMbps) {
+      return speedTiers.find((tier) => tier.valueMbps === poolSpeedMbps)?.id ?? null;
+    }
+    return null;
+  }, [customer, poolSpeedMbps, speedTiers]);
+
+  const canPickUsername = Boolean(poolSpeedId && poolSpeedMbps);
 
   if (isLoading) {
     return <LoadingState layout="default" variant="page" />;
   }
 
   if (isError || !customer) {
-    if (!isLoading && !customer) {
-      return <Navigate to="/customers" replace />;
-    }
     return (
-      <div className="rounded-xl border border-border p-6 text-center">
-        <Text muted>{error instanceof ApiError ? error.message : t("common.unexpectedError")}</Text>
-        <Button variant="outline" size="sm" className="mt-4" onClick={() => refetch()}>
-          {t("common.retry")}
-        </Button>
+      <div className="space-y-4 rounded-xl border border-border p-6 text-center">
+        <Text muted>
+          {error instanceof ApiError ? error.message : t("customers.profile.notFound")}
+        </Text>
+        <div className="flex flex-wrap justify-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            {t("common.retry")}
+          </Button>
+          <Link to="/customers">
+            <Button variant="ghost" size="sm">
+              {t("customers.profile.backToList")}
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const initials = getSubscriberInitials(customer.fullName);
-  const kind = getCustomerKind(customer);
   const stopped = isStoppedSubscriber(customer);
   const hasUsername = Boolean(customer.username);
   const expiring = hasUsername && isOnExpiringPage(customer);
@@ -107,7 +110,7 @@ export function CustomerProfilePage() {
   const owesMoney = customerOwesMoney(customer);
   const debtCleared = !owesMoney;
   const canAssignAfterStop = stopped && debtCleared && canManage;
-  const showBalanceSection = !stopped || owesMoney;
+  const showBalanceSection = true;
 
   const showError = (err: unknown) => {
     toast.error(err instanceof ApiError ? err.message : t("common.unexpectedError"));
@@ -144,7 +147,7 @@ export function CustomerProfilePage() {
       setAssignOpen(false);
       await refetch();
       if (wasStopped) {
-        navigate(`/subscribers/${customer.id}`);
+        navigate(subscriberProfilePath(customer.lineId, "stats"));
       }
     } catch (err) {
       showError(err);
@@ -169,37 +172,13 @@ export function CustomerProfilePage() {
 
   return (
     <div className="space-y-6">
-      <Link
-        to="/customers"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        {t("customers.profile.backToList")}
-      </Link>
-
-      <div className="flex items-start gap-4 border-b border-border pb-6">
-        <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-border text-sm font-medium text-muted-foreground">
-          {initials}
-        </span>
-        <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Heading as="h1" className="text-xl">
-              {customer.fullName}
-            </Heading>
-            <CustomerKindBadge kind={kind} />
-          </div>
-          <Text muted className="mt-1 font-mono text-sm" dir="ltr">
-            {customer.lineId}
-          </Text>
-          {owesMoney ? (
-            <Text muted className="mt-2 text-sm">
-              {t("customers.profile.balanceOwed")}:{" "}
-              <span className="font-medium text-foreground">{customer.balance}</span>
-            </Text>
-          ) : stopped && debtCleared ? (
-            <Text muted className="mt-2 text-sm">{t("customers.profile.stoppedNoDebt")}</Text>
-          ) : null}
-        </div>
-      </div>
+      <CustomerProfileHeader
+        customer={customer}
+        poolSpeedMbps={poolSpeedMbps}
+        expiring={expiring}
+        onSubscribersList={onSubscribersList}
+        stoppedWithNoDebt={stopped && debtCleared}
+      />
 
       {stopped ? (
         <section className="rounded-xl border border-border bg-muted/20 p-4 sm:p-6">
@@ -224,7 +203,7 @@ export function CustomerProfilePage() {
           customer={customer}
           invoices={invoicesQuery.data ?? []}
           canManage={canManage}
-          showRecordPayment={owesMoney}
+          showRecordPayment={canManage}
           onRecordPayment={handleRecordPayment}
           isSubmitting={createInvoiceMutation.isPending}
         />
@@ -245,26 +224,17 @@ export function CustomerProfilePage() {
           <Text muted className="mt-2 text-sm">
             {t("customers.balance.paidOff")} {t("customers.profile.assignHint")}
           </Text>
-          {speedTiers.length > 0 ? (
-            <div className="mt-4 space-y-2">
-              <Text className="text-xs font-medium text-muted-foreground">
-                {t("customers.assign.pickSpeed")}
-              </Text>
-              <SpeedTierPicker
-                tiers={speedTiers}
-                selectedId={assignSpeedId ?? speedTiers[0].id}
-                onSelect={(tier) => setAssignSpeedId(tier.id)}
-              />
-            </div>
-          ) : (
-            <Text muted className="mt-4 text-sm">{t("customers.assign.noSpeedTiers")}</Text>
-          )}
+          <AssignSpeedDisplay
+            speedMbps={poolSpeedMbps}
+            canPick={canPickUsername}
+            subscriberLineId={customer.lineId}
+          />
           <Button
             className="mt-4"
             size="sm"
             variant="outline"
             onClick={() => setAssignOpen(true)}
-            disabled={!assignSpeedId && speedTiers.length > 0}
+            disabled={!canPickUsername}
           >
             {t("customers.profile.assignAction")}
           </Button>
@@ -279,66 +249,68 @@ export function CustomerProfilePage() {
           <Text muted className="mt-2 text-sm">
             {t("customers.profile.assignHint")}
           </Text>
-          {speedTiers.length > 0 ? (
-            <div className="mt-4 space-y-2">
-              <Text className="text-xs font-medium text-muted-foreground">
-                {t("customers.assign.pickSpeed")}
-              </Text>
-              <SpeedTierPicker
-                tiers={speedTiers}
-                selectedId={assignSpeedId ?? speedTiers[0].id}
-                onSelect={(tier) => setAssignSpeedId(tier.id)}
-              />
-            </div>
-          ) : (
-            <Text muted className="mt-4 text-sm">{t("customers.assign.noSpeedTiers")}</Text>
-          )}
+          <AssignSpeedDisplay
+            speedMbps={poolSpeedMbps}
+            canPick={canPickUsername}
+            subscriberLineId={customer.lineId}
+          />
           <Button
             className="mt-4"
             size="sm"
             variant="outline"
             onClick={() => setAssignOpen(true)}
-            disabled={!assignSpeedId && speedTiers.length > 0}
+            disabled={!canPickUsername}
           >
             {t("customers.profile.assignAction")}
           </Button>
         </section>
       ) : null}
 
-      {!stopped && hasUsername ? (
-        <section className="rounded-xl border border-border bg-muted/20 p-4 sm:p-6">
-          {expiring ? (
-            <Text muted className="text-sm">
-              {t("customers.profile.expiringHint")}{" "}
-              <Link to="/expiring" className="font-medium text-foreground underline-offset-2 hover:underline">
-                {t("nav.items.expiring")}
-              </Link>
-            </Text>
-          ) : onSubscribersList ? (
-            <>
-              <Text muted className="text-sm">
-                {t("customers.profile.subscriberHint")}
-              </Text>
-              <Link
-                to={`/subscribers/${customer.id}`}
-                className="mt-3 inline-flex text-sm font-medium text-foreground underline-offset-2 hover:underline"
-              >
-                {t("customers.actions.viewSubscription")}
-              </Link>
-            </>
-          ) : null}
-        </section>
-      ) : null}
-
       <AssignUsernameModal
         open={assignOpen}
         customer={customer}
-        speedId={assignSpeedId}
-        speedMbps={assignSpeedTier?.valueMbps ?? 0}
+        speedId={poolSpeedId}
+        speedMbps={poolSpeedMbps ?? 0}
         onClose={() => setAssignOpen(false)}
         onAssign={handleAssign}
         isSubmitting={assignUsernameMutation.isPending}
       />
+    </div>
+  );
+}
+
+function AssignSpeedDisplay({
+  speedMbps,
+  canPick,
+  subscriberLineId,
+}: {
+  speedMbps: number | null;
+  canPick: boolean;
+  subscriberLineId: string;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="mt-4 rounded-lg border border-border bg-muted/20 px-4 py-3">
+      <Text className="text-xs font-medium text-muted-foreground">
+        {t("customers.assign.currentSpeed")}
+      </Text>
+      <Text className="mt-1 text-sm font-medium">
+        {speedMbps ? buildSpeedLabel(speedMbps) : "—"}
+      </Text>
+      <Text muted className="mt-1 text-xs">
+        {canPick
+          ? t("customers.assign.speedReadOnlyHint")
+          : t("customers.assign.speedMissingHint")}
+      </Text>
+      {!canPick ? (
+        <Link
+          to={subscriberProfilePath(subscriberLineId, "stats")}
+          className="mt-2 inline-block text-xs font-medium text-foreground underline-offset-2 hover:underline"
+        >
+          {t("customers.assign.openSubscriberProfile")}
+        </Link>
+      ) : null}
     </div>
   );
 }

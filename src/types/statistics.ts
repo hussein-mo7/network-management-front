@@ -53,6 +53,7 @@ export interface RecentSubscriberRow {
 
 export interface UsernameChangeRow {
   id: number;
+  subscriberId: number | null;
   lineId: string;
   fullName: string;
   phone: string | null;

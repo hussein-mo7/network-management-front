@@ -5,7 +5,10 @@ export const dataTableClass = "w-full text-sm";
 export const dataTableFixedClass = "w-full table-fixed text-sm";
 
 export const dataTableWrapClass =
-  "w-full overflow-hidden rounded-xl border border-border";
+  "w-full overflow-x-auto rounded-xl border border-border";
+
+/** Minimum width before horizontal scroll kicks in on dense tables */
+export const dataTableScrollMinClass = "min-w-[720px]";
 
 export const dataTableHeadRowClass = "border-b border-border bg-muted/40";
 

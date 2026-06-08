@@ -7,6 +7,7 @@ import {
   dataTableFixedClass,
   dataTableHeadCellClass,
   dataTableHeadRowClass,
+  dataTableScrollMinClass,
   dataTableWrapClass,
   LtrText,
   StatusBadge,
@@ -18,6 +19,7 @@ import {
   getDaysUntilDisconnect,
   getSubscriberInitials,
 } from "@/lib/subscriberUtils";
+import { subscriberProfilePath } from "@/lib/routePaths";
 import type { Customer } from "@/types/customer";
 import { cn } from "@/lib/cn";
 import { format, parseISO } from "date-fns";
@@ -29,8 +31,8 @@ const URGENCY_VARIANT = {
   soon: "accent",
 } as const;
 
-function profilePath(subscriberId: number): string {
-  return `/subscribers/${subscriberId}`;
+function profilePath(lineId: string): string {
+  return subscriberProfilePath(lineId, "stats");
 }
 
 function formatDisconnectDate(value: string | null): string {
@@ -74,7 +76,7 @@ export function ExpiringTable({ rows, className }: ExpiringTableProps) {
       </div>
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-        <table className={dataTableFixedClass}>
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass)}>
           <colgroup>
             <col className="w-[22%]" />
             <col className="w-[9%]" />
@@ -114,7 +116,7 @@ function ExpiringDesktopRow({ row }: { row: Customer }) {
   const initials = getSubscriberInitials(row.fullName);
   const daysLabel = getDaysLabel(t, daysLeft);
 
-  const openProfile = () => navigate(profilePath(row.id));
+  const openProfile = () => navigate(profilePath(row.lineId));
 
   return (
     <tr className={cn("group", dataTableBodyRowClass)}>
@@ -144,7 +146,7 @@ function ExpiringDesktopRow({ row }: { row: Customer }) {
       </td>
       <td className={cn(dataTableCellClass, "text-end")} onClick={(e) => e.stopPropagation()}>
         <Link
-          to={profilePath(row.id)}
+          to={profilePath(row.lineId)}
           className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label={t("expiring.table.openProfile")}
         >
@@ -164,7 +166,7 @@ function ExpiringMobileCard({ row }: { row: Customer }) {
 
   return (
     <article className="overflow-hidden rounded-xl border border-border bg-background">
-      <Link to={profilePath(row.id)} className="block p-4">
+      <Link to={profilePath(row.lineId)} className="block p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
             {initials}
@@ -201,7 +203,7 @@ function ExpiringMobileCard({ row }: { row: Customer }) {
       <div className="flex items-center justify-between border-t border-border bg-muted/20 px-4 py-2.5">
         <span className="text-xs text-muted-foreground">{buildSpeedLabel(row.speedMbps)}</span>
         <Link
-          to={profilePath(row.id)}
+          to={profilePath(row.lineId)}
           className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground hover:underline"
         >
           {t("expiring.table.openProfile")}

@@ -3,6 +3,7 @@ import { format, parseISO } from "date-fns";
 import { ar, enUS } from "date-fns/locale";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { customerProfilePath, subscriberProfilePath } from "@/lib/routePaths";
 import { Heading, Text } from "@/components/ui/typography";
 import { LtrText } from "@/components/ui/data";
 import {
@@ -50,7 +51,7 @@ export function StatisticsRecentSection({
         ]}
         rows={newSubscribers.map((row) => ({
           key: row.lineId,
-          to: `/customers/${row.lineId}`,
+          to: customerProfilePath(row.lineId),
           cells: [
             row.fullName,
             <LtrText key="line">{row.lineId}</LtrText>,
@@ -72,7 +73,7 @@ export function StatisticsRecentSection({
         ]}
         rows={usernameChanges.map((row) => ({
           key: String(row.id),
-          to: `/subscribers/${row.lineId}`,
+          to: row.lineId ? subscriberProfilePath(row.lineId, "stats") : "#",
           cells: [
             row.fullName,
             <LtrText key="old">{row.oldUsername}</LtrText>,
