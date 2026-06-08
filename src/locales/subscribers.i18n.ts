@@ -118,6 +118,9 @@ export type SubscribersI18n = {
     pauseConfirm: string;
     pauseSuccess: string;
     unpauseSubscriber: string;
+    unpauseTitle: string;
+    unpauseMessage: string;
+    unpauseConfirm: string;
     unpauseSuccess: string;
     firstContact: string;
     disconnection: string;
@@ -346,8 +349,11 @@ export const subscribersEn: SubscribersI18n = {
     pauseMessage: "Mark {{name}} as temporarily paused?",
     pauseConfirm: "Pause",
     pauseSuccess: "Subscriber paused temporarily",
-    unpauseSubscriber: "Resume subscription",
-    unpauseSuccess: "Subscriber resumed",
+    unpauseSubscriber: "Cancel pause",
+    unpauseTitle: "Cancel temporary pause",
+    unpauseMessage: "Resume {{name}} to active status?",
+    unpauseConfirm: "Resume",
+    unpauseSuccess: "Temporary pause cancelled — subscriber is active again",
     firstContact: "First contact",
     disconnection: "Disconnect date",
     formSection: "Subscriber details",
@@ -580,8 +586,11 @@ export const subscribersAr: SubscribersI18n = {
     pauseMessage: "تعليم {{name}} كموقف مؤقتاً؟",
     pauseConfirm: "توقيف مؤقت",
     pauseSuccess: "تم التوقيف المؤقت للمشترك",
-    unpauseSubscriber: "إلغاء التوقيف المؤقت",
-    unpauseSuccess: "تم استئناف الاشتراك",
+    unpauseSubscriber: "إلغاء التوقيف",
+    unpauseTitle: "إلغاء التوقيف المؤقت",
+    unpauseMessage: "إعادة {{name}} إلى الحالة النشطة؟",
+    unpauseConfirm: "إلغاء التوقيف",
+    unpauseSuccess: "تم إلغاء التوقيف المؤقت — المشترك نشط مجدداً",
     firstContact: "أول اتصال",
     disconnection: "تاريخ الفصل",
     formSection: "بيانات المشترك",

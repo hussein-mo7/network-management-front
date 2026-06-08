@@ -128,7 +128,10 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   const pauseMutation = useMutation({
     mutationFn: (paused: boolean) =>
       subscribersService.update(subscriberId, { isPaused: paused }),
-    onSuccess: invalidateProfile,
+    onSuccess: () => {
+      invalidateProfile();
+      queryClient.invalidateQueries({ queryKey: ["subscribers"] });
+    },
   });
 
   const assignUsernameMutation = useMutation({

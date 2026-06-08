@@ -43,6 +43,7 @@ export function SubscriberProfilePage() {
   const { canManage, canViewPasswords } = useRoleAccess();
   const [stopDialogOpen, setStopDialogOpen] = useState(false);
   const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
+  const [unpauseDialogOpen, setUnpauseDialogOpen] = useState(false);
   const [pickUsernameOpen, setPickUsernameOpen] = useState(false);
   const { data: speedTiers = [] } = useSpeedsQuery();
 
@@ -162,6 +163,7 @@ export function SubscriberProfilePage() {
     try {
       await pauseMutation.mutateAsync(false);
       toast.success(t("subscribers.profile.unpauseSuccess"));
+      setUnpauseDialogOpen(false);
     } catch (err) {
       showError(err);
     }
@@ -237,7 +239,7 @@ export function SubscriberProfilePage() {
         canManage={canManage}
         onStop={subscriber.isSuspended ? undefined : () => setStopDialogOpen(true)}
         onPause={subscriber.isSuspended ? undefined : () => setPauseDialogOpen(true)}
-        onUnpause={subscriber.isSuspended ? undefined : handleUnpause}
+        onUnpause={subscriber.isSuspended ? undefined : () => setUnpauseDialogOpen(true)}
         isStopping={stopMutation.isPending}
         isPausing={pauseMutation.isPending}
       />
@@ -325,6 +327,18 @@ export function SubscriberProfilePage() {
         title={t("subscribers.profile.pauseTitle")}
         message={t("subscribers.profile.pauseMessage", { name: subscriber.fullName })}
         confirmLabel={t("subscribers.profile.pauseConfirm")}
+        cancelLabel={t("common.cancel")}
+        isLoading={pauseMutation.isPending}
+        variant="default"
+      />
+
+      <ConfirmDialog
+        open={unpauseDialogOpen}
+        onClose={() => setUnpauseDialogOpen(false)}
+        onConfirm={handleUnpause}
+        title={t("subscribers.profile.unpauseTitle")}
+        message={t("subscribers.profile.unpauseMessage", { name: subscriber.fullName })}
+        confirmLabel={t("subscribers.profile.unpauseConfirm")}
         cancelLabel={t("common.cancel")}
         isLoading={pauseMutation.isPending}
         variant="default"

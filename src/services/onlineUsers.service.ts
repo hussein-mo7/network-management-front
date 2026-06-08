@@ -3,10 +3,11 @@ import { ApiError } from "@/types/api";
 import type { OnlineUser } from "@/types/onlineUser";
 
 interface OnlineUsersResponse {
-  status: "success" | "failed";
+  status?: "success" | "failed";
+  success?: boolean;
   data?: {
-    onlineUsers: OnlineUser[];
-  };
+    onlineUsers?: OnlineUser[];
+  } | OnlineUser[];
   message?: string;
 }
 
@@ -16,10 +17,18 @@ export const onlineUsersService = {
       timeout: 30_000,
     });
 
-    if (data.status === "failed") {
+    if (data.status === "failed" || data.success === false) {
       throw new ApiError(data.message ?? "Failed to fetch online users", 500);
     }
 
-    return data.data?.onlineUsers ?? [];
+    const payload = data.data;
+    if (payload && !Array.isArray(payload) && Array.isArray(payload.onlineUsers)) {
+      return payload.onlineUsers;
+    }
+    if (Array.isArray(payload)) {
+      return payload;
+    }
+
+    return [];
   },
 };

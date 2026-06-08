@@ -45,6 +45,7 @@ export function SubscribersPage() {
   const listParams = {
     suspended: false as const,
     expired: false as const,
+    includePaused: true as const,
     search: search.trim() || undefined,
   };
 

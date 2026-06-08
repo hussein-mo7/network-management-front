@@ -19,6 +19,10 @@ import type { Subscriber, SubscriberInvoice, SpeedHistoryEntry, UsernameHistoryE
 export interface SubscribersListParams {
   suspended?: boolean;
   expired?: boolean;
+  /** API filter — omit when using `includePaused`. */
+  paused?: boolean;
+  /** Main subscribers list: load active + paused rows (API uses separate `paused` queries). */
+  includePaused?: boolean;
   search?: string;
   speed?: number;
   page?: number;
@@ -31,23 +35,46 @@ interface ApiListEnvelope<T> {
   data: T;
 }
 
+function mergeSubscriberRows(rows: Subscriber[]): Subscriber[] {
+  const byId = new Map<number, Subscriber>();
+  for (const row of rows) {
+    byId.set(row.id, row);
+  }
+  return [...byId.values()];
+}
+
+async function fetchSubscriberListPage(params: SubscribersListParams & { paused: boolean }): Promise<Subscriber[]> {
+  const response = await apiClient.get<BackendSubscribersListResponse>("/subscribers", {
+    params: {
+      page: params.page ?? 1,
+      limit: params.limit ?? 200,
+      suspended: params.suspended ?? false,
+      expired: params.expired ?? false,
+      paused: params.paused,
+      ...(params.search?.trim() ? { search: params.search.trim() } : {}),
+      ...(typeof params.speed === "number" && Number.isFinite(params.speed)
+        ? { speed: params.speed }
+        : {}),
+    },
+  }).then((r) => r.data);
+
+  const rows = response.data?.data ?? [];
+  return rows.map(mapSubscriberRecord);
+}
+
 export const subscribersService = {
   async list(params: SubscribersListParams = {}): Promise<Subscriber[]> {
-    const response = await apiClient.get<BackendSubscribersListResponse>("/subscribers", {
-      params: {
-        page: params.page ?? 1,
-        limit: params.limit ?? 200,
-        suspended: params.suspended ?? false,
-        expired: params.expired ?? false,
-        ...(params.search?.trim() ? { search: params.search.trim() } : {}),
-        ...(typeof params.speed === "number" && Number.isFinite(params.speed)
-          ? { speed: params.speed }
-          : {}),
-      },
-    }).then((r) => r.data);
+    const { includePaused, paused, ...rest } = params;
 
-    const rows = response.data?.data ?? [];
-    return rows.map(mapSubscriberRecord);
+    if (includePaused) {
+      const [activeRows, pausedRows] = await Promise.all([
+        fetchSubscriberListPage({ ...rest, paused: false }),
+        fetchSubscriberListPage({ ...rest, paused: true }),
+      ]);
+      return mergeSubscriberRows([...activeRows, ...pausedRows]);
+    }
+
+    return fetchSubscriberListPage({ ...rest, paused: paused ?? false });
   },
 
   async getProfile(id: number): Promise<SubscriberProfileDto> {
@@ -59,7 +86,13 @@ export const subscribersService = {
   async getByLineId(lineId: string): Promise<SubscriberProfileDto> {
     const trimmed = lineId.trim();
     const [activeRows, stoppedRows] = await Promise.all([
-      this.list({ search: trimmed, limit: 200, suspended: false, expired: false }),
+      this.list({
+        search: trimmed,
+        limit: 200,
+        suspended: false,
+        expired: false,
+        includePaused: true,
+      }),
       this.list({ search: trimmed, limit: 200, suspended: true }),
     ]);
     const match = [...activeRows, ...stoppedRows].find((row) => row.lineId === trimmed);
