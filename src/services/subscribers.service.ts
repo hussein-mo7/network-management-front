@@ -16,6 +16,55 @@ import {
 } from "@/lib/mapSubscribers";
 import type { Subscriber, SubscriberInvoice, SpeedHistoryEntry, UsernameHistoryEntry } from "@/types/subscriber";
 
+export interface SubscriberUpdatePayload {
+  fullName?: string;
+  facilityType?: string | null;
+  phone?: string | null;
+  password?: string | null;
+  monthlyPrice?: number;
+  isSuspended?: boolean;
+  isPaused?: boolean;
+  speedId?: number;
+  notes?: string | null;
+  routerName?: string | null;
+  routerImageFile?: File;
+}
+
+function appendMultipartField(formData: FormData, key: string, value: string | null | undefined) {
+  if (value === undefined) return;
+  formData.append(key, value ?? "");
+}
+
+function buildSubscriberUpdateFormData(body: SubscriberUpdatePayload): FormData {
+  const formData = new FormData();
+  appendMultipartField(formData, "fullName", body.fullName);
+  appendMultipartField(formData, "facilityType", body.facilityType);
+  appendMultipartField(formData, "phone", body.phone);
+  appendMultipartField(formData, "password", body.password);
+  appendMultipartField(formData, "notes", body.notes);
+  appendMultipartField(formData, "routerName", body.routerName);
+  if (body.monthlyPrice !== undefined) {
+    formData.append("monthlyPrice", String(body.monthlyPrice));
+  }
+  if (body.isSuspended !== undefined) {
+    formData.append("isSuspended", String(body.isSuspended));
+  }
+  if (body.isPaused !== undefined) {
+    formData.append("isPaused", String(body.isPaused));
+  }
+  if (body.routerImageFile) {
+    formData.append("file", body.routerImageFile, body.routerImageFile.name);
+  }
+  return formData;
+}
+
+function stripMultipartContentType(data: unknown, headers: Record<string, string>) {
+  if (data instanceof FormData) {
+    delete headers["Content-Type"];
+  }
+  return data;
+}
+
 export interface SubscribersListParams {
   suspended?: boolean;
   expired?: boolean;
@@ -100,22 +149,29 @@ export const subscribersService = {
     return this.getProfile(match.id);
   },
 
-  async update(
-    id: number,
-    body: {
-      fullName?: string;
-      facilityType?: string | null;
-      phone?: string | null;
-      password?: string | null;
-      monthlyPrice?: number;
-      isSuspended?: boolean;
-      isPaused?: boolean;
-      speedId?: number;
-      notes?: string | null;
-    },
-  ): Promise<Subscriber> {
+  async update(id: number, body: SubscriberUpdatePayload): Promise<Subscriber> {
+    if (body.routerImageFile) {
+      const formData = buildSubscriberUpdateFormData(body);
+      const { data: response } = await apiClient.put<{ success: boolean; data: BackendSubscriberRow }>(
+        `/subscribers/${id}`,
+        formData,
+        { transformRequest: [stripMultipartContentType] },
+      );
+      if (!response?.data) {
+        throw new Error("Invalid subscriber update response");
+      }
+      return mapSubscriberRecord(response.data);
+    }
+
     const response = await apiPut<{ success: boolean; data: BackendSubscriberRow }>(`/subscribers/${id}`, {
-      ...body,
+      fullName: body.fullName,
+      facilityType: body.facilityType,
+      phone: body.phone,
+      password: body.password,
+      notes: body.notes,
+      routerName: body.routerName,
+      isSuspended: body.isSuspended,
+      isPaused: body.isPaused,
       ...(body.monthlyPrice !== undefined ? { monthlyPrice: String(body.monthlyPrice) } : {}),
     });
 

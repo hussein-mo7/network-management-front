@@ -28,6 +28,8 @@ export interface BackendSubscriberRow {
   balance?: string | number | null;
   createdAt?: string | Date | null;
   suspendAt?: string | Date | null;
+  router?: string | null;
+  routerImage?: string | null;
 }
 
 export interface BackendSubscriberProfileResponse {
@@ -133,6 +135,8 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
     isOwnerUsername: false,
     balance: toNumber(row.balance, 0),
     notes: row.notes ?? null,
+    routerName: row.router ?? null,
+    routerImageUrl: row.routerImage ?? null,
     createdAt,
     updatedAt: toIso(row.suspendAt) ?? createdAt,
   };

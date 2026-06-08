@@ -1,42 +1,39 @@
 import { ImagePlus, Router } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/buttons";
 import { Input } from "@/components/ui/forms";
 import { ProfileSection } from "@/components/ui/profile";
 import { Text } from "@/components/ui/typography";
-import type { Subscriber } from "@/types/subscriber";
 
 interface SubscriberRouterSectionProps {
-  subscriber: Subscriber;
+  routerName: string;
+  imagePreview: string | null;
   canManage?: boolean;
+  isSubmitting?: boolean;
+  hasChanges?: boolean;
+  onRouterNameChange: (value: string) => void;
+  onImageFileSelect: (file: File) => void;
+  onSave?: () => void;
 }
 
-/** UI-only — router name & image until the API is connected. */
 export function SubscriberRouterSection({
-  subscriber,
+  routerName,
+  imagePreview,
   canManage = false,
+  isSubmitting = false,
+  hasChanges = false,
+  onRouterNameChange,
+  onImageFileSelect,
+  onSave,
 }: SubscriberRouterSectionProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [routerName, setRouterName] = useState(subscriber.routerName ?? "");
-  const [imagePreview, setImagePreview] = useState<string | null>(subscriber.routerImageUrl ?? null);
-
-  useEffect(() => {
-    setRouterName(subscriber.routerName ?? "");
-    setImagePreview(subscriber.routerImageUrl ?? null);
-  }, [subscriber.id, subscriber.routerName, subscriber.routerImageUrl]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        setImagePreview(reader.result);
-      }
-    };
-    reader.readAsDataURL(file);
+    onImageFileSelect(file);
     event.target.value = "";
   };
 
@@ -44,6 +41,13 @@ export function SubscriberRouterSection({
     <ProfileSection
       title={t("subscribers.profile.router.sectionTitle")}
       description={t("subscribers.profile.router.sectionHint")}
+      action={
+        canManage && onSave ? (
+          <Button size="sm" onClick={onSave} isLoading={isSubmitting} disabled={!hasChanges}>
+            {t("common.save")}
+          </Button>
+        ) : null
+      }
     >
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="flex shrink-0 flex-col items-center gap-3">
@@ -87,11 +91,10 @@ export function SubscriberRouterSection({
           <Input
             label={t("subscribers.profile.router.nameLabel")}
             value={routerName}
-            onChange={(event) => setRouterName(event.target.value)}
+            onChange={(event) => onRouterNameChange(event.target.value)}
             placeholder={t("subscribers.profile.router.namePlaceholder")}
             disabled={!canManage}
           />
-          <Text muted className="text-xs">{t("subscribers.profile.router.uiOnlyHint")}</Text>
         </div>
       </div>
     </ProfileSection>

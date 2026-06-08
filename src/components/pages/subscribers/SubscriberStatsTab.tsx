@@ -21,7 +21,9 @@ interface SubscriberStatsTabProps {
   canViewPasswords?: boolean;
   daysGone?: number | null;
   daysRemaining?: number | null;
-  onSave?: (patch: Partial<Subscriber> & { speedId?: number }) => void | Promise<void>;
+  onSave?: (
+    patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null },
+  ) => void | Promise<void>;
   isSubmitting?: boolean;
 }
 
@@ -50,10 +52,46 @@ export function SubscriberStatsTab({
     subscriber.speedId ?? speedTiers.find((tier) => tier.valueMbps === subscriber.speedMbps)?.id ?? null;
   const [selectedSpeedId, setSelectedSpeedId] = useState<number | null>(resolvedSpeedId);
   const canEditSpeed = canManage && Boolean(subscriber.username) && speedTiers.length > 0;
+  const [routerName, setRouterName] = useState(subscriber.routerName ?? "");
+  const [routerImageFile, setRouterImageFile] = useState<File | null>(null);
+  const [routerImagePreview, setRouterImagePreview] = useState<string | null>(
+    subscriber.routerImageUrl ?? null,
+  );
 
   useEffect(() => {
     setSelectedSpeedId(resolvedSpeedId);
   }, [subscriber.id, resolvedSpeedId]);
+
+  useEffect(() => {
+    setRouterName(subscriber.routerName ?? "");
+    setRouterImageFile(null);
+    setRouterImagePreview(subscriber.routerImageUrl ?? null);
+  }, [subscriber.id, subscriber.routerName, subscriber.routerImageUrl]);
+
+  const routerHasChanges =
+    routerName.trim() !== (subscriber.routerName ?? "").trim() || routerImageFile !== null;
+
+  const appendRouterPatch = (
+    patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null },
+  ) => {
+    const trimmedRouterName = routerName.trim();
+    if (canManage && trimmedRouterName !== (subscriber.routerName ?? "").trim()) {
+      patch.routerName = trimmedRouterName || null;
+    }
+    if (canManage && routerImageFile) {
+      patch.routerImageFile = routerImageFile;
+      patch.routerImageUrl = routerImagePreview;
+    }
+  };
+
+  const handleRouterSave = async () => {
+    const patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null } =
+      {};
+    appendRouterPatch(patch);
+    if (patch.routerName === undefined && !patch.routerImageFile) return;
+    await onSave?.(patch);
+    setRouterImageFile(null);
+  };
 
   const {
     register,
@@ -99,7 +137,25 @@ export function SubscriberStatsTab({
 
   return (
     <div className="space-y-6">
-      <SubscriberRouterSection subscriber={subscriber} canManage={canManage} />
+      <SubscriberRouterSection
+        routerName={routerName}
+        imagePreview={routerImagePreview}
+        canManage={canManage}
+        isSubmitting={isSubmitting}
+        hasChanges={routerHasChanges}
+        onRouterNameChange={setRouterName}
+        onImageFileSelect={(file) => {
+          setRouterImageFile(file);
+          const reader = new FileReader();
+          reader.onload = () => {
+            if (typeof reader.result === "string") {
+              setRouterImagePreview(reader.result);
+            }
+          };
+          reader.readAsDataURL(file);
+        }}
+        onSave={canManage ? handleRouterSave : undefined}
+      />
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard
@@ -143,7 +199,9 @@ export function SubscriberStatsTab({
           if (canManage && values.packageLine !== subscriber.packageLine) {
             patch.packageLine = values.packageLine;
           }
+          appendRouterPatch(patch);
           await onSave?.(patch);
+          setRouterImageFile(null);
         })}
         className="space-y-4 p-4 sm:p-6"
       >

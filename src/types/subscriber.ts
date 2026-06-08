@@ -29,7 +29,6 @@ export interface Subscriber {
   isOwnerUsername: boolean;
   balance: number;
   notes: string | null;
-  /** UI-only until router API is connected */
   routerName?: string | null;
   routerImageUrl?: string | null;
   createdAt: string;

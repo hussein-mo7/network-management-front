@@ -137,7 +137,6 @@ export type SubscribersI18n = {
       imageAlt: string;
       noImage: string;
       uploadImage: string;
-      uiOnlyHint: string;
       empty: string;
     };
     tabs: { stats: string; invoices: string; username: string };
@@ -366,14 +365,13 @@ export const subscribersEn: SubscribersI18n = {
     speedUpdateSuccess: "Speed updated",
     router: {
       sectionTitle: "Router / CPE",
-      sectionHint: "Customer premises equipment linked to this subscription (API connection coming soon).",
+      sectionHint: "Router installed at the subscriber premises — saved with the subscriber profile.",
       nameLabel: "Router name",
       namePlaceholder: "e.g. TP-Link Archer C6",
       imageAlt: "Router photo",
       noImage: "No router image",
       uploadImage: "Upload image",
-      uiOnlyHint: "Saved locally for now — server sync will be added later.",
-      empty: "No router assigned yet — will appear here when connected to the server.",
+      empty: "No router assigned yet.",
     },
     tabs: { stats: "Statistics", invoices: "Invoices", username: "Username" },
     stats: {
@@ -606,14 +604,13 @@ export const subscribersAr: SubscribersI18n = {
     speedUpdateSuccess: "تم تحديث السرعة",
     router: {
       sectionTitle: "الراوتر / جهاز العميل",
-      sectionHint: "جهاز الاشتراك في موقع الزبون (سيتم الربط بالسيرفر لاحقاً).",
+      sectionHint: "الراوتر في موقع المشترك — يُحفظ مع ملف المشترك.",
       nameLabel: "اسم الراوتر",
       namePlaceholder: "مثال: TP-Link Archer C6",
       imageAlt: "صورة الراوتر",
       noImage: "لا توجد صورة",
       uploadImage: "رفع صورة",
-      uiOnlyHint: "يُحفظ محلياً حالياً — سيتم الربط بالسيرفر لاحقاً.",
-      empty: "لم يُعيَّن راوتر بعد — سيظهر هنا عند الربط بالسيرفر.",
+      empty: "لم يُعيَّن راوتر بعد.",
     },
     tabs: { stats: "الإحصائيات", invoices: "الفواتير", username: "اسم المستخدم" },
     stats: {

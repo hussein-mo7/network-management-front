@@ -1,7 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InvoiceFormValues } from "@/components/pages/subscribers/InvoiceFormModal";
 import { customersService } from "@/services/customers.service";
-import { subscribersService, type SubscribersListParams } from "@/services/subscribers.service";
+import {
+  subscribersService,
+  type SubscriberUpdatePayload,
+  type SubscribersListParams,
+} from "@/services/subscribers.service";
 import type { Subscriber } from "@/types/subscriber";
 
 export const subscribersQueryKey = (params?: SubscribersListParams) =>
@@ -101,42 +105,59 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   };
 
   const updateMutation = useMutation({
-    mutationFn: async (patch: Partial<Subscriber> & { password?: string | null; speedId?: number }) => {
+    mutationFn: async (
+      patch: Partial<Subscriber> & SubscriberUpdatePayload & { password?: string | null; speedId?: number },
+    ) => {
       if (patch.packageLine !== undefined) {
         await customersService.update(subscriberId, { lineId: String(patch.packageLine) });
       }
 
-      const hasSubscriberFields =
-        patch.fullName !== undefined ||
-        patch.facilityType !== undefined ||
-        patch.phone !== undefined ||
-        patch.notes !== undefined ||
-        patch.isSuspended !== undefined ||
-        patch.isPaused !== undefined ||
-        patch.monthlyPrice !== undefined ||
-        patch.speedId !== undefined ||
-        patch.password !== undefined;
+      const subscriberPayload: SubscriberUpdatePayload = {
+        fullName: patch.fullName,
+        facilityType: patch.facilityType,
+        phone: patch.phone,
+        notes: patch.notes,
+        isSuspended: patch.isSuspended,
+        isPaused: patch.isPaused,
+        monthlyPrice: patch.monthlyPrice,
+        speedId: patch.speedId,
+        password: patch.password,
+        routerName: patch.routerName,
+        routerImageFile: patch.routerImageFile,
+      };
+
+      const hasSubscriberFields = Object.entries(subscriberPayload).some(
+        ([, value]) => value !== undefined,
+      );
 
       if (hasSubscriberFields) {
-        return subscribersService.update(subscriberId, {
-          fullName: patch.fullName,
-          facilityType: patch.facilityType,
-          phone: patch.phone,
-          notes: patch.notes,
-          isSuspended: patch.isSuspended,
-          isPaused: patch.isPaused,
-          monthlyPrice: patch.monthlyPrice,
-          speedId: patch.speedId,
-          password: patch.password,
-        });
+        return subscribersService.update(subscriberId, subscriberPayload);
       }
 
       const profile = await subscribersService.getProfile(subscriberId);
       return profile.subscriber;
     },
-    onSuccess: (_data, patch) => {
-      invalidateProfile();
+    onSuccess: (data, patch) => {
+      queryClient.setQueryData(subscriberProfileQueryKey(subscriberId), (current) => {
+        if (!current || typeof current !== "object" || !("subscriber" in current)) return current;
+        const profile = current as { subscriber: Subscriber; daysGone?: number | null; daysRemaining?: number | null };
+        return {
+          ...profile,
+          subscriber: {
+            ...profile.subscriber,
+            ...data,
+            routerName: patch.routerName ?? data.routerName ?? profile.subscriber.routerName,
+            routerImageUrl:
+              patch.routerImageUrl ?? data.routerImageUrl ?? profile.subscriber.routerImageUrl,
+          },
+        };
+      });
+
+      queryClient.invalidateQueries({ queryKey: ["subscribers"] });
       queryClient.invalidateQueries({ queryKey: ["customers"] });
+      if (patch.packageLine !== undefined) {
+        queryClient.invalidateQueries({ queryKey: ["subscribers", "line"] });
+      }
       if (patch.speedId !== undefined) {
         queryClient.invalidateQueries({ queryKey: subscriberSpeedHistoryQueryKey(subscriberId) });
       }
