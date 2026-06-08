@@ -365,7 +365,7 @@ export const subscribersEn: SubscribersI18n = {
     speedUpdateSuccess: "Speed updated",
     router: {
       sectionTitle: "Router / CPE",
-      sectionHint: "Router installed at the subscriber premises — saved with the subscriber profile.",
+      sectionHint: "Saved together with the profile using Save below.",
       nameLabel: "Router name",
       namePlaceholder: "e.g. TP-Link Archer C6",
       imageAlt: "Router photo",
@@ -604,7 +604,7 @@ export const subscribersAr: SubscribersI18n = {
     speedUpdateSuccess: "تم تحديث السرعة",
     router: {
       sectionTitle: "الراوتر / جهاز العميل",
-      sectionHint: "الراوتر في موقع المشترك — يُحفظ مع ملف المشترك.",
+      sectionHint: "يُحفظ مع باقي الملف عند الضغط على حفظ بالأسفل.",
       nameLabel: "اسم الراوتر",
       namePlaceholder: "مثال: TP-Link Archer C6",
       imageAlt: "صورة الراوتر",

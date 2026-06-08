@@ -31,6 +31,7 @@ export interface Subscriber {
   notes: string | null;
   routerName?: string | null;
   routerImageUrl?: string | null;
+  routerPublicId?: string | null;
   createdAt: string;
   updatedAt: string;
 }

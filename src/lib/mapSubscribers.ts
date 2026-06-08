@@ -15,8 +15,8 @@ export interface BackendSubscriberRow {
   password?: string | null;
   speedId?: number | null;
   speedValue?: number | null;
-  lineId: string;
-  fullName: string;
+  lineId: string | null;
+  fullName: string | null;
   facilityType?: string | null;
   phone?: string | null;
   monthlyPrice?: string | number | null;
@@ -28,8 +28,11 @@ export interface BackendSubscriberRow {
   balance?: string | number | null;
   createdAt?: string | Date | null;
   suspendAt?: string | Date | null;
-  router?: string | null;
+  routerName?: string | null;
   routerImage?: string | null;
+  routerPublicId?: string | null;
+  /** Legacy alias — some responses may still use `router` */
+  router?: string | null;
 }
 
 export interface BackendSubscriberProfileResponse {
@@ -112,16 +115,17 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
   const createdAt = toIso(row.createdAt) ?? new Date().toISOString();
   const startDate = toIso(row.startDate);
   const endDate = toIso(row.endDate);
+  const lineId = row.lineId ?? "";
 
   return {
     id: row.id,
-    lineId: row.lineId,
+    lineId,
     username: row.username ?? null,
     password: row.password ?? null,
     fullName: row.fullName ?? "",
     facilityType: row.facilityType ?? "",
     phone: row.phone ?? null,
-    packageLine: parsePackageLineFromLineId(row.lineId),
+    packageLine: parsePackageLineFromLineId(lineId),
     speedId: row.speedId ?? null,
     usernameId: row.usernameID ?? null,
     speedMbps: row.speedValue ?? 0,
@@ -135,8 +139,9 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
     isOwnerUsername: false,
     balance: toNumber(row.balance, 0),
     notes: row.notes ?? null,
-    routerName: row.router ?? null,
+    routerName: row.routerName ?? row.router ?? null,
     routerImageUrl: row.routerImage ?? null,
+    routerPublicId: row.routerPublicId ?? null,
     createdAt,
     updatedAt: toIso(row.suspendAt) ?? createdAt,
   };

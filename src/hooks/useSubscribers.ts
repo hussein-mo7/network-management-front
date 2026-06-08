@@ -137,22 +137,8 @@ export function useSubscriberProfileMutations(subscriberId: number) {
       const profile = await subscribersService.getProfile(subscriberId);
       return profile.subscriber;
     },
-    onSuccess: (data, patch) => {
-      queryClient.setQueryData(subscriberProfileQueryKey(subscriberId), (current) => {
-        if (!current || typeof current !== "object" || !("subscriber" in current)) return current;
-        const profile = current as { subscriber: Subscriber; daysGone?: number | null; daysRemaining?: number | null };
-        return {
-          ...profile,
-          subscriber: {
-            ...profile.subscriber,
-            ...data,
-            routerName: patch.routerName ?? data.routerName ?? profile.subscriber.routerName,
-            routerImageUrl:
-              patch.routerImageUrl ?? data.routerImageUrl ?? profile.subscriber.routerImageUrl,
-          },
-        };
-      });
-
+    onSuccess: (_data, patch) => {
+      invalidateProfile();
       queryClient.invalidateQueries({ queryKey: ["subscribers"] });
       queryClient.invalidateQueries({ queryKey: ["customers"] });
       if (patch.packageLine !== undefined) {

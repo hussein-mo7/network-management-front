@@ -3,29 +3,22 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/buttons";
 import { Input } from "@/components/ui/forms";
-import { ProfileSection } from "@/components/ui/profile";
-import { Text } from "@/components/ui/typography";
+import { Heading, Text } from "@/components/ui/typography";
 
 interface SubscriberRouterSectionProps {
   routerName: string;
   imagePreview: string | null;
   canManage?: boolean;
-  isSubmitting?: boolean;
-  hasChanges?: boolean;
   onRouterNameChange: (value: string) => void;
   onImageFileSelect: (file: File) => void;
-  onSave?: () => void;
 }
 
 export function SubscriberRouterSection({
   routerName,
   imagePreview,
   canManage = false,
-  isSubmitting = false,
-  hasChanges = false,
   onRouterNameChange,
   onImageFileSelect,
-  onSave,
 }: SubscriberRouterSectionProps) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -38,17 +31,16 @@ export function SubscriberRouterSection({
   };
 
   return (
-    <ProfileSection
-      title={t("subscribers.profile.router.sectionTitle")}
-      description={t("subscribers.profile.router.sectionHint")}
-      action={
-        canManage && onSave ? (
-          <Button size="sm" onClick={onSave} isLoading={isSubmitting} disabled={!hasChanges}>
-            {t("common.save")}
-          </Button>
-        ) : null
-      }
-    >
+    <div className="space-y-4 rounded-lg border border-border/60 bg-muted/10 p-4 sm:p-5">
+      <div>
+        <Heading as="h3" className="text-sm font-semibold">
+          {t("subscribers.profile.router.sectionTitle")}
+        </Heading>
+        <Text muted className="mt-1 text-xs">
+          {t("subscribers.profile.router.sectionHint")}
+        </Text>
+      </div>
+
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
         <div className="flex shrink-0 flex-col items-center gap-3">
           <div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/30">
@@ -87,7 +79,7 @@ export function SubscriberRouterSection({
           ) : null}
         </div>
 
-        <div className="min-w-0 flex-1 space-y-3">
+        <div className="min-w-0 flex-1">
           <Input
             label={t("subscribers.profile.router.nameLabel")}
             value={routerName}
@@ -97,6 +89,6 @@ export function SubscriberRouterSection({
           />
         </div>
       </div>
-    </ProfileSection>
+    </div>
   );
 }

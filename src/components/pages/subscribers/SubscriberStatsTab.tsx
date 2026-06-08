@@ -68,29 +68,20 @@ export function SubscriberStatsTab({
     setRouterImagePreview(subscriber.routerImageUrl ?? null);
   }, [subscriber.id, subscriber.routerName, subscriber.routerImageUrl]);
 
-  const routerHasChanges =
-    routerName.trim() !== (subscriber.routerName ?? "").trim() || routerImageFile !== null;
-
   const appendRouterPatch = (
     patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null },
   ) => {
+    if (!canManage) return;
     const trimmedRouterName = routerName.trim();
-    if (canManage && trimmedRouterName !== (subscriber.routerName ?? "").trim()) {
+    const nameChanged = trimmedRouterName !== (subscriber.routerName ?? "").trim();
+    if (nameChanged) {
       patch.routerName = trimmedRouterName || null;
     }
-    if (canManage && routerImageFile) {
+    if (routerImageFile) {
       patch.routerImageFile = routerImageFile;
       patch.routerImageUrl = routerImagePreview;
+      patch.routerName = trimmedRouterName || null;
     }
-  };
-
-  const handleRouterSave = async () => {
-    const patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null } =
-      {};
-    appendRouterPatch(patch);
-    if (patch.routerName === undefined && !patch.routerImageFile) return;
-    await onSave?.(patch);
-    setRouterImageFile(null);
   };
 
   const {
@@ -135,28 +126,19 @@ export function SubscriberStatsTab({
     }
   };
 
+  const handleImageFileSelect = (file: File) => {
+    setRouterImageFile(file);
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        setRouterImagePreview(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="space-y-6">
-      <SubscriberRouterSection
-        routerName={routerName}
-        imagePreview={routerImagePreview}
-        canManage={canManage}
-        isSubmitting={isSubmitting}
-        hasChanges={routerHasChanges}
-        onRouterNameChange={setRouterName}
-        onImageFileSelect={(file) => {
-          setRouterImageFile(file);
-          const reader = new FileReader();
-          reader.onload = () => {
-            if (typeof reader.result === "string") {
-              setRouterImagePreview(reader.result);
-            }
-          };
-          reader.readAsDataURL(file);
-        }}
-        onSave={canManage ? handleRouterSave : undefined}
-      />
-
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard
           label={t("subscribers.profile.stats.usageDays")}
@@ -205,6 +187,14 @@ export function SubscriberStatsTab({
         })}
         className="space-y-4 p-4 sm:p-6"
       >
+        <SubscriberRouterSection
+          routerName={routerName}
+          imagePreview={routerImagePreview}
+          canManage={canManage}
+          onRouterNameChange={setRouterName}
+          onImageFileSelect={handleImageFileSelect}
+        />
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Input label={t("subscribers.table.lineId")} value={subscriber.lineId} readOnly disabled />
           <Input
