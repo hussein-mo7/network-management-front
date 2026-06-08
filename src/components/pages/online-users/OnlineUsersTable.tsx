@@ -91,7 +91,9 @@ export function OnlineUsersTable({ rows, hasSearch, className }: OnlineUsersTabl
                   {row.fullName || <span className="text-muted-foreground">—</span>}
                 </td>
                 <td className={dataTableCellClass}>
+                  <a href={`http://${row.ipAddress}`} target="_blank" rel="noopener noreferrer">
                   <LtrText className="font-mono text-sm">{row.ipAddress || "—"}</LtrText>
+                  </a>
                 </td>
                 <td className={dataTableCellClass}>
                   <LtrText className="font-mono text-xs">{row.callerId || "—"}</LtrText>
