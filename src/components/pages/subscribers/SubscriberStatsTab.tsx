@@ -5,17 +5,18 @@ import { useTranslation } from "react-i18next";
 import { SubscriberRouterSection } from "@/components/pages/subscribers/SubscriberRouterSection";
 import { Button } from "@/components/ui/buttons";
 import { Input, PasswordInput, Textarea } from "@/components/ui/forms";
-import { StatCard } from "@/components/ui/data";
+import { DataUsageDisplay, StatCard } from "@/components/ui/data";
+import { SubscriberMonthlyPriceSection } from "@/components/pages/subscribers/SubscriberMonthlyPriceSection";
 import { ProfileSection } from "@/components/ui/profile";
 import { Text } from "@/components/ui/typography";
-import { formatUsageRatio, resolveUsageLimitMb } from "@/lib/speedFairUsage";
+import { resolveUsageLimitMb } from "@/lib/speedFairUsage";
 import { getDaysUntilDisconnect, getUsageDays, buildSpeedLabel } from "@/lib/subscriberUtils";
-import type { SubscriberUpdatePayload } from "@/services/subscribers.service";
+import type { SubscriberProfilePatch } from "@/hooks/useSubscribers";
 import type { Subscriber } from "@/types/subscriber";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/cn";
 
-type SubscriberProfileSavePatch = SubscriberUpdatePayload & { packageLine?: number };
+type SubscriberProfileSavePatch = SubscriberProfilePatch;
 
 interface SubscriberStatsTabProps {
   subscriber: Subscriber;
@@ -36,12 +37,16 @@ interface ProfileFormValues {
   notes: string;
   password: string;
   packageLine: number;
-  monthlyPrice: string;
+  firstContactDate: string;
 }
 
-function formatMonthlyPriceField(price: number): string {
-  if (!Number.isFinite(price) || price < 0) return "";
-  return String(price);
+function toDateInputValue(value: string | null): string {
+  if (!value) return "";
+  try {
+    return format(parseISO(value), "yyyy-MM-dd");
+  } catch {
+    return value.slice(0, 10);
+  }
 }
 
 export function SubscriberStatsTab({
@@ -61,11 +66,13 @@ export function SubscriberStatsTab({
   const daysLeft = daysRemaining ?? getDaysUntilDisconnect(subscriber);
   const speedLabel = subscriber.speedMbps > 0 ? buildSpeedLabel(subscriber.speedMbps) : null;
   const usedMb = subscriber.totalUsage ?? 0;
-  const limitMb = resolveUsageLimitMb(subscriber.usageLimit, subscriber.speedMbps);
-  const usageLabel =
-    subscriber.username && (usedMb > 0 || limitMb != null)
-      ? formatUsageRatio(usedMb, limitMb)
-      : "—";
+  const limitMb = resolveUsageLimitMb(
+    subscriber.usageLimit,
+    subscriber.speedMbps,
+    subscriber.speedId ?? undefined,
+  );
+  const canEditFirstContact = canManage && Boolean(subscriber.usernameId && subscriber.speedId);
+  const showUsage = Boolean(subscriber.username && (usedMb > 0 || limitMb != null));
   const [routerName, setRouterName] = useState(subscriber.routerName ?? "");
   const [routerImageFile, setRouterImageFile] = useState<File | null>(null);
   const [routerImagePreview, setRouterImagePreview] = useState<string | null>(
@@ -103,7 +110,7 @@ export function SubscriberStatsTab({
       notes: subscriber.notes ?? "",
       password: subscriber.password ?? "",
       packageLine: subscriber.packageLine,
-      monthlyPrice: formatMonthlyPriceField(subscriber.monthlyPrice),
+      firstContactDate: toDateInputValue(subscriber.firstContactDate),
     },
   });
 
@@ -114,7 +121,7 @@ export function SubscriberStatsTab({
       notes: subscriber.notes ?? "",
       password: subscriber.password ?? "",
       packageLine: subscriber.packageLine,
-      monthlyPrice: formatMonthlyPriceField(subscriber.monthlyPrice),
+      firstContactDate: toDateInputValue(subscriber.firstContactDate),
     });
   }, [
     subscriber.lineId,
@@ -123,7 +130,7 @@ export function SubscriberStatsTab({
     subscriber.phone,
     subscriber.notes,
     subscriber.password,
-    subscriber.monthlyPrice,
+    subscriber.firstContactDate,
     reset,
   ]);
 
@@ -167,7 +174,13 @@ export function SubscriberStatsTab({
           />
           <StatCard
             label={t("subscribers.profile.stats.dataUsage")}
-            value={usageLabel}
+            value={
+              showUsage ? (
+                <DataUsageDisplay usedMb={usedMb} limitMb={limitMb} size="lg" />
+              ) : (
+                "—"
+              )
+            }
             hint={
               subscriber.username
                 ? t("subscribers.profile.stats.dataUsageHint", { username: subscriber.username })
@@ -178,6 +191,13 @@ export function SubscriberStatsTab({
           />
         </div>
       </div>
+
+      <SubscriberMonthlyPriceSection
+        monthlyPrice={subscriber.monthlyPrice}
+        canManage={canManage}
+        onSave={onSave}
+        isSubmitting={isSubmitting}
+      />
 
       <ProfileSection title={t("subscribers.profile.formSection")} bodyClassName="p-0">
         <div
@@ -227,13 +247,13 @@ export function SubscriberStatsTab({
             if (canManage && values.packageLine !== subscriber.packageLine) {
               patch.packageLine = values.packageLine;
             }
-            if (canManage) {
-              const monthlyRaw = values.monthlyPrice.trim();
-              if (monthlyRaw !== "") {
-                const parsed = Number(monthlyRaw);
-                if (Number.isFinite(parsed) && parsed >= 0 && parsed !== subscriber.monthlyPrice) {
-                  patch.monthlyPrice = parsed;
-                }
+            if (canEditFirstContact) {
+              const nextFirstContact = values.firstContactDate.trim();
+              const previousFirstContact = toDateInputValue(subscriber.firstContactDate);
+              if (nextFirstContact !== previousFirstContact) {
+                patch.firstContactDate = nextFirstContact || null;
+                patch.usernameId = subscriber.usernameId;
+                patch.usernameSpeedId = subscriber.speedId;
               }
             }
             appendRouterPatch(patch);
@@ -293,22 +313,26 @@ export function SubscriberStatsTab({
               disabled={!canManage}
             />
             <Input label={t("subscribers.form.phone")} {...register("phone")} disabled={!canManage} />
-            <Input
-              label={t("subscribers.profile.monthlyPriceLabel")}
-              type="number"
-              min={0}
-              step="0.01"
-              inputMode="decimal"
-              placeholder="—"
-              disabled={!canManage}
-              {...register("monthlyPrice")}
-            />
-            <Input
-              label={t("subscribers.profile.firstContact")}
-              value={formatDate(subscriber.firstContactDate)}
-              readOnly
-              disabled
-            />
+            <div className="space-y-1">
+              <Input
+                label={t("subscribers.profile.firstContact")}
+                type="date"
+                disabled={!canEditFirstContact}
+                {...register("firstContactDate", {
+                  validate: (value) => {
+                    if (!canEditFirstContact) return true;
+                    if (!value?.trim()) return t("subscribers.profile.firstContactRequired");
+                    return true;
+                  },
+                })}
+                error={errors.firstContactDate?.message}
+              />
+              {canManage && !canEditFirstContact ? (
+                <Text muted className="text-xs">
+                  {t("subscribers.profile.firstContactNoUsername")}
+                </Text>
+              ) : null}
+            </div>
             <Input
               label={t("subscribers.profile.disconnection")}
               value={formatDate(subscriber.disconnectionDate)}
@@ -321,9 +345,6 @@ export function SubscriberStatsTab({
             <div className="space-y-1">
               <Text muted className="text-xs">
                 {t("subscribers.profile.passwordEditHint")}
-              </Text>
-              <Text muted className="text-xs">
-                {t("subscribers.profile.monthlyPriceHint")}
               </Text>
             </div>
           ) : null}

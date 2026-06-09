@@ -1,47 +1,21 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-} from "recharts";
-import {
   CHART_COLORS,
-  CHART_MARGIN,
   CHART_PALETTE,
   ChartCard,
+  ChartEmpty,
   ChartLegendRow,
-  ChartYAxis,
+  donutChartOption,
+  EChart,
+  pieChartOption,
+  singleLineChartOption,
+  verticalBarChartOption,
 } from "@/components/ui/charts";
-import { CHART_AXIS_TICK } from "@/components/ui/charts/chartLayout";
-import { formatFinanceMethodLabel } from "@/lib/mocks/finance.mock";
+import { chartMonthLabel } from "@/lib/chartDateLabels";
 import { formatMoney } from "@/lib/formatMoney";
+import { formatFinanceMethodLabel } from "@/lib/mocks/finance.mock";
 import type { FinancialStats } from "@/types/finance";
-
-const MONTH_SHORT_AR = [
-  "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-  "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر",
-];
-
-const MONTH_SHORT_EN = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-];
-
-function monthLabel(monthKey: string, lang: string): string {
-  const [, mo] = monthKey.split("-");
-  const idx = parseInt(mo, 10) - 1;
-  const names = lang.startsWith("ar") ? MONTH_SHORT_AR : MONTH_SHORT_EN;
-  const [y] = monthKey.split("-");
-  return `${names[idx] ?? mo} ${y}`;
-}
 
 interface FinanceChartsSectionProps {
   stats: FinancialStats;
@@ -51,31 +25,44 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language;
 
-  const trendData = stats.monthlyTrend.map((m) => ({
-    key: m.month,
-    label: monthLabel(m.month, lang),
-    revenue: m.revenue,
-    count: m.count,
-  }));
+  const formatValue = (value: number) => formatMoney(value, lang);
 
-  const speedData = stats.revenueBySpeed
-    .filter((s) => s.revenue > 0)
-    .map((s, i) => ({
-      key: String(s.speed),
-      name: s.label,
-      value: s.revenue,
-      color: CHART_PALETTE[i % CHART_PALETTE.length],
-    }));
+  const trendData = useMemo(
+    () =>
+      stats.monthlyTrend.map((m) => ({
+        key: m.month,
+        label: chartMonthLabel(m.month, lang),
+        revenue: m.revenue,
+        count: m.count,
+      })),
+    [stats.monthlyTrend, lang],
+  );
 
-  const methodData = stats.byMethod.map((m, i) => ({
-    key: m.method,
-    name: formatFinanceMethodLabel(m.method, t),
-    value: m.total,
-    color: CHART_PALETTE[i % CHART_PALETTE.length],
-  }));
+  const speedData = useMemo(
+    () =>
+      stats.revenueBySpeed
+        .filter((s) => s.revenue > 0)
+        .map((s, i) => ({
+          key: String(s.speed),
+          name: s.label,
+          value: s.revenue,
+          color: CHART_PALETTE[i % CHART_PALETTE.length],
+        })),
+    [stats.revenueBySpeed],
+  );
 
-  const tooltipMoney = (value: number | string | undefined) =>
-    formatMoney(Number(value ?? 0), lang);
+  const methodData = useMemo(
+    () =>
+      stats.byMethod.map((m, i) => ({
+        key: m.method,
+        name: formatFinanceMethodLabel(m.method, t),
+        value: m.total,
+        color: CHART_PALETTE[i % CHART_PALETTE.length],
+      })),
+    [stats.byMethod, t],
+  );
+
+  const chartKey = lang;
 
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -85,26 +72,21 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
         description={t("finance.charts.revenueTrendSub")}
         legend={
           <ChartLegendRow
-            items={[{ label: t("finance.charts.paidLabel"), color: CHART_COLORS.primary }]}
+            items={[{ label: t("finance.charts.paidLabel"), color: CHART_COLORS.primary, type: "line" }]}
           />
         }
+        chartClassName="h-64"
       >
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={trendData} margin={CHART_MARGIN}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="label" tick={CHART_AXIS_TICK} interval="preserveStartEnd" />
-            <ChartYAxis />
-            <Tooltip formatter={(v) => tooltipMoney(v as number)} />
-            <Line
-              type="monotone"
-              dataKey="revenue"
-              stroke={CHART_COLORS.primary}
-              strokeWidth={2}
-              dot={{ r: 3 }}
-              fill="rgba(20,184,166,0.08)"
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        <EChart
+          option={singleLineChartOption(
+            trendData.map((row) => row.label),
+            trendData.map((row) => row.revenue),
+            CHART_COLORS.primary,
+            t("finance.charts.paidLabel"),
+            formatValue,
+          )}
+          refreshKey={chartKey}
+        />
       </ChartCard>
 
       <ChartCard
@@ -117,18 +99,9 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
         }
       >
         {speedData.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">—</p>
+          <ChartEmpty />
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={speedData} dataKey="value" nameKey="name" innerRadius="58%" outerRadius="80%">
-                {speedData.map((d) => (
-                  <Cell key={d.key} fill={d.color} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(v) => tooltipMoney(v as number)} />
-            </PieChart>
-          </ResponsiveContainer>
+          <EChart option={donutChartOption(speedData)} refreshKey={chartKey} />
         )}
       </ChartCard>
 
@@ -142,18 +115,9 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
         }
       >
         {methodData.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">—</p>
+          <ChartEmpty />
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie data={methodData} dataKey="value" nameKey="name" innerRadius="50%" outerRadius="78%">
-                {methodData.map((d) => (
-                  <Cell key={d.key} fill={d.color} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(v) => tooltipMoney(v as number)} />
-            </PieChart>
-          </ResponsiveContainer>
+          <EChart option={pieChartOption(methodData, "50%", "78%")} refreshKey={chartKey} />
         )}
       </ChartCard>
 
@@ -161,16 +125,18 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
         className="md:col-span-2"
         title={t("finance.charts.monthlyBars")}
         description={t("finance.charts.monthlyBarsSub")}
+        chartClassName="h-64"
       >
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={trendData} margin={CHART_MARGIN}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="label" tick={CHART_AXIS_TICK} />
-            <ChartYAxis />
-            <Tooltip formatter={(v) => tooltipMoney(v as number)} />
-            <Bar dataKey="revenue" fill={CHART_COLORS.primary} radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        <EChart
+          option={verticalBarChartOption(
+            trendData.map((row) => row.label),
+            trendData.map((row) => row.revenue),
+            CHART_COLORS.primary,
+            t("finance.charts.paidLabel"),
+            formatValue,
+          )}
+          refreshKey={chartKey}
+        />
       </ChartCard>
 
       <section className="md:col-span-2 overflow-hidden rounded-xl border border-border bg-surface">

@@ -29,7 +29,8 @@ import {
 } from "@/hooks/useSubscribers";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { ApiError } from "@/types/api";
-import type { SubscriberUpdatePayload } from "@/services/subscribers.service";
+import type { PickedUsername } from "@/components/pages/subscribers/PickAvailableUsernameModal";
+import type { SubscriberProfilePatch } from "@/hooks/useSubscribers";
 import { cn } from "@/lib/cn";
 
 export function SubscriberProfilePage() {
@@ -46,6 +47,8 @@ export function SubscriberProfilePage() {
   const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
   const [unpauseDialogOpen, setUnpauseDialogOpen] = useState(false);
   const [pickUsernameOpen, setPickUsernameOpen] = useState(false);
+  const [pendingUsernamePick, setPendingUsernamePick] = useState<PickedUsername | null>(null);
+  const [renewConfirmOpen, setRenewConfirmOpen] = useState(false);
   const [usernamePickPool, setUsernamePickPool] = useState<{
     speedId: number;
     speedMbps: number;
@@ -111,7 +114,7 @@ export function SubscriberProfilePage() {
     toast.error(message);
   };
 
-  const handleSave = async (patch: SubscriberUpdatePayload & { packageLine?: number }) => {
+  const handleSave = async (patch: SubscriberProfilePatch) => {
     if (!subscriber) return;
     const previousLineId = subscriber.lineId;
     try {
@@ -232,18 +235,25 @@ export function SubscriberProfilePage() {
     );
   }
 
-  const handleAssignUsername = async (picked: { id: number; changeCause: string }) => {
+  const handlePickUsernameRequest = (picked: PickedUsername) => {
+    setPickUsernameOpen(false);
+    setPendingUsernamePick(picked);
+  };
+
+  const handleAssignUsername = async () => {
+    if (!pendingUsernamePick) return;
     try {
       await assignUsernameMutation.mutateAsync({
-        availableUsernameId: picked.id,
-        changeCause: picked.changeCause,
+        availableUsernameId: pendingUsernamePick.id,
+        changeCause: pendingUsernamePick.changeCause,
       });
       toast.success(
         subscriber?.isSuspended
           ? t("subscribers.username.reactivateSuccess")
           : t("subscribers.username.changeSuccess"),
       );
-      setPickUsernameOpen(false);
+      setPendingUsernamePick(null);
+      setUsernamePickPool(null);
       if (subscriber?.isSuspended) {
         navigate(subscriberProfilePath(lineId, "stats"));
       }
@@ -261,10 +271,20 @@ export function SubscriberProfilePage() {
     try {
       await autoAssignUsernameMutation.mutateAsync(speedId);
       toast.success(t("subscribers.username.renewSuccess"));
+      setRenewConfirmOpen(false);
       await usernameHistoryQuery.refetch();
     } catch (err) {
       showError(err);
     }
+  };
+
+  const requestRenewUsername = () => {
+    const speedId = poolSpeedId ?? resolvedSpeedId;
+    if (!speedId) {
+      toast.error(t("subscribers.username.renewNoSpeed"));
+      return;
+    }
+    setRenewConfirmOpen(true);
   };
 
   return (
@@ -292,7 +312,7 @@ export function SubscriberProfilePage() {
             onSave={canManage ? handleSave : undefined}
             isSubmitting={isSubmitting}
             showRenew={canManage && !subscriber.isSuspended && Boolean(subscriber.username)}
-            onRenewUsername={handleRenewUsername}
+            onRenewUsername={requestRenewUsername}
             isRenewing={autoAssignUsernameMutation.isPending}
           />
         ) : null}
@@ -313,7 +333,7 @@ export function SubscriberProfilePage() {
               setPickUsernameOpen(true);
             }}
             showRenew={canManage && !subscriber.isSuspended && Boolean(subscriber.username)}
-            onRenewUsername={handleRenewUsername}
+            onRenewUsername={requestRenewUsername}
             isRenewing={autoAssignUsernameMutation.isPending}
           />
         ) : null}
@@ -326,6 +346,7 @@ export function SubscriberProfilePage() {
           <SubscriberInvoicesTab
             invoices={invoicesQuery.data ?? []}
             balance={subscriber.balance}
+            subscriber={subscriber}
             canManage={canManage}
             monthlyPrice={subscriber.monthlyPrice}
             onAddInvoice={canManage ? handleAddInvoice : undefined}
@@ -351,13 +372,51 @@ export function SubscriberProfilePage() {
             : t("subscribers.username.changeModalHint")
         }
         speedMbps={usernamePickPool?.speedMbps ?? poolSpeedMbps ?? subscriber.speedMbps ?? 0}
-        packageLine={
-          usernamePickPool?.speedMbps ?? subscriber.packageLine ?? subscriber.speedMbps ?? 0
-        }
+        packageLine={subscriber.packageLine}
         speedId={usernamePickPool?.speedId ?? poolSpeedId}
         excludeUsername={subscriber.username}
+        onConfirm={handlePickUsernameRequest}
+        isSubmitting={false}
+      />
+
+      <ConfirmDialog
+        open={pendingUsernamePick !== null}
+        onClose={() => setPendingUsernamePick(null)}
         onConfirm={handleAssignUsername}
-        isSubmitting={assignUsernameMutation.isPending}
+        title={
+          subscriber.isSuspended
+            ? t("subscribers.username.assignConfirmTitle")
+            : t("subscribers.username.changeConfirmTitle")
+        }
+        message={
+          pendingUsernamePick
+            ? subscriber.isSuspended
+              ? t("subscribers.username.assignConfirmMessage", {
+                  username: pendingUsernamePick.username,
+                })
+              : t("subscribers.username.changeConfirmMessage", {
+                  username: pendingUsernamePick.username,
+                  current: subscriber.username ?? "—",
+                })
+            : ""
+        }
+        confirmLabel={t("subscribers.username.confirmPick")}
+        cancelLabel={t("common.cancel")}
+        isLoading={assignUsernameMutation.isPending}
+      />
+
+      <ConfirmDialog
+        open={renewConfirmOpen}
+        onClose={() => setRenewConfirmOpen(false)}
+        onConfirm={handleRenewUsername}
+        title={t("subscribers.username.renewConfirmTitle")}
+        message={t("subscribers.username.renewConfirmMessage", {
+          name: subscriber.fullName,
+          username: subscriber.username ?? "—",
+        })}
+        confirmLabel={t("subscribers.username.renewUsername")}
+        cancelLabel={t("common.cancel")}
+        isLoading={autoAssignUsernameMutation.isPending}
       />
 
       <ConfirmDialog

@@ -7,8 +7,10 @@ import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
 import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
-import { useSpeedMutations, useSpeedsQuery } from "@/hooks/useSpeeds";
+import { SPEEDS_QUERY_KEY, useSpeedMutations, useSpeedsQuery } from "@/hooks/useSpeeds";
+import { useQueryClient } from "@tanstack/react-query";
 import { getActiveSpeedTiers } from "@/lib/mapSpeedTiers";
+import { setStoredFairUsageGb } from "@/lib/speedFairUsageStorage";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { ApiError } from "@/types/api";
 import type { SpeedTier } from "@/types/speeds";
@@ -20,6 +22,7 @@ type SpeedDialog =
 
 export function SpeedsPage() {
   const { t } = useTranslation();
+  const queryClient = useQueryClient();
   const { canManage } = useRoleAccess();
   const { data: tiers = [], isLoading, isError, error, refetch } = useSpeedsQuery();
   const activeTiers = useMemo(() => getActiveSpeedTiers(tiers), [tiers]);
@@ -41,10 +44,12 @@ export function SpeedsPage() {
 
   const handleCreate = async (values: SpeedFormValues) => {
     try {
-      await createMutation.mutateAsync({
+      const created = await createMutation.mutateAsync({
         valueMbps: values.valueMbps,
         price: values.price,
       });
+      setStoredFairUsageGb(created.id, values.fairUsageGb);
+      await queryClient.invalidateQueries({ queryKey: SPEEDS_QUERY_KEY });
       toast.success(t("speeds.form.createSuccess"));
       setDialog(null);
     } catch (err) {
@@ -61,6 +66,8 @@ export function SpeedsPage() {
         valueMbps: values.valueMbps,
         price: values.price,
       });
+      setStoredFairUsageGb(dialog.tier.id, values.fairUsageGb);
+      await queryClient.invalidateQueries({ queryKey: SPEEDS_QUERY_KEY });
       toast.success(t("speeds.form.updateSuccess"));
       setDialog(null);
     } catch (err) {

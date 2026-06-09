@@ -22,7 +22,7 @@ import {
   TableSubscriberCell,
 } from "@/components/ui/data";
 import { getCustomerKind } from "@/lib/customerUtils";
-import { buildSpeedLabel, getSubscriberInitials } from "@/lib/subscriberUtils";
+import { getSubscriberInitials } from "@/lib/subscriberUtils";
 import { customerProfilePath } from "@/lib/routePaths";
 import type { Customer } from "@/types/customer";
 import { cn } from "@/lib/cn";
@@ -41,9 +41,9 @@ interface CustomersTableProps {
 /** Column widths must sum to 100% for table-fixed alignment */
 function buildColumnWidths(showCheckboxes: boolean): string[] {
   if (showCheckboxes) {
-    return ["3%", "28%", "10%", "14%", "14%", "9%", "11%", "11%"];
+    return ["3%", "30%", "11%", "15%", "16%", "12%", "13%"];
   }
-  return ["30%", "11%", "15%", "15%", "10%", "12%", "12%"];
+  return ["34%", "12%", "16%", "18%", "12%", "8%"];
 }
 
 export function CustomersTable({
@@ -120,11 +120,7 @@ export function CustomersTable({
                       <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.phone")}</dt>
                       <dd className="mt-1" dir="ltr">{row.phone ?? "—"}</dd>
                     </div>
-                    <div>
-                      <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.speed")}</dt>
-                      <dd className="mt-1">{buildSpeedLabel(row.speedMbps)}</dd>
-                    </div>
-                    <div>
+                    <div className="col-span-2">
                       <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.balance")}</dt>
                       <dd className={cn("mt-1 tabular-nums", row.balance < 0 ? "text-foreground" : "text-muted-foreground")}>
                         {row.balance}
@@ -165,7 +161,7 @@ export function CustomersTable({
       </div>
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-        <table className={cn(dataTableFixedClass, dataTableScrollMinClass, "min-w-[880px]")}>
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass, "min-w-[760px]")}>
           <colgroup>
             {columnWidths.map((width, index) => (
               <col key={index} style={{ width }} />
@@ -188,9 +184,6 @@ export function CustomersTable({
               <th className={dataTableHeadCellClass}>{t("customers.table.type")}</th>
               <th className={dataTableHeadCellClass}>{t("customers.table.username")}</th>
               <th className={dataTableHeadCellClass}>{t("customers.table.phone")}</th>
-              <th className={cn("whitespace-nowrap", dataTableHeadCellClass)}>
-                {t("customers.table.speed")}
-              </th>
               <th className={dataTableNumericHeadCellClass}>{t("customers.table.balance")}</th>
               {showActions ? (
                 <th className={dataTableActionsHeadCellClass}>{t("customers.table.actions")}</th>
@@ -243,9 +236,6 @@ export function CustomersTable({
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}
-                  </td>
-                  <td className={cn("whitespace-nowrap text-muted-foreground", dataTableCellClass)}>
-                    <LtrText>{buildSpeedLabel(row.speedMbps)}</LtrText>
                   </td>
                   <td
                     className={cn(

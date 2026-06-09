@@ -124,6 +124,8 @@ export type SubscribersI18n = {
     unpauseConfirm: string;
     unpauseSuccess: string;
     firstContact: string;
+    firstContactRequired: string;
+    firstContactNoUsername: string;
     disconnection: string;
     formSection: string;
     cycleOverview: string;
@@ -135,6 +137,10 @@ export type SubscribersI18n = {
     speedUpdateSuccess: string;
     monthlyPriceLabel: string;
     monthlyPriceHint: string;
+    monthlyPriceSectionTitle: string;
+    monthlyPriceSectionHint: string;
+    monthlyPriceRequired: string;
+    monthlyPriceInvalid: string;
     sms: {
       title: string;
       subtitle: string;
@@ -196,6 +202,12 @@ export type SubscribersI18n = {
     deleteMessage: string;
     deleteSuccess: string;
     apiPending: string;
+    preview: string;
+    previewTitle: string;
+    previewHeading: string;
+    print: string;
+    remaining: string;
+    paidAt: string;
   };
   username: {
     changeUsername: string;
@@ -256,11 +268,23 @@ export type SubscribersI18n = {
     renewHint: string;
     renewSuccess: string;
     renewNoSpeed: string;
+    renewConfirmTitle: string;
+    renewConfirmMessage: string;
+    assignConfirmTitle: string;
+    assignConfirmMessage: string;
+    changeConfirmTitle: string;
+    changeConfirmMessage: string;
     changeCauseTitle: string;
     changeCauseHint: string;
     changeCauseRequired: string;
     changeCausePlaceholder: string;
     changeCauseColumn: string;
+    changeCauseTemplates: {
+      username_expired: string;
+      quota_finished: string;
+      subscriber_request: string;
+      other: string;
+    };
   };
 };
 
@@ -390,6 +414,8 @@ export const subscribersEn: SubscribersI18n = {
     unpauseConfirm: "Resume",
     unpauseSuccess: "Temporary pause cancelled — subscriber is active again",
     firstContact: "First contact",
+    firstContactRequired: "First contact date is required",
+    firstContactNoUsername: "Assign a username before editing the first contact date.",
     disconnection: "Disconnect date",
     formSection: "User data",
     cycleOverview: "Billing cycle",
@@ -400,7 +426,11 @@ export const subscribersEn: SubscribersI18n = {
     speedEditHint: "Pick a speed to browse its username pool. The subscriber speed updates when you confirm a username.",
     speedUpdateSuccess: "Speed updated",
     monthlyPriceLabel: "Monthly price (₪)",
-    monthlyPriceHint: "Optional — not tied to invoices or balance.",
+    monthlyPriceHint: "Custom monthly price for this subscriber.",
+    monthlyPriceSectionTitle: "Custom monthly price",
+    monthlyPriceSectionHint: "Set a custom price for this subscriber — separate from invoices.",
+    monthlyPriceRequired: "Enter a monthly price",
+    monthlyPriceInvalid: "Enter a valid price",
     sms: {
       title: "Send SMS",
       subtitle: "Send a text message to this subscriber via the SMS gateway.",
@@ -462,6 +492,12 @@ export const subscribersEn: SubscribersI18n = {
     deleteMessage: "Remove invoice #{{id}} ({{amount}} ₪)? The account balance will be adjusted.",
     deleteSuccess: "Invoice deleted",
     apiPending: "Invoice API pending",
+    preview: "Preview / print invoice",
+    previewTitle: "Invoice #{{id}}",
+    previewHeading: "Invoice",
+    print: "Print",
+    remaining: "Remaining",
+    paidAt: "Paid on",
   },
   username: {
     changeUsername: "Change username",
@@ -528,11 +564,25 @@ export const subscribersEn: SubscribersI18n = {
       "Pulls the newest available username from the same speed tier automatically — same effect as a manual change.",
     renewSuccess: "Username renewed from the same speed pool",
     renewNoSpeed: "No speed tier linked — set speed on the Username tab first",
+    renewConfirmTitle: "Renew username?",
+    renewConfirmMessage:
+      "Assign a new username from the pool for {{name}}? Current username {{username}} will be returned to the pool.",
+    assignConfirmTitle: "Assign this username?",
+    assignConfirmMessage: "Assign {{username}} to this subscriber?",
+    changeConfirmTitle: "Assign new username?",
+    changeConfirmMessage:
+      "Replace {{current}} with {{username}}? The current username returns to the pool.",
     changeCauseTitle: "Reason for change",
-    changeCauseHint: "Write why this username is being assigned or replaced.",
+    changeCauseHint: "Pick a reason or choose Other to write a custom note.",
     changeCauseRequired: "Enter a reason before confirming",
-    changeCausePlaceholder: "e.g. username validity expired, data quota finished…",
+    changeCausePlaceholder: "Describe the reason…",
     changeCauseColumn: "Reason",
+    changeCauseTemplates: {
+      username_expired: "Username validity expired",
+      quota_finished: "Data quota finished",
+      subscriber_request: "Subscriber request",
+      other: "Other (custom)",
+    },
   },
 };
 
@@ -662,6 +712,8 @@ export const subscribersAr: SubscribersI18n = {
     unpauseConfirm: "إلغاء التوقيف",
     unpauseSuccess: "تم إلغاء التوقيف المؤقت — المشترك نشط مجدداً",
     firstContact: "أول اتصال",
+    firstContactRequired: "تاريخ أول اتصال مطلوب",
+    firstContactNoUsername: "عيّن اسم مستخدم قبل تعديل تاريخ أول اتصال.",
     disconnection: "تاريخ الفصل",
     formSection: "بيانات المستخدم",
     cycleOverview: "نظرة على الدورة",
@@ -672,7 +724,11 @@ export const subscribersAr: SubscribersI18n = {
     speedEditHint: "اختر السرعة لعرض أسماءها المتاحة. تتحدث سرعة المشترك عند تأكيد اختيار الاسم.",
     speedUpdateSuccess: "تم تحديث السرعة",
     monthlyPriceLabel: "السعر الشهري (₪)",
-    monthlyPriceHint: "اختياري — غير مرتبط بالفواتير أو الرصيد.",
+    monthlyPriceHint: "سعر شهري مخصص لهذا المشترك.",
+    monthlyPriceSectionTitle: "السعر الشهري المخصص",
+    monthlyPriceSectionHint: "حدّد سعراً شهرياً لهذا المشترك — منفصل عن الفواتير.",
+    monthlyPriceRequired: "أدخل السعر الشهري",
+    monthlyPriceInvalid: "أدخل سعراً صالحاً",
     sms: {
       title: "إرسال رسالة",
       subtitle: "أرسل رسالة نصية لهذا المشترك عبر بوابة SMS.",
@@ -734,6 +790,12 @@ export const subscribersAr: SubscribersI18n = {
     deleteMessage: "حذف الفاتورة رقم {{id}} ({{amount}} ₪)؟ سيتم تعديل رصيد الحساب.",
     deleteSuccess: "تم حذف الفاتورة",
     apiPending: "واجهة الفواتير قيد الربط",
+    preview: "معاينة / طباعة فاتورة",
+    previewTitle: "فاتورة رقم {{id}}",
+    previewHeading: "فاتورة",
+    print: "طباعة",
+    remaining: "المتبقي",
+    paidAt: "تاريخ الدفع",
   },
   username: {
     changeUsername: "تغيير اسم المستخدم",
@@ -799,10 +861,24 @@ export const subscribersAr: SubscribersI18n = {
       "يسحب تلقائياً أحدث اسم متاح من نفس السرعة — بنفس تبعات التغيير اليدوي.",
     renewSuccess: "تم تجديد اسم المستخدم من نفس السرعة",
     renewNoSpeed: "لا توجد سرعة مرتبطة — حدّد السرعة من تبويب اسم المستخدم أولاً",
+    renewConfirmTitle: "تجديد اسم المستخدم؟",
+    renewConfirmMessage:
+      "تعيين اسم جديد من المجموعة لـ {{name}}؟ سيعود الاسم الحالي {{username}} إلى المجموعة.",
+    assignConfirmTitle: "تعيين هذا الاسم؟",
+    assignConfirmMessage: "تعيين {{username}} لهذا المشترك؟",
+    changeConfirmTitle: "تعيين اسم جديد؟",
+    changeConfirmMessage:
+      "استبدال {{current}} بـ {{username}}؟ سيعود الاسم الحالي إلى المجموعة.",
     changeCauseTitle: "سبب التغيير",
-    changeCauseHint: "اكتب سبب تعيين أو استبدال اسم المستخدم.",
+    changeCauseHint: "اختر سبباً أو اختر «أخرى» لكتابة ملاحظة مخصصة.",
     changeCauseRequired: "أدخل السبب قبل التأكيد",
-    changeCausePlaceholder: "مثال: انتهاء صلاحية اسم المستخدم، انتهاء الكمية…",
+    changeCausePlaceholder: "اكتب السبب…",
     changeCauseColumn: "السبب",
+    changeCauseTemplates: {
+      username_expired: "انتهاء صلاحية اسم المستخدم",
+      quota_finished: "انتهاء الكمية",
+      subscriber_request: "تغيير سرعة",
+      other: "أخرى (مخصص)",
+    },
   },
 };

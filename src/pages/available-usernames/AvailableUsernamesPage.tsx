@@ -1,4 +1,4 @@
-import { Download, Plus, Trash2, Upload } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -8,7 +8,6 @@ import {
   AvailableUsernameFilters,
   AvailableUsernameFormModal,
   AvailableUsernamesTable,
-  ImportUsernamesModal,
   type AvailableUsernameFormValues,
   type UsernameStatusFilter,
 } from "@/components/pages/available-usernames";
@@ -38,7 +37,6 @@ type UsernameDialog =
   | { type: "add" }
   | { type: "edit"; row: AvailableUsername }
   | { type: "delete"; row: AvailableUsername }
-  | { type: "import" }
   | { type: "deleteAll" };
 
 export function AvailableUsernamesPage() {
@@ -73,8 +71,6 @@ export function AvailableUsernamesPage() {
     updateMutation,
     deleteMutation,
     deleteAllMutation,
-    importMutation,
-    exportMutation,
   } = useUsernameMutations(activeSpeedId);
 
   const selectedTier =
@@ -108,9 +104,7 @@ export function AvailableUsernamesPage() {
     createMutation.isPending ||
     updateMutation.isPending ||
     deleteMutation.isPending ||
-    deleteAllMutation.isPending ||
-    importMutation.isPending ||
-    exportMutation.isPending;
+    deleteAllMutation.isPending;
 
   const showError = (err: unknown) => {
     const message =
@@ -151,27 +145,6 @@ export function AvailableUsernamesPage() {
       await deleteMutation.mutateAsync(dialog.row.id);
       toast.success(t("availableUsernames.form.deleteSuccess"));
       setDialog(null);
-    } catch (err) {
-      showError(err);
-    }
-  };
-
-  const handleImport = async (file: File) => {
-    try {
-      const result = await importMutation.mutateAsync(file);
-      toast.success(result.message);
-      setDialog(null);
-    } catch (err) {
-      showError(err);
-    }
-  };
-
-  const handleExport = async () => {
-    if (!selectedTier) return;
-
-    try {
-      await exportMutation.mutateAsync();
-      toast.success(t("availableUsernames.form.exportSuccess", { speed: selectedTier.label }));
     } catch (err) {
       showError(err);
     }
@@ -266,56 +239,27 @@ export function AvailableUsernamesPage() {
           </div>
 
           {canManage ? (
-            <div className="flex w-full min-w-0 flex-col gap-2 md:flex-row md:flex-wrap md:justify-end lg:max-w-none">
-              <div className="grid min-w-0 grid-cols-2 gap-2 md:contents">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-0"
-                  onClick={() => setDialog({ type: "import" })}
-                  disabled={isSubmitting}
-                >
-                  <Upload className="h-4 w-4 shrink-0" />
-                  <span className="truncate md:hidden">
-                    {t("availableUsernames.actions.import")}
-                  </span>
-                  <span className="hidden truncate md:inline">
-                    {t("availableUsernames.actions.importForSpeed", {
-                      speed: selectedTier.label,
-                    })}
-                  </span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-0"
-                  onClick={handleExport}
-                  disabled={isSubmitting}
-                >
-                  <Download className="h-4 w-4 shrink-0" />
-                  <span className="truncate">{t("availableUsernames.actions.export")}</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="min-w-0 text-danger hover:border-danger/50 hover:bg-danger/5"
-                  onClick={() => setDialog({ type: "deleteAll" })}
-                  disabled={isSubmitting || poolCounts.total === 0}
-                >
-                  <Trash2 className="h-4 w-4 shrink-0" />
-                  <span className="truncate md:hidden">
-                    {t("availableUsernames.actions.deleteAll")}
-                  </span>
-                  <span className="hidden truncate md:inline">
-                    {t("availableUsernames.actions.deleteAllForSpeed", {
-                      speed: selectedTier.label,
-                    })}
-                  </span>
-                </Button>
-              </div>
+            <div className="flex w-full min-w-0 flex-col gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-w-0 text-danger hover:border-danger/50 hover:bg-danger/5"
+                onClick={() => setDialog({ type: "deleteAll" })}
+                disabled={isSubmitting || poolCounts.total === 0}
+              >
+                <Trash2 className="h-4 w-4 shrink-0" />
+                <span className="truncate md:hidden">
+                  {t("availableUsernames.actions.deleteAll")}
+                </span>
+                <span className="hidden truncate md:inline">
+                  {t("availableUsernames.actions.deleteAllForSpeed", {
+                    speed: selectedTier.label,
+                  })}
+                </span>
+              </Button>
               <Button
                 size="sm"
-                className="w-full min-w-0 md:w-auto"
+                className="w-full min-w-0 sm:w-auto"
                 onClick={() => setDialog({ type: "add" })}
                 disabled={isSubmitting}
               >
@@ -393,14 +337,6 @@ export function AvailableUsernamesPage() {
         initialRow={dialog?.type === "edit" ? dialog.row : undefined}
         onClose={() => setDialog(null)}
         onSubmit={handleUpdate}
-        isSubmitting={isSubmitting}
-      />
-
-      <ImportUsernamesModal
-        open={dialog?.type === "import"}
-        speedTier={selectedTier}
-        onClose={() => setDialog(null)}
-        onImport={handleImport}
         isSubmitting={isSubmitting}
       />
 

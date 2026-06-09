@@ -211,13 +211,13 @@ export function RegistryListLoadingSkeleton({
   rows?: number;
 }) {
   const isCustomers = variant === "customers";
-  const middleColumns = isCustomers ? 5 : showPasswordColumn ? 7 : 6;
+  const middleColumns = isCustomers ? 4 : showPasswordColumn ? 7 : 6;
   const dataColumns = middleColumns + 2;
-  const numericMiddleIndex = isCustomers ? 4 : undefined;
-  const minWidth = isCustomers ? "min-w-[880px]" : "min-w-[960px]";
+  const numericMiddleIndex = isCustomers ? 3 : undefined;
+  const minWidth = isCustomers ? "min-w-[760px]" : "min-w-[960px]";
 
   const headerLabels = isCustomers
-    ? ["name", "type", "user", "phone", "speed", "balance", "actions"]
+    ? ["name", "type", "user", "phone", "balance", "actions"]
     : [
         "subscriber",
         "line",

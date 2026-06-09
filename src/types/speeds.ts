@@ -8,6 +8,8 @@ export interface SpeedTier {
   totalCount?: number;
   availableCount?: number;
   activeLinkedCount?: number;
+  /** Fair usage quota (GB, upload + download) — client storage until API supports it */
+  fairUsageGb?: number | null;
 }
 
 export interface BackendSpeedTierRow {

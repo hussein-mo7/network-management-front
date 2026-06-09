@@ -1,18 +1,20 @@
-import { Plus, Trash2 } from "lucide-react";
+import { Eye, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { InvoiceFormModal, type InvoiceFormValues } from "@/components/pages/subscribers/InvoiceFormModal";
+import { InvoicePreviewModal } from "@/components/pages/subscribers/InvoicePreviewModal";
 import { Button } from "@/components/ui/buttons";
 import { StatusBadge } from "@/components/ui/data";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
 import { getPaymentMethodLabel } from "@/lib/invoiceUtils";
-import type { SubscriberInvoice } from "@/types/subscriber";
+import type { Subscriber, SubscriberInvoice } from "@/types/subscriber";
 import { format, parseISO } from "date-fns";
 
 interface SubscriberInvoicesTabProps {
   invoices: SubscriberInvoice[];
   balance: number;
+  subscriber: Pick<Subscriber, "lineId" | "fullName" | "phone" | "facilityType">;
   canManage?: boolean;
   monthlyPrice?: number;
   onAddInvoice?: (values: InvoiceFormValues) => Promise<void>;
@@ -29,6 +31,7 @@ const INVOICE_VARIANT = {
 export function SubscriberInvoicesTab({
   invoices,
   balance,
+  subscriber,
   canManage = false,
   monthlyPrice,
   onAddInvoice,
@@ -38,6 +41,7 @@ export function SubscriberInvoicesTab({
   const [modalOpen, setModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [invoiceToDelete, setInvoiceToDelete] = useState<SubscriberInvoice | null>(null);
+  const [invoiceToPreview, setInvoiceToPreview] = useState<SubscriberInvoice | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSubmit = async (values: InvoiceFormValues) => {
@@ -62,7 +66,7 @@ export function SubscriberInvoicesTab({
     }
   };
 
-  const showActions = canManage && onDeleteInvoice;
+  const showActionsColumn = true;
 
   return (
     <div className="space-y-4">
@@ -92,8 +96,8 @@ export function SubscriberInvoicesTab({
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.status")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.paymentMethod")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.table.createdAt")}</th>
-                {showActions ? (
-                  <th className="w-14 px-4 py-3 text-center align-middle font-semibold">{t("subscribers.table.actions")}</th>
+                {showActionsColumn ? (
+                  <th className="w-28 px-4 py-3 text-center align-middle font-semibold">{t("subscribers.table.actions")}</th>
                 ) : null}
               </tr>
             </thead>
@@ -115,16 +119,28 @@ export function SubscriberInvoicesTab({
                   <td className="px-4 py-3 text-muted-foreground">
                     {format(parseISO(inv.createdAt), "yyyy-MM-dd")}
                   </td>
-                  {showActions ? (
+                  {showActionsColumn ? (
                     <td className="px-4 py-3 text-center align-middle">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label={t("subscribers.invoices.delete")}
-                        onClick={() => setInvoiceToDelete(inv)}
-                      >
-                        <Trash2 className="h-4 w-4 text-danger" />
-                      </Button>
+                      <div className="flex items-center justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={t("subscribers.invoices.preview")}
+                          onClick={() => setInvoiceToPreview(inv)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {canManage && onDeleteInvoice ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            aria-label={t("subscribers.invoices.delete")}
+                            onClick={() => setInvoiceToDelete(inv)}
+                          >
+                            <Trash2 className="h-4 w-4 text-danger" />
+                          </Button>
+                        ) : null}
+                      </div>
                     </td>
                   ) : null}
                 </tr>
@@ -140,6 +156,13 @@ export function SubscriberInvoicesTab({
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         defaultAmount={monthlyPrice}
+      />
+
+      <InvoicePreviewModal
+        open={invoiceToPreview !== null}
+        onClose={() => setInvoiceToPreview(null)}
+        invoice={invoiceToPreview}
+        subscriber={subscriber}
       />
 
       <ConfirmDialog

@@ -3,11 +3,13 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Modal, ModalFooterButton } from "@/components/ui/modals";
 import { Input } from "@/components/ui/forms";
+import { getFairUsageGbForSpeed } from "@/lib/speedFairUsage";
 import type { SpeedTier } from "@/types/speeds";
 
 export interface SpeedFormValues {
   valueMbps: number;
   price: number;
+  fairUsageGb: number | null;
 }
 
 interface SpeedFormModalProps {
@@ -38,6 +40,7 @@ export function SpeedFormModal({
     defaultValues: {
       valueMbps: initialTier?.valueMbps ?? undefined,
       price: initialTier?.price ?? undefined,
+      fairUsageGb: initialTier?.fairUsageGb ?? null,
     },
   });
 
@@ -49,6 +52,11 @@ export function SpeedFormModal({
       reset({
         valueMbps: initialTier?.valueMbps ?? undefined,
         price: initialTier?.price ?? undefined,
+        fairUsageGb:
+          initialTier?.fairUsageGb ??
+          (initialTier
+            ? getFairUsageGbForSpeed(initialTier.valueMbps, initialTier.id)
+            : null),
       });
     }
   }, [open, initialTier, reset]);
@@ -112,6 +120,24 @@ export function SpeedFormModal({
           })}
         />
 
+        <Input
+          label={t("speeds.form.fairUsageGb")}
+          type="number"
+          min={1}
+          step={1}
+          placeholder={t("speeds.form.fairUsageGbPlaceholder")}
+          error={errors.fairUsageGb?.message}
+          {...register("fairUsageGb", {
+            setValueAs: (value) => {
+              if (value === "" || value == null) return null;
+              const parsed = Number(value);
+              return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+            },
+            min: { value: 1, message: t("speeds.form.fairUsageGbMin") },
+          })}
+        />
+
+        <p className="text-xs text-muted-foreground">{t("speeds.form.fairUsageGbHint")}</p>
         <p className="text-xs text-muted-foreground">{t("speeds.form.hint")}</p>
       </form>
     </Modal>

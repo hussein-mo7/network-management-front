@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { SubscriberStatusBadge } from "@/components/pages/subscribers/SubscriberStatusBadge";
 import { Button } from "@/components/ui/buttons";
 import { ProfileHero } from "@/components/ui/profile";
-import { formatUsageRatio, resolveUsageLimitMb } from "@/lib/speedFairUsage";
+import { DataUsageDisplay } from "@/components/ui/data";
+import { resolveUsageLimitMb } from "@/lib/speedFairUsage";
 import {
   buildSpeedLabel,
   getSubscriberInitials,
@@ -49,11 +50,12 @@ export function SubscriberProfileHeader({
     canManage && lifecycle === "active" && Boolean(subscriber.username) && subscriber.isPaused;
   const showStop = canManage && lifecycle === "active" && Boolean(subscriber.username);
   const usedMb = subscriber.totalUsage ?? 0;
-  const limitMb = resolveUsageLimitMb(subscriber.usageLimit, subscriber.speedMbps);
-  const usageDisplay =
-    subscriber.username && (usedMb > 0 || limitMb != null)
-      ? formatUsageRatio(usedMb, limitMb)
-      : "—";
+  const limitMb = resolveUsageLimitMb(
+    subscriber.usageLimit,
+    subscriber.speedMbps,
+    subscriber.speedId ?? undefined,
+  );
+  const showUsage = Boolean(subscriber.username && (usedMb > 0 || limitMb != null));
 
   const actions =
     showPause || showUnpause || showStop ? (
@@ -141,8 +143,11 @@ export function SubscriberProfileHeader({
         {
           icon: HardDrive,
           label: t("subscribers.profile.stats.dataUsage"),
-          value: usageDisplay,
-          dir: "ltr",
+          value: showUsage ? (
+            <DataUsageDisplay usedMb={usedMb} limitMb={limitMb} size="sm" />
+          ) : (
+            "—"
+          ),
         },
       ]}
     />

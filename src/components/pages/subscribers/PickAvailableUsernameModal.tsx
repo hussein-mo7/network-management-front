@@ -6,6 +6,10 @@ import {
 import { AvailableUsernameExpiryLabel } from "@/components/pages/available-usernames/AvailableUsernameExpiryLabel";
 import { AvailableUsernameUsageLabel } from "@/components/pages/available-usernames/AvailableUsernameUsageLabel";
 import { UsernameChangeCauseField } from "@/components/pages/subscribers/UsernameChangeCauseField";
+import {
+  resolveUsernameChangeCause,
+  type UsernameChangeCauseTemplate,
+} from "@/lib/usernameChangeCause";
 import { Modal, ModalFooterButton } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
 import { useAvailableUsernamesQuery } from "@/hooks/useAvailableUsernames";
@@ -65,13 +69,16 @@ export function PickAvailableUsernameModal({
   }, [useApi, apiRows, speedMbps, packageLine, excludeUsername]);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [changeCause, setChangeCause] = useState("");
+  const [causeTemplate, setCauseTemplate] =
+    useState<UsernameChangeCauseTemplate>("username_expired");
+  const [customCause, setCustomCause] = useState("");
   const [causeError, setCauseError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setSelectedId(pool[0]?.id ?? null);
-    setChangeCause("");
+    setCauseTemplate("username_expired");
+    setCustomCause("");
     setCauseError(null);
   }, [open, pool]);
 
@@ -79,8 +86,14 @@ export function PickAvailableUsernameModal({
 
   const handleConfirm = () => {
     if (!selected) return;
-    const trimmedCause = changeCause.trim();
-    if (!trimmedCause) {
+    const templateLabels = {
+      username_expired: t("subscribers.username.changeCauseTemplates.username_expired"),
+      quota_finished: t("subscribers.username.changeCauseTemplates.quota_finished"),
+      subscriber_request: t("subscribers.username.changeCauseTemplates.subscriber_request"),
+      other: "",
+    };
+    const resolvedCause = resolveUsernameChangeCause(causeTemplate, customCause, templateLabels);
+    if (!resolvedCause) {
       setCauseError(t("subscribers.username.changeCauseRequired"));
       return;
     }
@@ -89,7 +102,7 @@ export function PickAvailableUsernameModal({
       id: selected.id,
       username: selected.username,
       password: selected.password,
-      changeCause: trimmedCause,
+      changeCause: resolvedCause,
     });
   };
 
@@ -134,9 +147,14 @@ export function PickAvailableUsernameModal({
       {selected ? (
         <UsernameChangeCauseField
           className="mt-4"
-          value={changeCause}
-          onChange={(text) => {
-            setChangeCause(text);
+          template={causeTemplate}
+          customText={customCause}
+          onTemplateChange={(next) => {
+            setCauseTemplate(next);
+            setCauseError(null);
+          }}
+          onCustomTextChange={(text) => {
+            setCustomCause(text);
             setCauseError(null);
           }}
           error={causeError ?? undefined}

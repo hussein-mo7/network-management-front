@@ -129,7 +129,14 @@ export const en: TranslationSchema = {
   },
   home: {
     title: "Home",
-    subtitle: "Welcome to the WeWiFi dashboard. Choose a section from the menu to get started.",
+    subtitle: "Your control center for subscribers, usernames, and network activity.",
+    greeting: "Welcome back, {{name}}",
+    guestName: "there",
+    quickAccess: "Quick access",
+    adminTools: "Management",
+    shortcuts: "Shortcuts",
+    adminShortcuts: "Admin",
+    open: "Open section →",
     cards: {
       customers: {
         title: "Customers",
@@ -204,6 +211,10 @@ export const en: TranslationSchema = {
       pricePlaceholder: "e.g. 120",
       priceRequired: "Price is required",
       priceMin: "Price cannot be negative",
+      fairUsageGb: "Fair usage policy (GB)",
+      fairUsageGbPlaceholder: "e.g. 500",
+      fairUsageGbMin: "Enter a quota greater than zero",
+      fairUsageGbHint: "Total upload + download quota per month (سياسة الاستخدام العادل).",
       hint: "The label is generated automatically (e.g. 64 Mbps).",
       duplicate: "This speed already exists",
       createSuccess: "Speed added",

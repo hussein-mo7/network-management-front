@@ -83,7 +83,17 @@ export function CustomerBalanceSection({
         </Text>
       </div>
 
-      <SubscriberInvoicesTab invoices={invoices} balance={customer.balance} canManage={false} />
+      <SubscriberInvoicesTab
+        invoices={invoices}
+        balance={customer.balance}
+        subscriber={{
+          lineId: customer.lineId,
+          fullName: customer.fullName,
+          phone: customer.phone,
+          facilityType: "",
+        }}
+        canManage={false}
+      />
 
       {canRecordPayment ? (
         <>

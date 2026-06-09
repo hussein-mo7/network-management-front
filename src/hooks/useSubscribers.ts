@@ -6,6 +6,14 @@ import {
   type SubscriberUpdatePayload,
   type SubscribersListParams,
 } from "@/services/subscribers.service";
+import { usernamesService } from "@/services/usernames.service";
+
+export type SubscriberProfilePatch = SubscriberUpdatePayload & {
+  packageLine?: number;
+  firstContactDate?: string | null;
+  usernameId?: number | null;
+  usernameSpeedId?: number | null;
+};
 
 export const subscribersQueryKey = (params?: SubscribersListParams) =>
   ["subscribers", params ?? {}] as const;
@@ -104,7 +112,7 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   };
 
   const updateMutation = useMutation({
-    mutationFn: async (patch: SubscriberUpdatePayload & { packageLine?: number }) => {
+    mutationFn: async (patch: SubscriberProfilePatch) => {
       if (patch.packageLine !== undefined) {
         await customersService.update(subscriberId, { lineId: String(patch.packageLine) });
       }
@@ -127,8 +135,25 @@ export function useSubscriberProfileMutations(subscriberId: number) {
         ([, value]) => value !== undefined,
       );
 
+      let updatedSubscriber;
       if (hasSubscriberFields) {
-        return subscribersService.update(subscriberId, subscriberPayload);
+        updatedSubscriber = await subscribersService.update(subscriberId, subscriberPayload);
+      }
+
+      if (
+        patch.firstContactDate !== undefined &&
+        patch.usernameId &&
+        patch.usernameSpeedId
+      ) {
+        await usernamesService.updateStartDate(
+          patch.usernameSpeedId,
+          patch.usernameId,
+          patch.firstContactDate ?? "",
+        );
+      }
+
+      if (updatedSubscriber) {
+        return updatedSubscriber;
       }
 
       const profile = await subscribersService.getProfile(subscriberId);

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getActiveSpeedTiers } from "@/lib/mapSpeedTiers";
+import { attachFairUsageToTiers } from "@/lib/speedFairUsageStorage";
 import { speedsService } from "@/services/speeds.service";
 import type { SpeedTier } from "@/types/speeds";
 
@@ -9,7 +10,8 @@ export const SPEEDS_QUERY_KEY = ["speeds"] as const;
 export function useSpeedsQuery() {
   return useQuery({
     queryKey: SPEEDS_QUERY_KEY,
-    queryFn: async () => getActiveSpeedTiers(await speedsService.list()),
+    queryFn: async () =>
+      attachFairUsageToTiers(getActiveSpeedTiers(await speedsService.list())),
   });
 }
 

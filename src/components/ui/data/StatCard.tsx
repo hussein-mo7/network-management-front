@@ -1,11 +1,12 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 import { Card } from "@/components/ui/cards";
 import { Text } from "@/components/ui/typography";
 import { cn } from "@/lib/cn";
 
 interface StatCardProps {
   label: string;
-  value: string | number;
+  value: ReactNode;
   hint?: string;
   icon: LucideIcon;
   iconClassName?: string;

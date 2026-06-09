@@ -138,6 +138,13 @@ export interface TranslationSchema {
   home: {
     title: string;
     subtitle: string;
+    greeting: string;
+    guestName: string;
+    quickAccess: string;
+    adminTools: string;
+    shortcuts: string;
+    adminShortcuts: string;
+    open: string;
     cards: {
       customers: { title: string; description: string };
       subscribers: { title: string; description: string };
@@ -188,6 +195,10 @@ export interface TranslationSchema {
       pricePlaceholder: string;
       priceRequired: string;
       priceMin: string;
+      fairUsageGb: string;
+      fairUsageGbPlaceholder: string;
+      fairUsageGbMin: string;
+      fairUsageGbHint: string;
       hint: string;
       duplicate: string;
       createSuccess: string;
@@ -537,7 +548,14 @@ export const ar: TranslationSchema = {
   },
   home: {
     title: "الرئيسية",
-    subtitle: "مرحباً بك في لوحة تحكم WeWiFi. اختر قسماً من القائمة للبدء.",
+    subtitle: "مركز التحكم بالمشتركين والأسماء ونشاط الشبكة.",
+    greeting: "مرحباً، {{name}}",
+    guestName: "بك",
+    quickAccess: "وصول سريع",
+    adminTools: "الإدارة",
+    shortcuts: "اختصارات",
+    adminShortcuts: "إدارية",
+    open: "فتح القسم ←",
     cards: {
       customers: {
         title: "الزبائن",
@@ -612,6 +630,10 @@ export const ar: TranslationSchema = {
       pricePlaceholder: "مثال: 120",
       priceRequired: "السعر مطلوب",
       priceMin: "السعر لا يمكن أن يكون سالباً",
+      fairUsageGb: "سياسة الاستخدام العادل (جيجا)",
+      fairUsageGbPlaceholder: "مثال: 500",
+      fairUsageGbMin: "أدخل حداً أكبر من صفر",
+      fairUsageGbHint: "إجمالي الرفع والتنزيل شهرياً.",
       hint: "سيتم إنشاء التسمية تلقائياً (مثل 64 Mbps).",
       duplicate: "هذه السرعة موجودة مسبقاً",
       createSuccess: "تمت إضافة السرعة",

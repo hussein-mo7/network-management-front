@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
-import { YAxis, type YAxisProps } from "recharts";
 import { Card, CardHeader } from "@/components/ui/cards";
 import { ChartPlot } from "@/components/ui/charts/ChartPlot";
-import { CHART_AXIS_TICK } from "@/components/ui/charts/chartLayout";
 import { cn } from "@/lib/cn";
 
 interface ChartCardProps {
@@ -33,16 +31,6 @@ export function ChartCard({
   );
 }
 
-export function ChartYAxis(props: YAxisProps) {
-  return (
-    <YAxis
-      allowDecimals={false}
-      width={36}
-      tickMargin={8}
-      tick={CHART_AXIS_TICK}
-      axisLine={false}
-      tickLine={false}
-      {...props}
-    />
-  );
+export function ChartEmpty() {
+  return <p className="py-8 text-center text-sm text-muted-foreground">—</p>;
 }

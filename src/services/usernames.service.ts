@@ -3,8 +3,11 @@ import {
   formValuesToCreateBody,
   formValuesToUpdateBody,
   mapBackendUsername,
+  toApiStartDate,
   type BackendUsernameRecord,
+  type UpdateUsernameApiBody,
 } from "@/lib/mapAvailableUsernames";
+import { normalizeAssignedAtInput } from "@/types/availableUsername";
 import type { AvailableUsernameFormValues } from "@/components/pages/available-usernames";
 import type { AvailableUsername } from "@/types/availableUsername";
 
@@ -64,6 +67,15 @@ export const usernamesService = {
     values: AvailableUsernameFormValues,
   ): Promise<AvailableUsername> {
     const body = formValuesToUpdateBody(values);
+    const response = await apiPut<UsernameMutationResponse>(usernamesPath(speedId, `/${id}`), body);
+    return extractUsernameRecord(response.data);
+  },
+
+  async updateStartDate(speedId: number, id: number, dateValue: string): Promise<AvailableUsername> {
+    const body: UpdateUsernameApiBody = {
+      isUsed: true,
+      startDate: toApiStartDate(normalizeAssignedAtInput(dateValue)),
+    };
     const response = await apiPut<UsernameMutationResponse>(usernamesPath(speedId, `/${id}`), body);
     return extractUsernameRecord(response.data);
   },
