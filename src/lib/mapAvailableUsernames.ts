@@ -14,6 +14,10 @@ export interface BackendUsernameRecord {
   isUsed: boolean;
   isExpired: boolean;
   createdAt: string;
+  usageLimit?: number | null;
+  totalUsage?: number | null;
+  uploadUsage?: number | null;
+  downloadUsage?: number | null;
 }
 
 export interface AddUsernameApiBody {
@@ -59,9 +63,15 @@ export function mapBackendUsername(row: BackendUsernameRecord): AvailableUsernam
     password: row.password,
     speedId: row.speedId,
     isOwnerUsername: row.isOwnerUsername,
+    isUsed: row.isUsed === true,
+    isExpired: row.isExpired === true,
     createdAt,
     assignedAt: coerceIsoString(row.startDate),
     expiryDate: coerceIsoString(row.endDate),
+    usageLimit: row.usageLimit ?? null,
+    totalUsage: row.totalUsage != null ? Number(row.totalUsage) : 0,
+    uploadUsage: row.uploadUsage != null ? Number(row.uploadUsage) : 0,
+    downloadUsage: row.downloadUsage != null ? Number(row.downloadUsage) : 0,
   };
 }
 

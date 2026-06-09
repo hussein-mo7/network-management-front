@@ -6,19 +6,23 @@ export const VIEWER_ROLE: UserRole = "viewer";
 /** Read-only permissions for viewer role */
 export const VIEWER_PERMISSIONS = [
   "dashboard.view",
+  "subscription_statistics.view",
   "subscribers.view",
   "expired.view",
-  "disabled.view",
   "available_usernames.view",
-  "logs.view",
   "online_users.view",
-  "subscription_statistics.view",
-  "speeds.view",
 ] as const;
 
 /** Full permissions for admin role */
 export const ADMIN_PERMISSIONS = [
   ...VIEWER_PERMISSIONS,
+  "dashboard.view",
+  "subscription_statistics.view",
+  "disabled.view",
+  "speeds.view",
+  "settings.view",
+  "finance.view",
+  "support.view",
   "subscribers.create",
   "subscribers.update",
   "subscribers.delete",

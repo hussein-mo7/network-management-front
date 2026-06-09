@@ -1,4 +1,4 @@
-import { apiClient, apiDelete, apiGet, apiPost, apiPut } from "@/lib/apiClient";
+import { apiClient, apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/apiClient";
 import {
   mapInvoiceRecord,
   mapPaymentMethodToApi,
@@ -51,6 +51,9 @@ function buildSubscriberUpdateFormData(body: SubscriberUpdatePayload): FormData 
   }
   if (body.isPaused !== undefined) {
     formData.append("isPaused", String(body.isPaused));
+  }
+  if (body.speedId !== undefined) {
+    formData.append("speedId", String(body.speedId));
   }
   if (body.routerImageFile) {
     formData.append("file", body.routerImageFile, body.routerImageFile.name);
@@ -172,6 +175,7 @@ export const subscribersService = {
       routerName: body.routerName,
       isSuspended: body.isSuspended,
       isPaused: body.isPaused,
+      ...(body.speedId !== undefined ? { speedId: body.speedId } : {}),
       ...(body.monthlyPrice !== undefined ? { monthlyPrice: String(body.monthlyPrice) } : {}),
     });
 
@@ -189,12 +193,26 @@ export const subscribersService = {
     await apiDelete("/subscribers");
   },
 
-  async assignUsername(subscriberId: number, availableUsernameId: number): Promise<Subscriber> {
+  async assignUsername(
+    subscriberId: number,
+    availableUsernameId: number,
+    changeCause?: string | null,
+  ): Promise<Subscriber> {
     const response = await apiPost<ApiListEnvelope<Parameters<typeof mapSubscriberRecord>[0]>>(
       `/subscribers/${subscriberId}/assign-username/${availableUsernameId}`,
+      changeCause != null && changeCause !== "" ? { changeCause } : {},
     );
     const row = response.data;
     if (!row) throw new Error("Invalid assign username response");
+    return mapSubscriberRecord(row);
+  },
+
+  async autoAssignUsernameBySpeed(subscriberId: number, speedId: number): Promise<Subscriber> {
+    const response = await apiPatch<ApiListEnvelope<Parameters<typeof mapSubscriberRecord>[0]>>(
+      `/subscribers/${subscriberId}/assign-username-speed/${speedId}`,
+    );
+    const row = response.data;
+    if (!row) throw new Error("Invalid auto-assign username response");
     return mapSubscriberRecord(row);
   },
 

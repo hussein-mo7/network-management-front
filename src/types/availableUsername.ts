@@ -19,11 +19,19 @@ export interface AvailableUsername {
   password: string;
   speedId: number;
   isOwnerUsername: boolean;
+  /** `true` when linked to a subscriber or in cooldown (API `isUsed`). */
+  isUsed: boolean;
+  isExpired: boolean;
   createdAt: string;
   /** First connection / usage start (ISO datetime, e.g. `2026-03-05T14:30:00`). Maps to `first_connection_date` / `start_date` on API. */
   assignedAt?: string | null;
   /** Cooldown end datetime — stays in pool until this moment. */
   expiryDate?: string | null;
+  /** Fair usage / quota in MB (API). */
+  usageLimit?: number | null;
+  totalUsage?: number;
+  uploadUsage?: number;
+  downloadUsage?: number;
 }
 
 /** Normalize date-only or `datetime-local` values to a parseable ISO datetime. */
@@ -69,15 +77,21 @@ export function getUsernameLifecycleStatus(
   row: AvailableUsername,
   now = new Date(),
 ): AvailableUsernameLifecycleStatus {
+  if (row.isExpired) {
+    return "expired";
+  }
+
   if (row.isOwnerUsername) {
     return "owner";
   }
 
-  if (!row.assignedAt || !row.expiryDate) {
-    return "new";
+  const hasCooldownWindow = Boolean(row.assignedAt?.trim() && row.expiryDate?.trim());
+
+  if (!hasCooldownWindow) {
+    return row.isUsed ? "expired" : "new";
   }
 
-  const expiry = parseISO(normalizeAssignedAtInput(row.expiryDate));
+  const expiry = parseISO(normalizeAssignedAtInput(row.expiryDate!));
 
   if (isAfter(now, expiry)) {
     return "expired";
@@ -86,9 +100,28 @@ export function getUsernameLifecycleStatus(
   return "in_cooldown";
 }
 
+/** Rows pickable in the available-usernames pool and username picker modal. */
 export function isInAvailablePool(row: AvailableUsername, now = new Date()): boolean {
-  const status = getUsernameLifecycleStatus(row, now);
-  return status === "new" || status === "in_cooldown" || status === "owner";
+  if (row.isExpired) {
+    return false;
+  }
+
+  if (row.isUsed) {
+    return false;
+  }
+
+  if (row.isOwnerUsername) {
+    return true;
+  }
+
+  const hasCooldownWindow = Boolean(row.assignedAt?.trim() && row.expiryDate?.trim());
+
+  if (hasCooldownWindow) {
+    const expiry = parseISO(normalizeAssignedAtInput(row.expiryDate!));
+    return !isAfter(now, expiry);
+  }
+
+  return true;
 }
 
 export function getDaysUntilExpiry(expiryDate: string, now = new Date()): number {
@@ -130,19 +163,20 @@ export function getPoolStatusFromRow(
 export function resolveUsernameFromPoolStatus(
   poolStatus: AvailableUsernamePoolStatus,
   assignedAt?: string,
-): Pick<AvailableUsername, "isOwnerUsername" | "assignedAt" | "expiryDate"> {
+): Pick<AvailableUsername, "isOwnerUsername" | "isUsed" | "assignedAt" | "expiryDate"> {
   if (poolStatus === "owner") {
-    return { isOwnerUsername: true, assignedAt: null, expiryDate: null };
+    return { isOwnerUsername: true, isUsed: false, assignedAt: null, expiryDate: null };
   }
   if (poolStatus === "in_cooldown" && assignedAt?.trim()) {
     const dates = buildCooldownDates(assignedAt.trim());
     return {
       isOwnerUsername: false,
+      isUsed: true,
       assignedAt: dates.assignedAt,
       expiryDate: dates.expiryDate,
     };
   }
-  return { isOwnerUsername: false, assignedAt: null, expiryDate: null };
+  return { isOwnerUsername: false, isUsed: false, assignedAt: null, expiryDate: null };
 }
 
 export interface SpeedPoolCounts {

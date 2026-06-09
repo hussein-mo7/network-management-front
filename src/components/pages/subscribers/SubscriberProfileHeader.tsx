@@ -1,9 +1,9 @@
-import { Building2, Gauge, Hash, Phone, User, Wallet } from "lucide-react";
+import { Building2, Gauge, HardDrive, Hash, Phone, User } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SubscriberStatusBadge } from "@/components/pages/subscribers/SubscriberStatusBadge";
 import { Button } from "@/components/ui/buttons";
 import { ProfileHero } from "@/components/ui/profile";
-import { formatMoney } from "@/lib/formatMoney";
+import { formatUsageRatio, resolveUsageLimitMb } from "@/lib/speedFairUsage";
 import {
   buildSpeedLabel,
   getSubscriberInitials,
@@ -48,6 +48,12 @@ export function SubscriberProfileHeader({
   const showUnpause =
     canManage && lifecycle === "active" && Boolean(subscriber.username) && subscriber.isPaused;
   const showStop = canManage && lifecycle === "active" && Boolean(subscriber.username);
+  const usedMb = subscriber.totalUsage ?? 0;
+  const limitMb = resolveUsageLimitMb(subscriber.usageLimit, subscriber.speedMbps);
+  const usageDisplay =
+    subscriber.username && (usedMb > 0 || limitMb != null)
+      ? formatUsageRatio(usedMb, limitMb)
+      : "—";
 
   const actions =
     showPause || showUnpause || showStop ? (
@@ -133,9 +139,9 @@ export function SubscriberProfileHeader({
           valueClassName: subscriber.facilityType ? undefined : "text-muted-foreground font-normal",
         },
         {
-          icon: Wallet,
-          label: t("subscribers.profile.stats.balance"),
-          value: formatMoney(subscriber.balance),
+          icon: HardDrive,
+          label: t("subscribers.profile.stats.dataUsage"),
+          value: usageDisplay,
           dir: "ltr",
         },
       ]}

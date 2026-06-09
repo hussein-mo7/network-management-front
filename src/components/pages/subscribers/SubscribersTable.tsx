@@ -68,15 +68,16 @@ export function SubscribersTable({
   const allSelected = rows.length > 0 && rows.every((r) => selectedIds.has(r.id));
 
   const columnWidths = [
-    ...(showCheckboxes ? ["w-[4%]"] : []),
-    "w-[20%]",
-    "w-[8%]",
-    "w-[13%]",
-    ...(canViewPasswords ? ["w-[10%]"] : []),
-    "w-[8%]",
-    "w-[13%]",
+    ...(showCheckboxes ? ["w-[3%]"] : []),
+    "w-[17%]",
+    "w-[7%]",
+    "w-[11%]",
+    ...(canViewPasswords ? ["w-[9%]"] : []),
     "w-[9%]",
-    showCheckboxes ? "w-[11%]" : "w-[15%]",
+    "w-[7%]",
+    "w-[11%]",
+    "w-[8%]",
+    showCheckboxes ? "w-[10%]" : "w-[12%]",
   ];
 
   if (rows.length === 0) {
@@ -106,7 +107,7 @@ export function SubscribersTable({
       />
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-        <table className={cn(dataTableFixedClass, dataTableScrollMinClass)}>
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass, "min-w-[960px]")}>
           <colgroup>
             {columnWidths.map((width, index) => (
               <col key={index} className={width} />
@@ -135,6 +136,9 @@ export function SubscribersTable({
               ) : null}
               <th className={cn("ps-2 whitespace-nowrap", dataTableHeadCellClass)}>
                 {t("subscribers.table.speed")}
+              </th>
+              <th className={cn("whitespace-nowrap", dataTableHeadCellClass)}>
+                {t("subscribers.table.firstContact")}
               </th>
               <th className={dataTableHeadCellClass}>{t("subscribers.table.disconnect")}</th>
               <th className={dataTableHeadCellClass}>{t("subscribers.table.status")}</th>
@@ -236,6 +240,9 @@ function SubscriberDesktopRow({
       >
         {buildSpeedLabel(row.speedMbps)}
       </td>
+      <td className={cn("cursor-pointer whitespace-nowrap text-muted-foreground", dataTableCellClass)} onClick={openProfile}>
+        {formatDate(row.firstContactDate)}
+      </td>
       <td className={cn("cursor-pointer text-muted-foreground", dataTableCellClass)} onClick={openProfile}>
         <span className="whitespace-nowrap text-xs">
           {formatDate(row.disconnectionDate)}
@@ -335,6 +342,12 @@ function SubscribersMobileList({
                       {t("subscribers.table.speed")}
                     </dt>
                     <dd className="mt-1">{buildSpeedLabel(row.speedMbps)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-xs font-medium text-muted-foreground">
+                      {t("subscribers.table.firstContact")}
+                    </dt>
+                    <dd className="mt-1 text-muted-foreground">{formatDate(row.firstContactDate)}</dd>
                   </div>
                   <div>
                     <dt className="text-xs font-medium text-muted-foreground">

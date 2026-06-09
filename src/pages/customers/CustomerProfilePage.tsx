@@ -84,7 +84,7 @@ export function CustomerProfilePage() {
   const selectedAssignTier = speedTiers.find((tier) => tier.id === assignSpeedId) ?? null;
 
   if (isLoading) {
-    return <LoadingState layout="default" variant="page" />;
+    return <LoadingState layout="profile" variant="page" />;
   }
 
   if (isError || !customer) {
@@ -146,7 +146,10 @@ export function CustomerProfilePage() {
   const handleAssign = async (picked: PickedUsername) => {
     const wasStopped = stopped;
     try {
-      await assignUsernameMutation.mutateAsync(picked.id);
+      await assignUsernameMutation.mutateAsync({
+        availableUsernameId: picked.id,
+        changeCause: picked.changeCause,
+      });
       toast.success(
         wasStopped
           ? t("customers.profile.restoreSubscriberSuccess")

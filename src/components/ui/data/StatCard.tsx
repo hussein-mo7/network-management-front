@@ -21,7 +21,7 @@ export function StatCard({
   className,
 }: StatCardProps) {
   return (
-    <Card className={cn("p-5", className)}>
+    <Card className={cn("border-border/70 p-5 shadow-sm transition-shadow hover:shadow-md", className)}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <Text muted className="text-sm">

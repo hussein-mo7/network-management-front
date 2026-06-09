@@ -28,6 +28,11 @@ export interface Subscriber {
   isPaused: boolean;
   isOwnerUsername: boolean;
   balance: number;
+  /** Total data used (MB) for the linked username — upload + download. */
+  totalUsage?: number;
+  usageLimit?: number | null;
+  uploadUsage?: number;
+  downloadUsage?: number;
   notes: string | null;
   routerName?: string | null;
   routerImageUrl?: string | null;
@@ -44,6 +49,7 @@ export interface UsernameHistoryEntry {
   usageStartDate: string | null;
   usageEndDate: string | null;
   changedAt: string;
+  changeCause?: string | null;
 }
 
 export interface SpeedHistoryEntry {

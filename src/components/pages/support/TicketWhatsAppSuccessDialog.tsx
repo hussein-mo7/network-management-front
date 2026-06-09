@@ -1,16 +1,16 @@
 import { CheckCircle2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { WhatsAppIcon } from "@/components/pages/support/WhatsAppIcon";
 import { Button } from "@/components/ui/buttons";
 import { Modal } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
 import {
   buildSupportTicketWhatsAppMessage,
-  getWhatsAppGroupInviteUrl,
   getWhatsAppGroupName,
   openSupportTicketWhatsApp,
+  whatsAppShareToastMessage,
 } from "@/lib/supportWhatsApp";
-import { toast } from "sonner";
 import type { SupportTicket } from "@/types/supportTicket";
 
 interface TicketWhatsAppSuccessDialogProps {
@@ -25,7 +25,10 @@ export function TicketWhatsAppSuccessDialog({ ticket, onClose }: TicketWhatsAppS
 
   const preview = buildSupportTicketWhatsAppMessage(ticket, t);
   const groupName = getWhatsAppGroupName();
-  const hasGroupLink = Boolean(getWhatsAppGroupInviteUrl());
+
+  const sendLabel = groupName
+    ? t("support.whatsapp.sendToGroupNamed", { group: groupName })
+    : t("support.whatsapp.sendToGroup");
 
   return (
     <Modal
@@ -52,18 +55,16 @@ export function TicketWhatsAppSuccessDialog({ ticket, onClose }: TicketWhatsAppS
           </p>
           <pre
             dir="auto"
-            className="mt-2 max-h-48 overflow-y-auto whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-foreground"
+            className="mt-2 max-h-52 overflow-y-auto whitespace-pre-wrap break-words font-sans text-sm leading-relaxed text-foreground"
           >
             {preview}
           </pre>
         </div>
 
         <Text muted className="text-xs">
-          {hasGroupLink && groupName
-            ? t("support.whatsapp.openHintComposeGroup", { group: groupName })
-            : hasGroupLink
-              ? t("support.whatsapp.openHintGroup")
-              : t("support.whatsapp.openHint")}
+          {groupName
+            ? t("support.whatsapp.openHintGroupNamed", { group: groupName })
+            : t("support.whatsapp.openHint")}
         </Text>
 
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -73,19 +74,13 @@ export function TicketWhatsAppSuccessDialog({ ticket, onClose }: TicketWhatsAppS
           <Button
             className="gap-2 bg-[#25D366] text-white hover:bg-[#20BD5A]"
             onClick={() => {
-              const mode = openSupportTicketWhatsApp(ticket, t);
-              if (mode === "group") {
-                toast.success(t("support.whatsapp.copiedAndOpened"));
-              } else if (groupName) {
-                toast.success(t("support.whatsapp.composeWithGroup", { group: groupName }));
-              } else {
-                toast.success(t("support.whatsapp.composeOpened"));
-              }
+              const result = openSupportTicketWhatsApp(ticket, t);
+              toast.success(whatsAppShareToastMessage(result, t));
               onClose();
             }}
           >
             <WhatsAppIcon className="h-5 w-5" />
-            {t("support.whatsapp.sendToGroup")}
+            {sendLabel}
           </Button>
         </div>
       </div>

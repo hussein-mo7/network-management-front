@@ -26,6 +26,10 @@ export interface BackendSubscriberRow {
   isPaused?: boolean | null;
   notes?: string | null;
   balance?: string | number | null;
+  totalUsage?: number | null;
+  usageLimit?: number | null;
+  uploadUsage?: number | null;
+  downloadUsage?: number | null;
   createdAt?: string | Date | null;
   suspendAt?: string | Date | null;
   routerName?: string | null;
@@ -62,6 +66,7 @@ export interface BackendUsernameHistoryRow {
   usageStartDate?: string | Date | null;
   usageEndDate?: string | Date | null;
   changedAt?: string | Date | null;
+  changeCause?: string | null;
 }
 
 export interface BackendSpeedHistoryRow {
@@ -138,6 +143,10 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
     isPaused: Boolean(row.isPaused),
     isOwnerUsername: false,
     balance: toNumber(row.balance, 0),
+    totalUsage: row.totalUsage != null ? toNumber(row.totalUsage, 0) : undefined,
+    usageLimit: row.usageLimit != null ? toNumber(row.usageLimit, 0) : null,
+    uploadUsage: row.uploadUsage != null ? toNumber(row.uploadUsage, 0) : undefined,
+    downloadUsage: row.downloadUsage != null ? toNumber(row.downloadUsage, 0) : undefined,
     notes: row.notes ?? null,
     routerName: row.routerName ?? row.router ?? null,
     routerImageUrl: row.routerImage ?? null,
@@ -178,6 +187,7 @@ export function mapUsernameHistory(
     usageStartDate: toIso(row.usageStartDate),
     usageEndDate: toIso(row.usageEndDate),
     changedAt: toIso(row.changedAt) ?? new Date().toISOString(),
+    changeCause: row.changeCause ?? null,
   }));
 }
 

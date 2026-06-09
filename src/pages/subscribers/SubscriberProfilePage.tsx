@@ -8,6 +8,7 @@ import {
   SubscriberProfileHeader,
   PickAvailableUsernameModal,
   SubscriberProfileTabs,
+  SubscriberSmsTab,
   SubscriberStatsTab,
   SubscriberUsernameTab,
 } from "@/components/pages/subscribers";
@@ -28,7 +29,7 @@ import {
 } from "@/hooks/useSubscribers";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { ApiError } from "@/types/api";
-import type { Subscriber } from "@/types/subscriber";
+import type { SubscriberUpdatePayload } from "@/services/subscribers.service";
 import { cn } from "@/lib/cn";
 
 export function SubscriberProfilePage() {
@@ -45,6 +46,10 @@ export function SubscriberProfilePage() {
   const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
   const [unpauseDialogOpen, setUnpauseDialogOpen] = useState(false);
   const [pickUsernameOpen, setPickUsernameOpen] = useState(false);
+  const [usernamePickPool, setUsernamePickPool] = useState<{
+    speedId: number;
+    speedMbps: number;
+  } | null>(null);
   const { data: speedTiers = [] } = useSpeedsQuery();
 
   const profileQuery = useSubscriberByLineIdQuery(decodedLineId, Boolean(decodedLineId));
@@ -57,8 +62,13 @@ export function SubscriberProfilePage() {
   const usernameHistoryQuery = useSubscriberUsernameHistoryQuery(subscriberId, lineId);
   const speedHistoryQuery = useSubscriberSpeedHistoryQuery(subscriberId, lineId);
 
-  const { updateMutation, stopMutation, pauseMutation, assignUsernameMutation } =
-    useSubscriberProfileMutations(subscriberId);
+  const {
+    updateMutation,
+    stopMutation,
+    pauseMutation,
+    assignUsernameMutation,
+    autoAssignUsernameMutation,
+  } = useSubscriberProfileMutations(subscriberId);
   const { createMutation, deleteMutation } = useSubscriberInvoiceMutations(subscriberId, lineId);
   const daysGone = profileQuery.data?.daysGone ?? null;
   const daysRemaining = profileQuery.data?.daysRemaining ?? null;
@@ -86,6 +96,7 @@ export function SubscriberProfilePage() {
     updateMutation.isPending ||
     stopMutation.isPending ||
     assignUsernameMutation.isPending ||
+    autoAssignUsernameMutation.isPending ||
     createMutation.isPending ||
     deleteMutation.isPending ||
     pauseMutation.isPending;
@@ -100,7 +111,7 @@ export function SubscriberProfilePage() {
     toast.error(message);
   };
 
-  const handleSave = async (patch: Partial<Subscriber> & { speedId?: number }) => {
+  const handleSave = async (patch: SubscriberUpdatePayload & { packageLine?: number }) => {
     if (!subscriber) return;
     const previousLineId = subscriber.lineId;
     try {
@@ -180,7 +191,7 @@ export function SubscriberProfilePage() {
   }
 
   if (profileQuery.isLoading) {
-    return <LoadingState layout="default" variant="page" />;
+    return <LoadingState layout="profile" variant="page" showProfileTabs />;
   }
 
   if (!tabParam && subscriber) {
@@ -221,9 +232,12 @@ export function SubscriberProfilePage() {
     );
   }
 
-  const handleAssignUsername = async (picked: { id: number }) => {
+  const handleAssignUsername = async (picked: { id: number; changeCause: string }) => {
     try {
-      await assignUsernameMutation.mutateAsync(picked.id);
+      await assignUsernameMutation.mutateAsync({
+        availableUsernameId: picked.id,
+        changeCause: picked.changeCause,
+      });
       toast.success(
         subscriber?.isSuspended
           ? t("subscribers.username.reactivateSuccess")
@@ -233,6 +247,21 @@ export function SubscriberProfilePage() {
       if (subscriber?.isSuspended) {
         navigate(subscriberProfilePath(lineId, "stats"));
       }
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleRenewUsername = async () => {
+    const speedId = poolSpeedId ?? resolvedSpeedId;
+    if (!speedId) {
+      toast.error(t("subscribers.username.renewNoSpeed"));
+      return;
+    }
+    try {
+      await autoAssignUsernameMutation.mutateAsync(speedId);
+      toast.success(t("subscribers.username.renewSuccess"));
+      await usernameHistoryQuery.refetch();
     } catch (err) {
       showError(err);
     }
@@ -256,24 +285,15 @@ export function SubscriberProfilePage() {
         {activeTab === "stats" ? (
           <SubscriberStatsTab
             subscriber={subscriber}
-            speedTiers={speedTiers}
             canManage={canManage}
             canViewPasswords={canViewPasswords}
             daysGone={daysGone}
             daysRemaining={daysRemaining}
             onSave={canManage ? handleSave : undefined}
             isSubmitting={isSubmitting}
-          />
-        ) : null}
-
-        {activeTab === "invoices" ? (
-          <SubscriberInvoicesTab
-            invoices={invoicesQuery.data ?? []}
-            balance={subscriber.balance}
-            canManage={canManage}
-            monthlyPrice={subscriber.monthlyPrice}
-            onAddInvoice={canManage ? handleAddInvoice : undefined}
-            onDeleteInvoice={canManage ? handleDeleteInvoice : undefined}
+            showRenew={canManage && !subscriber.isSuspended && Boolean(subscriber.username)}
+            onRenewUsername={handleRenewUsername}
+            isRenewing={autoAssignUsernameMutation.isPending}
           />
         ) : null}
 
@@ -286,16 +306,40 @@ export function SubscriberProfilePage() {
             currentUsername={subscriber.username}
             showAssign={subscriber.isSuspended && canManage}
             showChange={!subscriber.isSuspended && Boolean(subscriber.username)}
-            poolSpeedMbps={poolSpeedMbps}
-            poolSpeedId={poolSpeedId}
-            onPickUsername={() => setPickUsernameOpen(true)}
+            speedTiers={speedTiers}
+            resolvedSpeedId={resolvedSpeedId}
+            onPickUsername={(speedId, speedMbps) => {
+              setUsernamePickPool({ speedId, speedMbps });
+              setPickUsernameOpen(true);
+            }}
+            showRenew={canManage && !subscriber.isSuspended && Boolean(subscriber.username)}
+            onRenewUsername={handleRenewUsername}
+            isRenewing={autoAssignUsernameMutation.isPending}
+          />
+        ) : null}
+
+        {activeTab === "sms" ? (
+          <SubscriberSmsTab subscriber={subscriber} canManage={canManage} />
+        ) : null}
+
+        {activeTab === "invoices" ? (
+          <SubscriberInvoicesTab
+            invoices={invoicesQuery.data ?? []}
+            balance={subscriber.balance}
+            canManage={canManage}
+            monthlyPrice={subscriber.monthlyPrice}
+            onAddInvoice={canManage ? handleAddInvoice : undefined}
+            onDeleteInvoice={canManage ? handleDeleteInvoice : undefined}
           />
         ) : null}
       </div>
 
       <PickAvailableUsernameModal
         open={pickUsernameOpen}
-        onClose={() => setPickUsernameOpen(false)}
+        onClose={() => {
+          setPickUsernameOpen(false);
+          setUsernamePickPool(null);
+        }}
         title={
           subscriber.isSuspended
             ? t("subscribers.username.assignTitle")
@@ -306,9 +350,11 @@ export function SubscriberProfilePage() {
             ? t("subscribers.username.assignHint")
             : t("subscribers.username.changeModalHint")
         }
-        speedMbps={poolSpeedMbps ?? subscriber.speedMbps ?? 0}
-        packageLine={poolSpeedMbps ?? subscriber.packageLine ?? subscriber.speedMbps ?? 0}
-        speedId={poolSpeedId}
+        speedMbps={usernamePickPool?.speedMbps ?? poolSpeedMbps ?? subscriber.speedMbps ?? 0}
+        packageLine={
+          usernamePickPool?.speedMbps ?? subscriber.packageLine ?? subscriber.speedMbps ?? 0
+        }
+        speedId={usernamePickPool?.speedId ?? poolSpeedId}
         excludeUsername={subscriber.username}
         onConfirm={handleAssignUsername}
         isSubmitting={assignUsernameMutation.isPending}

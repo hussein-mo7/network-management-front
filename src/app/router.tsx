@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
-import { Can, GuestRoute, ProtectedRoute } from "@/app/routing";
+import { GuestRoute, ProtectedRoute, RequirePermission } from "@/app/routing";
 import { DashboardLayout } from "@/components/layout";
 import { ForgotPasswordPage, LoginPage, ResetPasswordPage } from "@/pages/auth";
 import { HomePage } from "@/pages/home";
@@ -16,6 +16,7 @@ import { StatisticsPage } from "@/pages/statistics/StatisticsPage";
 import { SubscriberProfilePage, SubscribersPage } from "@/pages/subscribers";
 import { ActivityLogsPage } from "@/pages/activity-logs/ActivityLogsPage";
 import { AdminUsersPage } from "@/pages/users/AdminUsersPage";
+import { ExcelToolsPage, SettingsPage } from "@/pages/settings";
 
 export function AppRouter() {
   return (
@@ -33,41 +34,41 @@ export function AppRouter() {
           <Route
             path="statistics"
             element={
-              <Can permission="dashboard.view">
+              <RequirePermission permission="dashboard.view">
                 <StatisticsPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="customers"
             element={
-              <Can permission="subscribers.view">
+              <RequirePermission permission="subscribers.view">
                 <CustomersPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="customers/new"
             element={
-              <Can permission="subscribers.create">
+              <RequirePermission permission="subscribers.create">
                 <AddCustomerPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="customers/:lineId"
             element={
-              <Can permission="subscribers.view">
+              <RequirePermission permission="subscribers.view">
                 <CustomerProfilePage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="subscribers"
             element={
-              <Can permission="subscribers.view">
+              <RequirePermission permission="subscribers.view">
                 <SubscribersPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
@@ -77,91 +78,121 @@ export function AppRouter() {
           <Route
             path="subscribers/:lineId/:tab?"
             element={
-              <Can permission="subscribers.view">
+              <RequirePermission permission="subscribers.view">
                 <SubscriberProfilePage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="online-users"
             element={
-              <Can permission="online_users.view">
+              <RequirePermission permission="online_users.view">
                 <OnlineUsersPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="expiring"
             element={
-              <Can permission="expired.view">
+              <RequirePermission permission="expired.view">
                 <ExpiringPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="stopped"
             element={
-              <Can permission="disabled.view">
+              <RequirePermission permission="disabled.view">
                 <StoppedPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="speeds"
             element={
-              <Can permission="speeds.view">
+              <RequirePermission permission="speeds.view">
                 <SpeedsPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="available-usernames"
             element={
-              <Can permission="available_usernames.view">
+              <RequirePermission permission="available_usernames.view">
                 <AvailableUsernamesPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="available-usernames/:speedValue"
             element={
-              <Can permission="available_usernames.view">
+              <RequirePermission permission="available_usernames.view">
                 <AvailableUsernamesPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="sms"
             element={
-              <Can permission="sms.view">
+              <RequirePermission permission="sms.view">
                 <SmsPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="sms/:section"
             element={
-              <Can permission="sms.view">
+              <RequirePermission permission="sms.view">
                 <SmsPage />
-              </Can>
+              </RequirePermission>
             }
           />
-          <Route path="support" element={<SupportPage />} />
-          <Route path="finance" element={<FinancePage />} />
+          <Route
+            path="support"
+            element={
+              <RequirePermission permission="support.view">
+                <SupportPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="finance"
+            element={
+              <RequirePermission permission="finance.view">
+                <FinancePage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="settings"
+            element={
+              <RequirePermission permission="settings.view">
+                <SettingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="settings/excel"
+            element={
+              <RequirePermission permission="settings.view">
+                <ExcelToolsPage />
+              </RequirePermission>
+            }
+          />
           <Route
             path="users"
             element={
-              <Can permission="users.view">
+              <RequirePermission permission="users.view">
                 <AdminUsersPage />
-              </Can>
+              </RequirePermission>
             }
           />
           <Route
             path="logs"
             element={
-              <Can permission="logs.view">
+              <RequirePermission permission="logs.view">
                 <ActivityLogsPage />
-              </Can>
+              </RequirePermission>
             }
           />
         </Route>

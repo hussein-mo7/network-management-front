@@ -16,9 +16,9 @@ import {
   TableSubscriberCell,
 } from "@/components/ui/data";
 import { getExpiringUrgencyKey } from "@/lib/expiringUtils";
+import { formatDisconnectTimeLeft } from "@/lib/timeLeftUtils";
 import {
   buildSpeedLabel,
-  getDaysUntilDisconnect,
   getSubscriberInitials,
 } from "@/lib/subscriberUtils";
 import { subscriberProfilePath } from "@/lib/routePaths";
@@ -113,10 +113,9 @@ export function ExpiringTable({ rows, className }: ExpiringTableProps) {
 function ExpiringDesktopRow({ row }: { row: Customer }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const daysLeft = getDaysUntilDisconnect(row);
   const urgencyKey = getExpiringUrgencyKey(row);
   const initials = getSubscriberInitials(row.fullName);
-  const daysLabel = getDaysLabel(t, daysLeft);
+  const daysLabel = formatDisconnectTimeLeft(t, row);
 
   const openProfile = () => navigate(profilePath(row.lineId));
 
@@ -161,10 +160,9 @@ function ExpiringDesktopRow({ row }: { row: Customer }) {
 
 function ExpiringMobileCard({ row }: { row: Customer }) {
   const { t } = useTranslation();
-  const daysLeft = getDaysUntilDisconnect(row);
   const urgencyKey = getExpiringUrgencyKey(row);
   const initials = getSubscriberInitials(row.fullName);
-  const daysLabel = getDaysLabel(t, daysLeft);
+  const daysLabel = formatDisconnectTimeLeft(t, row);
 
   return (
     <article className="overflow-hidden rounded-xl border border-border bg-background">
@@ -216,12 +214,3 @@ function ExpiringMobileCard({ row }: { row: Customer }) {
   );
 }
 
-function getDaysLabel(
-  t: (key: string, opts?: Record<string, unknown>) => string,
-  daysLeft: number | null,
-): string {
-  if (daysLeft === null) return "—";
-  if (daysLeft < 0) return t("expiring.table.daysLeftExpired", { days: Math.abs(daysLeft) });
-  if (daysLeft === 0) return t("expiring.table.daysLeftToday");
-  return t("expiring.table.daysLeft", { days: daysLeft });
-}

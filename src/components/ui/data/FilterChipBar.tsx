@@ -45,10 +45,10 @@ export function FilterChipBar({ label, value, onChange, options, className }: Fi
                 aria-selected={selected}
                 onClick={() => onChange(option.id)}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                  "inline-flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all",
                   selected
-                    ? "border-foreground bg-foreground text-background shadow-sm"
-                    : "border-transparent bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
+                    ? "border-primary/40 bg-primary text-primary-foreground shadow-sm ring-2 ring-primary/15"
+                    : "border-border/70 bg-background text-muted-foreground shadow-sm hover:border-border hover:bg-muted/40 hover:text-foreground",
                 )}
               >
                 <span className="whitespace-nowrap">{option.label}</span>

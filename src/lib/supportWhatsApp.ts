@@ -8,7 +8,6 @@ function isMobileDevice(): boolean {
   );
 }
 
-/** Opens an external URL in a new tab without losing the user-gesture chain. */
 function openExternalUrl(url: string): void {
   const anchor = document.createElement("a");
   anchor.href = url;
@@ -19,7 +18,24 @@ function openExternalUrl(url: string): void {
   document.body.removeChild(anchor);
 }
 
-/** Set in `.env` — WhatsApp group invite (mobile opens group in app). */
+function copyTextToClipboard(text: string): void {
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  } catch {
+    // ignore
+  }
+  void navigator.clipboard?.writeText(text).catch(() => {});
+}
+
+/** Full group invite URL from `.env` (reference / mobile share only). */
 export function getWhatsAppGroupInviteUrl(): string | null {
   const raw = import.meta.env.VITE_WHATSAPP_GROUP_INVITE_URL?.trim();
   if (!raw) return null;
@@ -27,81 +43,107 @@ export function getWhatsAppGroupInviteUrl(): string | null {
   return `https://${raw}`;
 }
 
-/** Optional label shown in hints — e.g. WePaltel_Project */
+/** Group display name in `.env` — e.g. droub b */
 export function getWhatsAppGroupName(): string | null {
   const raw = import.meta.env.VITE_WHATSAPP_GROUP_NAME?.trim();
   return raw || null;
 }
 
 export function buildSupportTicketWhatsAppMessage(ticket: SupportTicket, t: TFunction): string {
+  const groupName = getWhatsAppGroupName();
   const created = format(new Date(ticket.createdAt), "yyyy-MM-dd HH:mm");
+  const status = t(`support.status.${ticket.status}`);
+  const priority = t(`support.priority.${ticket.priority}`);
+  const channel = t(`support.channel.${ticket.channel}`);
+
+  const header = groupName
+    ? t("support.whatsapp.template.headerWithGroup", { group: groupName })
+    : t("support.whatsapp.template.header");
 
   return [
-    "━━━━━━━━━━━━━━━━━━━━",
-    `🎫 *${t("support.whatsapp.messageHeader")}*`,
-    "━━━━━━━━━━━━━━━━━━━━",
+    `*${header}*`,
+    "──────────────────────",
     "",
-    `📋 *${t("support.table.ticket")}*`,
-    ticket.ticketNumber,
+    `🔖 *${t("support.table.ticket")}:* ${ticket.ticketNumber}`,
+    `📊 ${t("support.table.status")}: *${status}*  ·  ${t("support.table.priority")}: *${priority}*`,
+    `🕐 ${t("support.table.createdAt")}: ${created}`,
     "",
-    `📌 *${t("support.table.title")}*`,
-    ticket.title,
+    `👤 *${t("support.whatsapp.template.subscriberBlock")}*`,
+    `   ${ticket.subscriberName}`,
+    `   ${ticket.subscriberPhone}`,
+    "",
+    `📌 *${t("support.whatsapp.template.issueBlock")}*`,
+    `   ${ticket.title}`,
     "",
     `📝 *${t("support.form.description")}*`,
-    ticket.description,
+    ticket.description.trim(),
     "",
-    `👤 *${t("support.table.subscriber")}*`,
-    ticket.subscriberName,
+    `📡 ${t("support.table.channel")}: ${channel}`,
+    `👨‍💼 ${t("support.form.assignedTo")}: ${ticket.assignedTo}`,
     "",
-    `📞 *${t("support.form.subscriberPhone")}*`,
-    ticket.subscriberPhone,
-    "",
-    `📡 *${t("support.table.channel")}:* ${t(`support.channel.${ticket.channel}`)}`,
-    `⚡ *${t("support.table.priority")}:* ${t(`support.priority.${ticket.priority}`)}`,
-    `🔖 *${t("support.table.status")}:* ${t(`support.status.${ticket.status}`)}`,
-    `👨‍💼 *${t("support.form.assignedTo")}:* ${ticket.assignedTo}`,
-    `🕐 *${t("support.table.createdAt")}:* ${created}`,
-    "",
-    "━━━━━━━━━━━━━━━━━━━━",
+    "──────────────────────",
+    t("support.whatsapp.template.footer"),
   ].join("\n");
 }
 
-function buildComposeUrl(text: string): string {
+/**
+ * WhatsApp official “click to chat” with pre-filled body.
+ * User picks the group (search by name from .env) — message is already in the box.
+ */
+function buildPrefilledComposeUrl(text: string): string {
   const encoded = encodeURIComponent(text);
   return isMobileDevice()
     ? `https://wa.me/?text=${encoded}`
     : `https://web.whatsapp.com/send?text=${encoded}`;
 }
 
-export type WhatsAppShareMode = "group" | "compose";
+export type WhatsAppShareMode = "prefill" | "share";
+
+export interface WhatsAppShareResult {
+  mode: WhatsAppShareMode;
+  groupName: string | null;
+}
 
 /**
- * Shares a ticket to WhatsApp.
+ * Opens WhatsApp with the ticket message already written in the compose field.
+ * Pick the support group (name from .env) → tap Send.
  *
- * Desktop: opens WhatsApp Web compose with the message pre-filled — pick your
- * support group from recent chats (avoids the group-invite login page).
- *
- * Mobile: opens the configured group invite link when set; message is copied to paste.
+ * Note: WhatsApp does not allow opening a specific group with text in one URL.
+ * Group-invite links open the chat empty; send?text= pre-fills the message.
  */
 export function openSupportTicketWhatsApp(
   ticket: SupportTicket,
   t: TFunction,
-): WhatsAppShareMode {
+): WhatsAppShareResult {
   const text = buildSupportTicketWhatsAppMessage(ticket, t);
-  const groupUrl = getWhatsAppGroupInviteUrl();
+  const groupName = getWhatsAppGroupName();
+
+  copyTextToClipboard(text);
+
   const mobile = isMobileDevice();
 
-  let mode: WhatsAppShareMode = "compose";
-
-  if (groupUrl && mobile) {
-    openExternalUrl(groupUrl);
-    mode = "group";
-  } else {
-    openExternalUrl(buildComposeUrl(text));
-    mode = "compose";
+  if (mobile && typeof navigator.share === "function") {
+    void navigator
+      .share({
+        text,
+        title: groupName ?? t("support.whatsapp.template.header"),
+      })
+      .catch(() => {
+        openExternalUrl(buildPrefilledComposeUrl(text));
+      });
+    return { mode: "share", groupName };
   }
 
-  void navigator.clipboard.writeText(text).catch(() => {});
+  openExternalUrl(buildPrefilledComposeUrl(text));
+  return { mode: "prefill", groupName };
+}
 
-  return mode;
+export function whatsAppShareToastMessage(
+  result: WhatsAppShareResult,
+  t: TFunction,
+): string {
+  if (result.groupName) {
+    return t("support.whatsapp.messageReadyPickGroup", { group: result.groupName });
+  }
+  return t("support.whatsapp.messageReady");
 }

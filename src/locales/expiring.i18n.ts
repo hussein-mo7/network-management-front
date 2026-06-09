@@ -26,6 +26,8 @@ export type ExpiringI18n = {
     daysLeft: string;
     daysLeftExpired: string;
     daysLeftToday: string;
+    daysLeftTomorrow: string;
+    hoursLeft: string;
     urgency: string;
     actions: string;
     empty: string;
@@ -63,6 +65,8 @@ export const expiringEn: ExpiringI18n = {
     daysLeft: "{{days}} days left",
     daysLeftExpired: "Expired {{days}} days ago",
     daysLeftToday: "Expires today",
+    daysLeftTomorrow: "Tomorrow",
+    hoursLeft: "{{hours}} hours left",
     urgency: "Status",
     actions: "Actions",
     empty: "No subscriptions match this filter",
@@ -99,6 +103,8 @@ export const expiringAr: ExpiringI18n = {
     daysLeft: "متبقي {{days}} يوم",
     daysLeftExpired: "منتهي منذ {{days}} يوم",
     daysLeftToday: "ينتهي اليوم",
+    daysLeftTomorrow: "غداً",
+    hoursLeft: "باقي {{hours}} ساعة",
     urgency: "الحالة",
     actions: "إجراءات",
     empty: "لا توجد اشتراكات لهذا الفلتر",

@@ -17,7 +17,7 @@ export function SubscriberStatusBadge({ status }: SubscriberStatusBadgeProps) {
         "inline-flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground",
         (status === "active" || status === "suspended") && "text-foreground",
         status === "suspended" && "border-warning/40 text-warning",
-        status === "paused" && "border-accent/50 bg-accent/10 text-accent",
+        status === "paused" && "border-red-500/40 bg-red-500/10 text-red-500",
       )}
     >
       {status === "paused" ? <PauseCircle className="h-3 w-3 shrink-0" /> : null}

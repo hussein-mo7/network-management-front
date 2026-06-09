@@ -8,17 +8,15 @@ import {
 } from "@/components/pages/available-usernames/AvailableUsernameStatusBadge";
 import { Button } from "@/components/ui/buttons";
 import { LtrText, MaskedPasswordCell } from "@/components/ui/data";
-import {
-  formatCreatedDate,
-  getDaysUntilExpiry,
-  getUsernameLifecycleStatus,
-  type AvailableUsername,
-} from "@/types/availableUsername";
+import { AvailableUsernameExpiryLabel } from "@/components/pages/available-usernames/AvailableUsernameExpiryLabel";
+import { AvailableUsernameUsageLabel } from "@/components/pages/available-usernames/AvailableUsernameUsageLabel";
+import { formatCreatedDate, type AvailableUsername } from "@/types/availableUsername";
 import { cn } from "@/lib/cn";
 
 interface AvailableUsernamesTableProps {
   rows: AvailableUsername[];
   speedLabel?: string;
+  speedMbps?: number;
   className?: string;
   onEdit?: (row: AvailableUsername) => void;
   onDelete?: (row: AvailableUsername) => void;
@@ -27,6 +25,7 @@ interface AvailableUsernamesTableProps {
 export function AvailableUsernamesTable({
   rows,
   speedLabel,
+  speedMbps = 0,
   className,
   onEdit,
   onDelete,
@@ -40,23 +39,26 @@ export function AvailableUsernamesTable({
         username: "w-[20%]",
         password: "w-[18%]",
         status: "w-[14%]",
-        expires: "w-[14%]",
-        date: "w-[12%]",
-        actions: "w-[14%]",
+        usage: "w-[12%]",
+        expires: "w-[12%]",
+        date: "w-[10%]",
+        actions: "w-[12%]",
       }
     : {
-        username: "w-[22%]",
-        password: "w-[20%]",
-        status: "w-[16%]",
-        expires: "w-[16%]",
-        date: "w-[14%]",
-        actions: "w-[12%]",
+        username: "w-[18%]",
+        password: "w-[16%]",
+        status: "w-[12%]",
+        usage: "w-[14%]",
+        expires: "w-[12%]",
+        date: "w-[12%]",
+        actions: "w-[10%]",
       };
 
   return (
     <div className={className}>
       <AvailableUsernamesMobileList
         rows={rows}
+        speedMbps={speedMbps}
         onDetails={setDetailsRow}
         onEdit={onEdit}
         onDelete={onDelete}
@@ -74,6 +76,9 @@ export function AvailableUsernamesTable({
               </th>
               <th className={cn(columns.status, "px-4 py-3 text-start font-semibold")}>
                 {t("availableUsernames.table.status")}
+              </th>
+              <th className={cn(columns.usage, "px-4 py-3 text-start font-semibold")}>
+                {t("availableUsernames.table.usage")}
               </th>
               <th className={cn(columns.expires, "px-4 py-3 text-start font-semibold")}>
                 {t("availableUsernames.table.expires")}
@@ -105,6 +110,9 @@ export function AvailableUsernamesTable({
                 </td>
                 <td className="ps-2 px-4 py-3 align-middle">
                   <AvailableUsernameStatusBadge row={row} />
+                </td>
+                <td className="px-4 py-3 align-middle">
+                  <UsageCell row={row} speedMbps={speedMbps} />
                 </td>
                 <td className="px-4 py-3 align-middle">
                   <ExpiresCell row={row} />
@@ -139,36 +147,22 @@ export function AvailableUsernamesTable({
 }
 
 function ExpiresCell({ row }: { row: AvailableUsername }) {
-  const { t } = useTranslation();
-  const lifecycle = getUsernameLifecycleStatus(row);
+  return <AvailableUsernameExpiryLabel row={row} className="text-sm" />;
+}
 
-  if (lifecycle === "owner") {
-    return <span className="text-xs text-muted-foreground">—</span>;
-  }
-
-  if (lifecycle === "new") {
-    return <span className="text-xs text-muted-foreground">—</span>;
-  }
-
-  if (row.expiryDate) {
-    const days = getDaysUntilExpiry(row.expiryDate);
-    return (
-      <span className="text-sm font-medium text-foreground">
-        {t("availableUsernames.status.expiresIn", { count: days })}
-      </span>
-    );
-  }
-
-  return <span className="text-xs text-muted-foreground">—</span>;
+function UsageCell({ row, speedMbps }: { row: AvailableUsername; speedMbps: number }) {
+  return <AvailableUsernameUsageLabel row={row} speedMbps={speedMbps} className="text-sm" />;
 }
 
 function AvailableUsernamesMobileList({
   rows,
+  speedMbps,
   onDetails,
   onEdit,
   onDelete,
 }: {
   rows: AvailableUsername[];
+  speedMbps: number;
   onDetails: (row: AvailableUsername) => void;
   onEdit?: (row: AvailableUsername) => void;
   onDelete?: (row: AvailableUsername) => void;
@@ -194,6 +188,14 @@ function AvailableUsernamesMobileList({
               </dt>
               <dd className="mt-1">
                 <MaskedPasswordCell value={row.password} />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-muted-foreground">
+                {t("availableUsernames.table.usage")}
+              </dt>
+              <dd className="mt-1">
+                <UsageCell row={row} speedMbps={speedMbps} />
               </dd>
             </div>
             <div>

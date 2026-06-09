@@ -1,4 +1,5 @@
 export { FilterChipBar } from "./FilterChipBar";
+export { FilterGroup, ListFiltersPanel } from "./ListFiltersPanel";
 export type { FilterChipOption } from "./FilterChipBar";
 export { LtrText } from "./LtrText";
 export { MaskedPasswordCell } from "./MaskedPasswordCell";
@@ -11,10 +12,14 @@ export {
   dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
+  dataTableCheckboxCellClass,
+  dataTableCheckboxHeadClass,
   dataTableClass,
   dataTableFixedClass,
   dataTableHeadCellClass,
   dataTableHeadRowClass,
+  dataTableNumericCellClass,
+  dataTableNumericHeadCellClass,
   dataTableWrapClass,
   dataTableScrollMinClass,
 } from "./tableClasses";

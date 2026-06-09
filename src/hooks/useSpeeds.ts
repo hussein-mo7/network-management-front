@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { getActiveSpeedTiers } from "@/lib/mapSpeedTiers";
 import { speedsService } from "@/services/speeds.service";
 import type { SpeedTier } from "@/types/speeds";
 
 export const SPEEDS_QUERY_KEY = ["speeds"] as const;
 
+/** Returns only non-deleted speed tiers (`deleted: false`). */
 export function useSpeedsQuery() {
   return useQuery({
     queryKey: SPEEDS_QUERY_KEY,
-    queryFn: () => speedsService.list(),
+    queryFn: async () => getActiveSpeedTiers(await speedsService.list()),
   });
 }
 

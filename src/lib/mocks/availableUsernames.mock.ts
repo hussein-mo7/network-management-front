@@ -17,6 +17,8 @@ function assignedWithCooldown(daysAgo: number, hour = 9, minute = 15) {
   return {
     assignedAt: dateTimeStorage(assigned),
     expiryDate: dateTimeStorage(expiry),
+    isUsed: true,
+    isExpired: false,
   };
 }
 
@@ -27,6 +29,8 @@ export const mockAvailableUsernames: AvailableUsername[] = [
     password: "wifi2024",
     speedId: 2,
     isOwnerUsername: false,
+    isUsed: false,
+    isExpired: false,
     createdAt: "2026-01-12",
   },
   {
@@ -44,6 +48,8 @@ export const mockAvailableUsernames: AvailableUsername[] = [
     password: "owner001",
     speedId: 2,
     isOwnerUsername: true,
+    isUsed: false,
+    isExpired: false,
     createdAt: "2025-11-20",
   },
   {
@@ -52,6 +58,8 @@ export const mockAvailableUsernames: AvailableUsername[] = [
     password: "pass5566",
     speedId: 1,
     isOwnerUsername: false,
+    isUsed: false,
+    isExpired: false,
     createdAt: "2026-02-01",
   },
   {
@@ -60,6 +68,8 @@ export const mockAvailableUsernames: AvailableUsername[] = [
     password: "link7788",
     speedId: 3,
     isOwnerUsername: false,
+    isUsed: false,
+    isExpired: false,
     createdAt: "2026-02-14",
   },
   {
@@ -77,6 +87,8 @@ export const mockAvailableUsernames: AvailableUsername[] = [
     password: "slow4abc",
     speedId: 1,
     isOwnerUsername: false,
+    isUsed: false,
+    isExpired: false,
     createdAt: "2026-03-01",
   },
   {
@@ -85,6 +97,8 @@ export const mockAvailableUsernames: AvailableUsername[] = [
     password: "oldslot01",
     speedId: 2,
     isOwnerUsername: false,
+    isUsed: true,
+    isExpired: true,
     createdAt: "2025-12-01",
     assignedAt: dateTimeStorage(subDays(today, 40)),
     expiryDate: dateTimeStorage(subDays(today, 10)),

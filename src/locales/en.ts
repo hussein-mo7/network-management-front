@@ -9,6 +9,7 @@ import { onlineUsersEn } from "./onlineUsers.i18n";
 import { subscribersEn } from "./subscribers.i18n";
 import { activityLogsEn } from "./activityLogs.i18n";
 import { usersEn } from "./users.i18n";
+import { settingsEn } from "./settings.i18n";
 
 export const en: TranslationSchema = {
   common: {
@@ -21,6 +22,7 @@ export const en: TranslationSchema = {
     save: "Save",
     retry: "Try again",
     all: "All",
+    filters: "Filters",
     pagination: {
       showing: "Showing <range>{{from}}–{{to}}</range> of <total>{{total}}</total>",
       previous: "Previous",
@@ -122,12 +124,17 @@ export const en: TranslationSchema = {
       finance: "Finance",
       users: "Users",
       logs: "Activity log",
+      settings: "Settings",
     },
   },
   home: {
     title: "Home",
     subtitle: "Welcome to the WeWiFi dashboard. Choose a section from the menu to get started.",
     cards: {
+      customers: {
+        title: "Customers",
+        description: "Customer registry and profiles",
+      },
       subscribers: {
         title: "Subscribers",
         description: "Manage customers and subscriptions",
@@ -136,6 +143,14 @@ export const en: TranslationSchema = {
         title: "Online users",
         description: "View users connected via MikroTik",
       },
+      expiring: {
+        title: "Expiring",
+        description: "Subscriptions ending soon",
+      },
+      availableUsernames: {
+        title: "Available usernames",
+        description: "Username pool by speed tier",
+      },
       statistics: {
         title: "Statistics",
         description: "Real-time metrics and data",
@@ -143,6 +158,10 @@ export const en: TranslationSchema = {
       finance: {
         title: "Finance",
         description: "Invoices, debts, and revenue",
+      },
+      settings: {
+        title: "Settings",
+        description: "Logs, Excel tools, and users",
       },
     },
   },
@@ -171,6 +190,7 @@ export const en: TranslationSchema = {
       total: "{{count}} names",
       available: "{{count}} ready",
       price: "{{price}} ₪ / month",
+      fairUsage: "Fair usage: {{gb}} GB (up + down)",
     },
     form: {
       addTitle: "Add speed",
@@ -228,6 +248,7 @@ export const en: TranslationSchema = {
       speed: "Speed",
       status: "Status",
       expires: "Expires",
+      usage: "Usage",
       createdAt: "Added",
       actions: "Actions",
     },
@@ -238,6 +259,7 @@ export const en: TranslationSchema = {
       ownerNeverExpires: "Never expires",
       notAssigned: "Not assigned yet",
       expiresIn: "In {{count}} days",
+      usageExceeded: "quota reached",
       expiresOn: "Until {{date}}",
       firstConnectionAt: "First connection: {{datetime}}",
       expiresAt: "Expires: {{datetime}}",
@@ -304,6 +326,7 @@ export const en: TranslationSchema = {
   sms: smsEn,
   activityLogs: activityLogsEn,
   users: usersEn,
+  settings: settingsEn,
   support: {
     title: "Support",
     subtitle:
@@ -315,20 +338,23 @@ export const en: TranslationSchema = {
     },
     whatsapp: {
       sendToGroup: "Send to WhatsApp group",
+      sendToGroupNamed: "Send to {{group}}",
       sendAction: "Send ticket via WhatsApp",
       successTitle: "Ticket created",
-      successSubtitle: "Ticket {{ticket}} is ready — share it with the support group on WhatsApp.",
-      messageHeader: "Support ticket",
-      openHint:
-        "WhatsApp will open with a pre-filled message. Pick your support group from recent chats, then tap Send.",
-      openHintGroup:
-        "On mobile: your group link opens and the message is copied — paste in the chat, then send.",
-      openHintComposeGroup:
-        "WhatsApp Web opens with the message ready. Pick the “{{group}}” group from recent chats, then tap Send (log in to WhatsApp Web once if prompted).",
-      copiedAndOpened: "Message copied — WhatsApp group opened. Paste and send.",
-      composeOpened: "WhatsApp opened with the message — pick the group and send.",
-      composeWithGroup: "Message ready — select the “{{group}}” group in WhatsApp, then send.",
+      successSubtitle: "Ticket {{ticket}} is ready — share it with the support team on WhatsApp.",
+      openHint: "WhatsApp opens with the message already in the box — pick a chat and send.",
+      openHintGroupNamed:
+        "WhatsApp opens with the message ready. Search for the “{{group}}” group, tap it, then send.",
+      messageReady: "Message is ready in WhatsApp — pick a chat and send",
+      messageReadyPickGroup: "Message ready — select “{{group}}” in WhatsApp, then send",
       previewLabel: "Message preview",
+      template: {
+        header: "Support ticket",
+        headerWithGroup: "Support ticket · {{group}}",
+        subscriberBlock: "Subscriber",
+        issueBlock: "Issue",
+        footer: "— WePaltel Support",
+      },
     },
     stats: {
       open: "Open tickets",

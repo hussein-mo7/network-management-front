@@ -5,6 +5,8 @@ import { Logo } from "@/components/ui/branding";
 import { Sheet, SheetHeader } from "@/components/ui/overlays";
 import { useAuthUserLabels } from "@/hooks/useAuthUserLabels";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
+import { getDashboardNavItems } from "@/lib/dashboardNav";
 import { DashboardHeader } from "./DashboardHeader";
 import { DashboardSidebarPanel } from "./DashboardSidebarPanel";
 
@@ -12,8 +14,10 @@ export function DashboardLayout() {
   const { t } = useTranslation();
   const { displayName, displayRole } = useAuthUserLabels();
   const { can } = usePermissions();
+  const { isViewer } = useRoleAccess();
   const location = useLocation();
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const navItems = getDashboardNavItems(isViewer);
 
   useEffect(() => {
     setMobileNavOpen(false);
@@ -25,6 +29,7 @@ export function DashboardLayout() {
     <div className="flex min-h-screen bg-background">
       <aside className="dashboard-sidebar sticky top-0 hidden h-screen w-64 shrink-0 self-start flex-col bg-sidebar text-sidebar-foreground lg:flex">
         <DashboardSidebarPanel
+          navItems={navItems}
           displayName={displayName}
           displayRole={displayRole}
           canAccess={canAccess}
@@ -44,6 +49,7 @@ export function DashboardLayout() {
           <Logo size="sm" variant="on-dark" preferImage />
         </SheetHeader>
         <DashboardSidebarPanel
+          navItems={navItems}
           displayName={displayName}
           displayRole={displayRole}
           canAccess={canAccess}

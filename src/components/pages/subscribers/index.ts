@@ -7,6 +7,7 @@ export { SubscriberInvoicesTab } from "./SubscriberInvoicesTab";
 export { SubscriberProfileHeader } from "./SubscriberProfileHeader";
 export { SubscriberProfileTabs, type SubscriberProfileTab } from "./SubscriberProfileTabs";
 export { SubscriberRouterSection } from "./SubscriberRouterSection";
+export { SubscriberSmsTab } from "./SubscriberSmsTab";
 export { SubscriberStatsTab } from "./SubscriberStatsTab";
 export { SubscriberStatusBadge } from "./SubscriberStatusBadge";
 export { SubscribersImportModal } from "./SubscribersImportModal";

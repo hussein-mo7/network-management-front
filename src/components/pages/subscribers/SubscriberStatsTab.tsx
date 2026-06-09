@@ -1,30 +1,33 @@
-import { Calendar, Clock, Wallet } from "lucide-react";
+import { Calendar, Clock, Gauge, HardDrive, RotateCcw } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { SubscriberRouterSection } from "@/components/pages/subscribers/SubscriberRouterSection";
-import { SpeedTierPicker } from "@/components/pages/speeds";
 import { Button } from "@/components/ui/buttons";
 import { Input, PasswordInput, Textarea } from "@/components/ui/forms";
 import { StatCard } from "@/components/ui/data";
 import { ProfileSection } from "@/components/ui/profile";
 import { Text } from "@/components/ui/typography";
+import { formatUsageRatio, resolveUsageLimitMb } from "@/lib/speedFairUsage";
 import { getDaysUntilDisconnect, getUsageDays, buildSpeedLabel } from "@/lib/subscriberUtils";
-import type { SpeedTier } from "@/types/speeds";
+import type { SubscriberUpdatePayload } from "@/services/subscribers.service";
 import type { Subscriber } from "@/types/subscriber";
 import { format, parseISO } from "date-fns";
+import { cn } from "@/lib/cn";
+
+type SubscriberProfileSavePatch = SubscriberUpdatePayload & { packageLine?: number };
 
 interface SubscriberStatsTabProps {
   subscriber: Subscriber;
-  speedTiers?: SpeedTier[];
   canManage?: boolean;
   canViewPasswords?: boolean;
   daysGone?: number | null;
   daysRemaining?: number | null;
-  onSave?: (
-    patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null },
-  ) => void | Promise<void>;
+  onSave?: (patch: SubscriberProfileSavePatch) => void | Promise<void>;
   isSubmitting?: boolean;
+  showRenew?: boolean;
+  onRenewUsername?: () => void;
+  isRenewing?: boolean;
 }
 
 interface ProfileFormValues {
@@ -33,25 +36,36 @@ interface ProfileFormValues {
   notes: string;
   password: string;
   packageLine: number;
+  monthlyPrice: string;
+}
+
+function formatMonthlyPriceField(price: number): string {
+  if (!Number.isFinite(price) || price < 0) return "";
+  return String(price);
 }
 
 export function SubscriberStatsTab({
   subscriber,
-  speedTiers = [],
   canManage = false,
   canViewPasswords = false,
   daysGone = null,
   daysRemaining = null,
   onSave,
   isSubmitting = false,
+  showRenew = false,
+  onRenewUsername,
+  isRenewing = false,
 }: SubscriberStatsTabProps) {
   const { t } = useTranslation();
   const usageDays = daysGone ?? getUsageDays(subscriber);
   const daysLeft = daysRemaining ?? getDaysUntilDisconnect(subscriber);
-  const resolvedSpeedId =
-    subscriber.speedId ?? speedTiers.find((tier) => tier.valueMbps === subscriber.speedMbps)?.id ?? null;
-  const [selectedSpeedId, setSelectedSpeedId] = useState<number | null>(resolvedSpeedId);
-  const canEditSpeed = canManage && Boolean(subscriber.username) && speedTiers.length > 0;
+  const speedLabel = subscriber.speedMbps > 0 ? buildSpeedLabel(subscriber.speedMbps) : null;
+  const usedMb = subscriber.totalUsage ?? 0;
+  const limitMb = resolveUsageLimitMb(subscriber.usageLimit, subscriber.speedMbps);
+  const usageLabel =
+    subscriber.username && (usedMb > 0 || limitMb != null)
+      ? formatUsageRatio(usedMb, limitMb)
+      : "—";
   const [routerName, setRouterName] = useState(subscriber.routerName ?? "");
   const [routerImageFile, setRouterImageFile] = useState<File | null>(null);
   const [routerImagePreview, setRouterImagePreview] = useState<string | null>(
@@ -59,18 +73,12 @@ export function SubscriberStatsTab({
   );
 
   useEffect(() => {
-    setSelectedSpeedId(resolvedSpeedId);
-  }, [subscriber.id, resolvedSpeedId]);
-
-  useEffect(() => {
     setRouterName(subscriber.routerName ?? "");
     setRouterImageFile(null);
     setRouterImagePreview(subscriber.routerImageUrl ?? null);
   }, [subscriber.id, subscriber.routerName, subscriber.routerImageUrl]);
 
-  const appendRouterPatch = (
-    patch: Partial<Subscriber> & { speedId?: number; routerImageFile?: File; routerImageUrl?: string | null },
-  ) => {
+  const appendRouterPatch = (patch: SubscriberProfileSavePatch) => {
     if (!canManage) return;
     const trimmedRouterName = routerName.trim();
     const nameChanged = trimmedRouterName !== (subscriber.routerName ?? "").trim();
@@ -79,7 +87,6 @@ export function SubscriberStatsTab({
     }
     if (routerImageFile) {
       patch.routerImageFile = routerImageFile;
-      patch.routerImageUrl = routerImagePreview;
       patch.routerName = trimmedRouterName || null;
     }
   };
@@ -96,6 +103,7 @@ export function SubscriberStatsTab({
       notes: subscriber.notes ?? "",
       password: subscriber.password ?? "",
       packageLine: subscriber.packageLine,
+      monthlyPrice: formatMonthlyPriceField(subscriber.monthlyPrice),
     },
   });
 
@@ -106,6 +114,7 @@ export function SubscriberStatsTab({
       notes: subscriber.notes ?? "",
       password: subscriber.password ?? "",
       packageLine: subscriber.packageLine,
+      monthlyPrice: formatMonthlyPriceField(subscriber.monthlyPrice),
     });
   }, [
     subscriber.lineId,
@@ -114,6 +123,7 @@ export function SubscriberStatsTab({
     subscriber.phone,
     subscriber.notes,
     subscriber.password,
+    subscriber.monthlyPrice,
     reset,
   ]);
 
@@ -139,160 +149,200 @@ export function SubscriberStatsTab({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard
-          label={t("subscribers.profile.stats.usageDays")}
-          value={usageDays ?? "—"}
-          hint={t("subscribers.profile.stats.usageDaysHint")}
-          icon={Clock}
-        />
-        <StatCard
-          label={t("subscribers.profile.stats.daysLeft")}
-          value={daysLeft ?? "—"}
-          hint={t("subscribers.profile.stats.daysLeftHint")}
-          icon={Calendar}
-          iconClassName="bg-warning/10 text-warning"
-        />
-        <StatCard
-          label={t("subscribers.profile.stats.balance")}
-          value={`${subscriber.balance} ₪`}
-          hint={t("subscribers.profile.stats.monthlyPrice", { price: subscriber.monthlyPrice })}
-          icon={Wallet}
-          iconClassName={subscriber.balance < 0 ? "bg-danger/10 text-danger" : "bg-success/10 text-success"}
-        />
+      <div className="space-y-3">
+        <Text className="text-sm font-semibold text-foreground">{t("subscribers.profile.cycleOverview")}</Text>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <StatCard
+            label={t("subscribers.profile.stats.usageDays")}
+            value={usageDays ?? "—"}
+            hint={t("subscribers.profile.stats.usageDaysHint")}
+            icon={Clock}
+          />
+          <StatCard
+            label={t("subscribers.profile.stats.daysLeft")}
+            value={daysLeft ?? "—"}
+            hint={t("subscribers.profile.stats.daysLeftHint")}
+            icon={Calendar}
+            iconClassName="bg-warning/10 text-warning"
+          />
+          <StatCard
+            label={t("subscribers.profile.stats.dataUsage")}
+            value={usageLabel}
+            hint={
+              subscriber.username
+                ? t("subscribers.profile.stats.dataUsageHint", { username: subscriber.username })
+                : t("subscribers.profile.stats.dataUsageNoUsername")
+            }
+            icon={HardDrive}
+            iconClassName="bg-accent/10 text-accent"
+          />
+        </div>
       </div>
 
       <ProfileSection title={t("subscribers.profile.formSection")} bodyClassName="p-0">
-      <form
-        onSubmit={handleSubmit(async (values) => {
-          const patch: Partial<Subscriber> & { speedId?: number } = {
-            fullName: values.fullName.trim(),
-            phone: values.phone.trim() || null,
-            notes: values.notes.trim() || null,
-          };
-          const password = values.password.trim();
-          const previous = (subscriber.password ?? "").trim();
-          if (canManage && password !== previous) {
-            patch.password = password || null;
-          }
-          if (canEditSpeed && selectedSpeedId && selectedSpeedId !== resolvedSpeedId) {
-            patch.speedId = selectedSpeedId;
-          }
-          if (canManage && values.packageLine !== subscriber.packageLine) {
-            patch.packageLine = values.packageLine;
-          }
-          appendRouterPatch(patch);
-          await onSave?.(patch);
-          setRouterImageFile(null);
-        })}
-        className="space-y-4 p-4 sm:p-6"
-      >
-        <SubscriberRouterSection
-          routerName={routerName}
-          imagePreview={routerImagePreview}
-          canManage={canManage}
-          onRouterNameChange={setRouterName}
-          onImageFileSelect={handleImageFileSelect}
-        />
+        <div
+          className={cn(
+            "flex flex-wrap items-start gap-3 border-b border-border/60 bg-gradient-to-r from-primary/5 via-transparent to-transparent px-4 py-4 sm:px-6",
+            !speedLabel && "opacity-80",
+          )}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <Gauge className="h-5 w-5" strokeWidth={2} aria-hidden />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-medium text-muted-foreground">{t("subscribers.table.speed")}</p>
+            <p className="mt-0.5 text-sm font-semibold text-foreground">
+              {speedLabel ? t("subscribers.profile.currentSpeed", { speed: speedLabel }) : "—"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{t("subscribers.profile.speedReadOnlyHint")}</p>
+          </div>
+          {showRenew ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="shrink-0"
+              onClick={onRenewUsername}
+              disabled={isRenewing}
+              isLoading={isRenewing}
+            >
+              <RotateCcw className="h-4 w-4" />
+              {t("subscribers.username.renewUsername")}
+            </Button>
+          ) : null}
+        </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Input label={t("subscribers.table.lineId")} value={subscriber.lineId} readOnly disabled />
-          <Input
-            label={t("subscribers.form.lineNumber")}
-            type="number"
-            min={1}
-            step={1}
-            inputMode="numeric"
-            disabled={!canManage}
-            error={errors.packageLine?.message}
-            {...register("packageLine", {
-              required: t("subscribers.form.lineNumberRequired"),
-              valueAsNumber: true,
-              min: { value: 1, message: t("subscribers.form.lineNumberRequired") },
-            })}
+        <form
+          onSubmit={handleSubmit(async (values) => {
+            const patch: SubscriberProfileSavePatch = {
+              fullName: values.fullName.trim(),
+              phone: values.phone.trim() || null,
+              notes: values.notes.trim() || null,
+            };
+            const password = values.password.trim();
+            const previous = (subscriber.password ?? "").trim();
+            if (canManage && password !== previous) {
+              patch.password = password || null;
+            }
+            if (canManage && values.packageLine !== subscriber.packageLine) {
+              patch.packageLine = values.packageLine;
+            }
+            if (canManage) {
+              const monthlyRaw = values.monthlyPrice.trim();
+              if (monthlyRaw !== "") {
+                const parsed = Number(monthlyRaw);
+                if (Number.isFinite(parsed) && parsed >= 0 && parsed !== subscriber.monthlyPrice) {
+                  patch.monthlyPrice = parsed;
+                }
+              }
+            }
+            appendRouterPatch(patch);
+            await onSave?.(patch);
+            setRouterImageFile(null);
+          })}
+          className="space-y-6 p-4 sm:p-6"
+        >
+          <SubscriberRouterSection
+            routerName={routerName}
+            imagePreview={routerImagePreview}
+            canManage={canManage}
+            onRouterNameChange={setRouterName}
+            onImageFileSelect={handleImageFileSelect}
           />
-          <Input
-            label={t("subscribers.table.username")}
-            value={subscriber.username ?? "—"}
-            readOnly
-            disabled
-          />
-          {canViewPasswords && canManage ? (
-            <PasswordInput
-              label={t("subscribers.table.password")}
-              autoComplete="new-password"
-              error={errors.password?.message}
-              {...register("password", {
-                validate: (value) => {
-                  const trimmed = value?.trim() ?? "";
-                  if (!trimmed) return t("subscribers.username.passwordRequired");
-                  if (trimmed.length < 4) return t("subscribers.username.passwordMin");
-                  return true;
-                },
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input label={t("subscribers.table.lineId")} value={subscriber.lineId} readOnly disabled />
+            <Input
+              label={t("subscribers.form.lineNumber")}
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
+              disabled={!canManage}
+              error={errors.packageLine?.message}
+              {...register("packageLine", {
+                required: t("subscribers.form.lineNumberRequired"),
+                valueAsNumber: true,
+                min: { value: 1, message: t("subscribers.form.lineNumberRequired") },
               })}
             />
-          ) : null}
-          {canEditSpeed ? (
-            <div className="space-y-2 sm:col-span-2">
-              <Text className="text-xs font-medium text-muted-foreground">
-                {t("subscribers.table.speed")}
-              </Text>
-              <SpeedTierPicker
-                tiers={speedTiers}
-                selectedId={selectedSpeedId ?? speedTiers[0]?.id ?? 0}
-                onSelect={(tier) => setSelectedSpeedId(tier.id)}
-              />
-              <Text muted className="text-xs">{t("subscribers.profile.speedEditHint")}</Text>
-            </div>
-          ) : (
             <Input
-              label={t("subscribers.table.speed")}
-              value={subscriber.speedMbps ? buildSpeedLabel(subscriber.speedMbps) : "—"}
+              label={t("subscribers.table.username")}
+              value={subscriber.username ?? "—"}
               readOnly
               disabled
             />
-          )}
-          <Input
-            label={t("subscribers.form.fullName")}
-            {...register("fullName")}
+            {canViewPasswords && canManage ? (
+              <PasswordInput
+                label={t("subscribers.table.password")}
+                autoComplete="new-password"
+                error={errors.password?.message}
+                {...register("password", {
+                  validate: (value) => {
+                    const trimmed = value?.trim() ?? "";
+                    if (!trimmed) return t("subscribers.username.passwordRequired");
+                    if (trimmed.length < 4) return t("subscribers.username.passwordMin");
+                    return true;
+                  },
+                })}
+              />
+            ) : null}
+            <Input
+              label={t("subscribers.form.fullName")}
+              {...register("fullName")}
+              disabled={!canManage}
+            />
+            <Input label={t("subscribers.form.phone")} {...register("phone")} disabled={!canManage} />
+            <Input
+              label={t("subscribers.profile.monthlyPriceLabel")}
+              type="number"
+              min={0}
+              step="0.01"
+              inputMode="decimal"
+              placeholder="—"
+              disabled={!canManage}
+              {...register("monthlyPrice")}
+            />
+            <Input
+              label={t("subscribers.profile.firstContact")}
+              value={formatDate(subscriber.firstContactDate)}
+              readOnly
+              disabled
+            />
+            <Input
+              label={t("subscribers.profile.disconnection")}
+              value={formatDate(subscriber.disconnectionDate)}
+              readOnly
+              disabled
+            />
+          </div>
+
+          {canManage ? (
+            <div className="space-y-1">
+              <Text muted className="text-xs">
+                {t("subscribers.profile.passwordEditHint")}
+              </Text>
+              <Text muted className="text-xs">
+                {t("subscribers.profile.monthlyPriceHint")}
+              </Text>
+            </div>
+          ) : null}
+
+          <Textarea
+            label={t("subscribers.form.notes")}
+            rows={3}
+            {...register("notes")}
             disabled={!canManage}
           />
-          <Input label={t("subscribers.form.phone")} {...register("phone")} disabled={!canManage} />
-          <Input
-            label={t("subscribers.profile.firstContact")}
-            value={formatDate(subscriber.firstContactDate)}
-            readOnly
-            disabled
-          />
-          <Input
-            label={t("subscribers.profile.disconnection")}
-            value={formatDate(subscriber.disconnectionDate)}
-            readOnly
-            disabled
-          />
-        </div>
 
-        {canManage ? (
-          <Text muted className="text-xs">
-            {t("subscribers.profile.passwordEditHint")}
-          </Text>
-        ) : null}
-
-        <Textarea
-          label={t("subscribers.form.notes")}
-          rows={3}
-          {...register("notes")}
-          disabled={!canManage}
-        />
-
-        {canManage ? (
-          <div className="flex justify-end">
-            <Button type="submit" size="sm" isLoading={isSubmitting}>
-              {t("common.save")}
-            </Button>
-          </div>
-        ) : null}
-      </form>
+          {canManage ? (
+            <div className="flex justify-end border-t border-border/60 pt-4">
+              <Button type="submit" size="sm" isLoading={isSubmitting}>
+                {t("common.save")}
+              </Button>
+            </div>
+          ) : null}
+        </form>
       </ProfileSection>
     </div>
   );

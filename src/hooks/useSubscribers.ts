@@ -6,7 +6,6 @@ import {
   type SubscriberUpdatePayload,
   type SubscribersListParams,
 } from "@/services/subscribers.service";
-import type { Subscriber } from "@/types/subscriber";
 
 export const subscribersQueryKey = (params?: SubscribersListParams) =>
   ["subscribers", params ?? {}] as const;
@@ -105,9 +104,7 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   };
 
   const updateMutation = useMutation({
-    mutationFn: async (
-      patch: Partial<Subscriber> & SubscriberUpdatePayload & { password?: string | null; speedId?: number },
-    ) => {
+    mutationFn: async (patch: SubscriberUpdatePayload & { packageLine?: number }) => {
       if (patch.packageLine !== undefined) {
         await customersService.update(subscriberId, { lineId: String(patch.packageLine) });
       }
@@ -165,8 +162,13 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   });
 
   const assignUsernameMutation = useMutation({
-    mutationFn: (availableUsernameId: number) =>
-      subscribersService.assignUsername(subscriberId, availableUsernameId),
+    mutationFn: ({
+      availableUsernameId,
+      changeCause,
+    }: {
+      availableUsernameId: number;
+      changeCause?: string | null;
+    }) => subscribersService.assignUsername(subscriberId, availableUsernameId, changeCause),
     onSuccess: () => {
       invalidateProfile();
       queryClient.invalidateQueries({ queryKey: subscriberInvoicesQueryKey(subscriberId) });
@@ -177,7 +179,27 @@ export function useSubscriberProfileMutations(subscriberId: number) {
     },
   });
 
-  return { updateMutation, stopMutation, pauseMutation, assignUsernameMutation, invalidateProfile };
+  const autoAssignUsernameMutation = useMutation({
+    mutationFn: (speedId: number) =>
+      subscribersService.autoAssignUsernameBySpeed(subscriberId, speedId),
+    onSuccess: () => {
+      invalidateProfile();
+      queryClient.invalidateQueries({ queryKey: subscriberInvoicesQueryKey(subscriberId) });
+      queryClient.invalidateQueries({ queryKey: subscriberUsernameHistoryQueryKey(subscriberId) });
+      queryClient.invalidateQueries({ queryKey: subscriberSpeedHistoryQueryKey(subscriberId) });
+      queryClient.invalidateQueries({ queryKey: ["available-usernames"] });
+      queryClient.invalidateQueries({ queryKey: ["subscribers"] });
+    },
+  });
+
+  return {
+    updateMutation,
+    stopMutation,
+    pauseMutation,
+    assignUsernameMutation,
+    autoAssignUsernameMutation,
+    invalidateProfile,
+  };
 }
 
 export function useSubscriberInvoiceMutations(subscriberId: number, lineId: string) {

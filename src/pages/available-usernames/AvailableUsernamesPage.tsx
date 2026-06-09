@@ -352,6 +352,7 @@ export function AvailableUsernamesPage() {
           <AvailableUsernamesTable
             rows={filteredRows}
             speedLabel={selectedTier.label}
+            speedMbps={selectedTier.valueMbps}
             onEdit={canManage ? (row) => setDialog({ type: "edit", row }) : undefined}
             onDelete={canManage ? (row) => setDialog({ type: "delete", row }) : undefined}
           />

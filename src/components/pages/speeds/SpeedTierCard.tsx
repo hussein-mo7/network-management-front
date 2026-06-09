@@ -1,6 +1,7 @@
 import { Gauge, Pencil, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/buttons";
+import { getFairUsageGbForSpeed } from "@/lib/speedFairUsage";
 import type { SpeedTier } from "@/types/speeds";
 import { cn } from "@/lib/cn";
 
@@ -34,6 +35,7 @@ export function SpeedTierCard({
   const total = totalCount ?? tier.totalCount ?? 0;
   const available = availableCount ?? tier.availableCount ?? 0;
   const isInteractive = Boolean(onSelect);
+  const fairUsageGb = getFairUsageGbForSpeed(tier.valueMbps);
 
   const content = (
     <>
@@ -63,6 +65,11 @@ export function SpeedTierCard({
               {t("speeds.stats.total", { count: total })} ·{" "}
               {t("speeds.stats.available", { count: available })}
             </p>
+            {fairUsageGb != null ? (
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                {t("speeds.stats.fairUsage", { gb: fairUsageGb })}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>

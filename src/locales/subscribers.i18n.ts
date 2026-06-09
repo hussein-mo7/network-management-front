@@ -43,6 +43,7 @@ export type SubscribersI18n = {
     fullName: string;
     phone: string;
     speed: string;
+    firstContact: string;
     disconnect: string;
     status: string;
     actions: string;
@@ -125,10 +126,25 @@ export type SubscribersI18n = {
     firstContact: string;
     disconnection: string;
     formSection: string;
+    cycleOverview: string;
+    currentSpeed: string;
+    speedReadOnlyHint: string;
     newPassword: string;
     passwordEditHint: string;
     speedEditHint: string;
     speedUpdateSuccess: string;
+    monthlyPriceLabel: string;
+    monthlyPriceHint: string;
+    sms: {
+      title: string;
+      subtitle: string;
+      send: string;
+      sendSuccess: string;
+      noPhone: string;
+      noPhoneHint: string;
+      noTemplates: string;
+      serverHint: string;
+    };
     router: {
       sectionTitle: string;
       sectionHint: string;
@@ -139,7 +155,7 @@ export type SubscribersI18n = {
       uploadImage: string;
       empty: string;
     };
-    tabs: { stats: string; invoices: string; username: string };
+    tabs: { stats: string; username: string; sms: string; invoices: string };
     stats: {
       usageDays: string;
       usageDaysHint: string;
@@ -147,6 +163,9 @@ export type SubscribersI18n = {
       daysLeftHint: string;
       balance: string;
       monthlyPrice: string;
+      dataUsage: string;
+      dataUsageHint: string;
+      dataUsageNoUsername: string;
     };
   };
   invoices: {
@@ -220,6 +239,10 @@ export type SubscribersI18n = {
     poolSpeedLabel: string;
     poolSpeedHint: string;
     poolSpeedMissing: string;
+    speedSectionTitle: string;
+    speedSectionHint: string;
+    saveSpeed: string;
+    speedUnsavedWarning: string;
     speedHistoryTitle: string;
     speedHistoryEmpty: string;
     usageStart: string;
@@ -229,6 +252,15 @@ export type SubscribersI18n = {
     toSpeed: string;
     daysUsed: string;
     apiPending: string;
+    renewUsername: string;
+    renewHint: string;
+    renewSuccess: string;
+    renewNoSpeed: string;
+    changeCauseTitle: string;
+    changeCauseHint: string;
+    changeCauseRequired: string;
+    changeCausePlaceholder: string;
+    changeCauseColumn: string;
   };
 };
 
@@ -277,6 +309,7 @@ export const subscribersEn: SubscribersI18n = {
     fullName: "Full name",
     phone: "Phone",
     speed: "Speed",
+    firstContact: "First contact",
     disconnect: "Disconnect",
     status: "Status",
     actions: "Actions",
@@ -358,11 +391,26 @@ export const subscribersEn: SubscribersI18n = {
     unpauseSuccess: "Temporary pause cancelled — subscriber is active again",
     firstContact: "First contact",
     disconnection: "Disconnect date",
-    formSection: "Subscriber details",
+    formSection: "User data",
+    cycleOverview: "Billing cycle",
+    currentSpeed: "Using {{speed}}",
+    speedReadOnlyHint: "To change speed, go to the Username tab.",
     newPassword: "New password",
     passwordEditHint: "Leave blank to keep the current password. Username cannot be changed here.",
-    speedEditHint: "Change speed here. Username pool picks use this speed — edit it on the Statistics tab, not when assigning.",
+    speedEditHint: "Pick a speed to browse its username pool. The subscriber speed updates when you confirm a username.",
     speedUpdateSuccess: "Speed updated",
+    monthlyPriceLabel: "Monthly price (₪)",
+    monthlyPriceHint: "Optional — not tied to invoices or balance.",
+    sms: {
+      title: "Send SMS",
+      subtitle: "Send a text message to this subscriber via the SMS gateway.",
+      send: "Send SMS",
+      sendSuccess: "SMS sent successfully",
+      noPhone: "No phone number",
+      noPhoneHint: "Add a phone number in User data before sending SMS.",
+      noTemplates: "No templates yet — create one under SMS → Templates.",
+      serverHint: "Messages are sent through the server SMS provider (TweetSMS). Delivery is logged under SMS → Logs.",
+    },
     router: {
       sectionTitle: "Router / CPE",
       sectionHint: "Saved together with the profile using Save below.",
@@ -373,7 +421,7 @@ export const subscribersEn: SubscribersI18n = {
       uploadImage: "Upload image",
       empty: "No router assigned yet.",
     },
-    tabs: { stats: "Statistics", invoices: "Invoices", username: "Username" },
+    tabs: { stats: "User data", username: "Username", sms: "SMS", invoices: "Invoices" },
     stats: {
       usageDays: "Days in cycle",
       usageDaysHint: "Since first contact",
@@ -381,6 +429,9 @@ export const subscribersEn: SubscribersI18n = {
       daysLeftHint: "31-day cycle",
       balance: "Balance",
       monthlyPrice: "{{price}} ₪ / month",
+      dataUsage: "Data usage",
+      dataUsageHint: "Linked to {{username}} (upload + download)",
+      dataUsageNoUsername: "Assign a username to track usage",
     },
   },
   invoices: {
@@ -457,8 +508,12 @@ export const subscribersEn: SubscribersI18n = {
     historyUpdateSuccess: "History entry updated",
     historyDeleteSuccess: "History entry deleted",
     poolSpeedLabel: "Pool speed",
-    poolSpeedHint: "Usernames are loaded from this speed tier. Change speed on the Statistics tab.",
-    poolSpeedMissing: "Set the subscriber speed on the Statistics tab before picking from the pool.",
+    poolSpeedHint: "Usernames shown in the picker come from this speed tier.",
+    poolSpeedMissing: "Select a speed above to browse available usernames.",
+    speedSectionTitle: "Connection speed",
+    speedSectionHint: "Choose the package speed, then assign or change the username from that pool.",
+    saveSpeed: "Save speed",
+    speedUnsavedWarning: "Select a speed above before picking a username.",
     speedHistoryTitle: "Speed history",
     speedHistoryEmpty: "No speed changes recorded.",
     usageStart: "Usage start",
@@ -468,6 +523,16 @@ export const subscribersEn: SubscribersI18n = {
     toSpeed: "To",
     daysUsed: "Days",
     apiPending: "Username API pending",
+    renewUsername: "Renew username",
+    renewHint:
+      "Pulls the newest available username from the same speed tier automatically — same effect as a manual change.",
+    renewSuccess: "Username renewed from the same speed pool",
+    renewNoSpeed: "No speed tier linked — set speed on the Username tab first",
+    changeCauseTitle: "Reason for change",
+    changeCauseHint: "Write why this username is being assigned or replaced.",
+    changeCauseRequired: "Enter a reason before confirming",
+    changeCausePlaceholder: "e.g. username validity expired, data quota finished…",
+    changeCauseColumn: "Reason",
   },
 };
 
@@ -516,6 +581,7 @@ export const subscribersAr: SubscribersI18n = {
     fullName: "الاسم الكامل",
     phone: "الهاتف",
     speed: "السرعة",
+    firstContact: "أول اتصال",
     disconnect: "تاريخ الفصل",
     status: "الحالة",
     actions: "إجراءات",
@@ -597,11 +663,26 @@ export const subscribersAr: SubscribersI18n = {
     unpauseSuccess: "تم إلغاء التوقيف المؤقت — المشترك نشط مجدداً",
     firstContact: "أول اتصال",
     disconnection: "تاريخ الفصل",
-    formSection: "بيانات المشترك",
+    formSection: "بيانات المستخدم",
+    cycleOverview: "نظرة على الدورة",
+    currentSpeed: "نستخدم سرعة {{speed}}",
+    speedReadOnlyHint: "لتغيير السرعة، انتقل إلى تبويب اسم المستخدم.",
     newPassword: "كلمة مرور جديدة",
     passwordEditHint: "اترك الحقل فارغاً للإبقاء على كلمة المرور الحالية. لا يمكن تغيير اسم المستخدم من هنا.",
-    speedEditHint: "غيّر السرعة من هنا. اختيار الاسم من المجموعة يستخدم هذه السرعة — عدّلها من تبويب الإحصائيات وليس عند التعيين.",
+    speedEditHint: "اختر السرعة لعرض أسماءها المتاحة. تتحدث سرعة المشترك عند تأكيد اختيار الاسم.",
     speedUpdateSuccess: "تم تحديث السرعة",
+    monthlyPriceLabel: "السعر الشهري (₪)",
+    monthlyPriceHint: "اختياري — غير مرتبط بالفواتير أو الرصيد.",
+    sms: {
+      title: "إرسال رسالة",
+      subtitle: "أرسل رسالة نصية لهذا المشترك عبر بوابة SMS.",
+      send: "إرسال SMS",
+      sendSuccess: "تم إرسال الرسالة بنجاح",
+      noPhone: "لا يوجد رقم هاتف",
+      noPhoneHint: "أضف رقم هاتف في بيانات المستخدم قبل الإرسال.",
+      noTemplates: "لا توجد قوالب بعد — أنشئ قالباً من SMS ← القوالب.",
+      serverHint: "تُرسل الرسائل عبر مزود SMS على الخادم (TweetSMS). يُسجَّل الإرسال في SMS ← السجل.",
+    },
     router: {
       sectionTitle: "الراوتر / جهاز العميل",
       sectionHint: "يُحفظ مع باقي الملف عند الضغط على حفظ بالأسفل.",
@@ -612,7 +693,7 @@ export const subscribersAr: SubscribersI18n = {
       uploadImage: "رفع صورة",
       empty: "لم يُعيَّن راوتر بعد.",
     },
-    tabs: { stats: "الإحصائيات", invoices: "الفواتير", username: "اسم المستخدم" },
+    tabs: { stats: "بيانات المستخدم", username: "اسم المستخدم", sms: "رسائل", invoices: "الفواتير" },
     stats: {
       usageDays: "أيام في الدورة",
       usageDaysHint: "منذ أول اتصال",
@@ -620,6 +701,9 @@ export const subscribersAr: SubscribersI18n = {
       daysLeftHint: "دورة 31 يوماً",
       balance: "الرصيد",
       monthlyPrice: "{{price}} ₪ / شهر",
+      dataUsage: "كمية السحب",
+      dataUsageHint: "مرتبطة بـ {{username}} (رفع + تنزيل)",
+      dataUsageNoUsername: "عيّن اسم مستخدم لمتابعة الاستهلاك",
     },
   },
   invoices: {
@@ -695,8 +779,12 @@ export const subscribersAr: SubscribersI18n = {
     historyUpdateSuccess: "تم تحديث السجل",
     historyDeleteSuccess: "تم حذف السجل",
     poolSpeedLabel: "سرعة المجموعة",
-    poolSpeedHint: "تُحمَّل الأسماء من هذه السرعة. غيّر السرعة من تبويب الإحصائيات.",
-    poolSpeedMissing: "حدّد سرعة المشترك من تبويب الإحصائيات قبل الاختيار من المجموعة.",
+    poolSpeedHint: "الأسماء في نافذة الاختيار تُحمَّل من هذه السرعة.",
+    poolSpeedMissing: "اختر سرعة أعلاه لعرض الأسماء المتاحة.",
+    speedSectionTitle: "سرعة الاتصال",
+    speedSectionHint: "اختر سرعة الباقة ثم عيّن أو غيّر اسم المستخدم من مجموعتها.",
+    saveSpeed: "حفظ السرعة",
+    speedUnsavedWarning: "اختر سرعة أعلاه قبل اختيار اسم مستخدم.",
     speedHistoryTitle: "سجل تغيير السرعة",
     speedHistoryEmpty: "لا يوجد تغييرات سرعة.",
     usageStart: "بداية الاستخدام",
@@ -706,5 +794,15 @@ export const subscribersAr: SubscribersI18n = {
     toSpeed: "إلى",
     daysUsed: "أيام",
     apiPending: "واجهة الأسماء قيد الربط",
+    renewUsername: "تجديد يوزر",
+    renewHint:
+      "يسحب تلقائياً أحدث اسم متاح من نفس السرعة — بنفس تبعات التغيير اليدوي.",
+    renewSuccess: "تم تجديد اسم المستخدم من نفس السرعة",
+    renewNoSpeed: "لا توجد سرعة مرتبطة — حدّد السرعة من تبويب اسم المستخدم أولاً",
+    changeCauseTitle: "سبب التغيير",
+    changeCauseHint: "اكتب سبب تعيين أو استبدال اسم المستخدم.",
+    changeCauseRequired: "أدخل السبب قبل التأكيد",
+    changeCausePlaceholder: "مثال: انتهاء صلاحية اسم المستخدم، انتهاء الكمية…",
+    changeCauseColumn: "السبب",
   },
 };

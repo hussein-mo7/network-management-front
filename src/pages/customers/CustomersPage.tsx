@@ -8,7 +8,6 @@ import {
   CustomerFormModal,
   CustomersTable,
   type CustomerFormValues,
-  type CustomerKindFilter,
 } from "@/components/pages/customers";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
@@ -16,9 +15,7 @@ import { LoadingState } from "@/components/ui/feedback";
 import { buttonBaseClassName, buttonSizes, buttonVariants } from "@/components/ui/buttons/buttonStyles";
 import { Heading, Text } from "@/components/ui/typography";
 import { useCustomerMutations, useCustomersQuery } from "@/hooks/useCustomers";
-import { useSpeedsQuery } from "@/hooks/useSpeeds";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
-import { getActiveSpeedTiers } from "@/lib/mapSpeedTiers";
 import type { Customer } from "@/types/customer";
 import { ApiError } from "@/types/api";
 import { cn } from "@/lib/cn";
@@ -33,30 +30,20 @@ export function CustomersPage() {
   const { t } = useTranslation();
   const { canManage } = useRoleAccess();
   const [search, setSearch] = useState("");
-  const [kind, setKind] = useState<CustomerKindFilter>("all");
-  const [speedMbps, setSpeedMbps] = useState<number | "all">("all");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [dialog, setDialog] = useState<Dialog | null>(null);
 
   const listParams = useMemo(
     () => ({
       search,
-      kind,
-      speed: speedMbps === "all" ? undefined : speedMbps,
       limit: 500,
     }),
-    [search, kind, speedMbps],
+    [search],
   );
 
   const { data: rows = [], isLoading, isError, error, refetch } = useCustomersQuery(listParams);
-  const { data: speedTiers = [] } = useSpeedsQuery();
   const { updateMutation, deleteMutation, deleteBulkMutation, deleteAllMutation } =
     useCustomerMutations();
-
-  const speedOptions = useMemo(
-    () => getActiveSpeedTiers(speedTiers).map((tier) => tier.valueMbps),
-    [speedTiers],
-  );
 
   const isSubmitting =
     updateMutation.isPending ||
@@ -161,15 +148,7 @@ export function CustomersPage() {
 
       <section className="rounded-xl border border-border bg-surface">
         <div className="border-b border-border px-4 py-4 sm:px-6">
-          <CustomerFilters
-            search={search}
-            onSearchChange={setSearch}
-            kind={kind}
-            onKindChange={setKind}
-            speedMbps={speedMbps}
-            onSpeedChange={setSpeedMbps}
-            speedOptions={speedOptions}
-          />
+          <CustomerFilters search={search} onSearchChange={setSearch} />
         </div>
 
         <div className="px-4 py-4 sm:px-6">
@@ -206,7 +185,7 @@ export function CustomersPage() {
           ) : null}
 
           {isLoading ? (
-            <LoadingState layout="table" variant="section" />
+            <LoadingState layout="customers-table" variant="section" showCheckboxes={canManage} />
           ) : isError ? (
             <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
               <Text muted>

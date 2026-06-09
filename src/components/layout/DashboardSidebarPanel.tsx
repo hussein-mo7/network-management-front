@@ -1,9 +1,10 @@
 import { Logo } from "@/components/ui/branding";
 import { DashboardSidebarNav } from "@/components/ui/navigation";
-import { dashboardNavItems } from "@/lib/dashboardNav";
+import type { DashboardNavItem } from "@/lib/dashboardNav";
 import { cn } from "@/lib/cn";
 
 interface DashboardSidebarPanelProps {
+  navItems: DashboardNavItem[];
   displayName: string;
   displayRole: string;
   canAccess: (permission?: string) => boolean;
@@ -13,6 +14,7 @@ interface DashboardSidebarPanelProps {
 }
 
 export function DashboardSidebarPanel({
+  navItems,
   displayName,
   displayRole,
   canAccess,
@@ -30,7 +32,7 @@ export function DashboardSidebarPanel({
 
       <div className="flex-1 overflow-y-auto overscroll-contain">
         <DashboardSidebarNav
-          items={dashboardNavItems}
+          items={navItems}
           canAccess={canAccess}
           onNavigate={onNavigate}
         />

@@ -18,6 +18,8 @@ import type { ActivityLogsI18n } from "./activityLogs.i18n";
 import { activityLogsAr } from "./activityLogs.i18n";
 import type { UsersI18n } from "./users.i18n";
 import { usersAr } from "./users.i18n";
+import type { SettingsI18n } from "./settings.i18n";
+import { settingsAr } from "./settings.i18n";
 
 export interface TranslationSchema {
   common: {
@@ -30,6 +32,7 @@ export interface TranslationSchema {
     save: string;
     retry: string;
     all: string;
+    filters: string;
     pagination: {
       showing: string;
       previous: string;
@@ -129,16 +132,21 @@ export interface TranslationSchema {
       finance: string;
       users: string;
       logs: string;
+      settings: string;
     };
   };
   home: {
     title: string;
     subtitle: string;
     cards: {
+      customers: { title: string; description: string };
       subscribers: { title: string; description: string };
       onlineUsers: { title: string; description: string };
+      expiring: { title: string; description: string };
+      availableUsernames: { title: string; description: string };
       statistics: { title: string; description: string };
       finance: { title: string; description: string };
+      settings: { title: string; description: string };
     };
   };
   pages: {
@@ -166,6 +174,7 @@ export interface TranslationSchema {
       total: string;
       available: string;
       price: string;
+      fairUsage: string;
     };
     form: {
       addTitle: string;
@@ -220,6 +229,7 @@ export interface TranslationSchema {
       speed: string;
       status: string;
       expires: string;
+      usage: string;
       createdAt: string;
       actions: string;
     };
@@ -233,6 +243,7 @@ export interface TranslationSchema {
       expiresOn: string;
       firstConnectionAt: string;
       expiresAt: string;
+      usageExceeded: string;
     };
     details: {
       title: string;
@@ -292,6 +303,7 @@ export interface TranslationSchema {
   sms: SmsI18n;
   activityLogs: ActivityLogsI18n;
   users: UsersI18n;
+  settings: SettingsI18n;
   support: {
     title: string;
     subtitle: string;
@@ -302,17 +314,22 @@ export interface TranslationSchema {
     };
     whatsapp: {
       sendToGroup: string;
+      sendToGroupNamed: string;
       sendAction: string;
       successTitle: string;
       successSubtitle: string;
-      messageHeader: string;
       openHint: string;
-      openHintGroup: string;
-      openHintComposeGroup: string;
-      copiedAndOpened: string;
-      composeOpened: string;
-      composeWithGroup: string;
+      openHintGroupNamed: string;
+      messageReady: string;
+      messageReadyPickGroup: string;
       previewLabel: string;
+      template: {
+        header: string;
+        headerWithGroup: string;
+        subscriberBlock: string;
+        issueBlock: string;
+        footer: string;
+      };
     };
     stats: {
       open: string;
@@ -413,6 +430,7 @@ export const ar: TranslationSchema = {
     save: "حفظ",
     retry: "إعادة المحاولة",
     all: "الكل",
+    filters: "التصفية",
     pagination: {
       showing: "عرض <range>{{from}}–{{to}}</range> من <total>{{total}}</total>",
       previous: "السابق",
@@ -514,12 +532,17 @@ export const ar: TranslationSchema = {
       finance: "المالية",
       users: "المستخدمين",
       logs: "سجل العمليات",
+      settings: "الإعدادات",
     },
   },
   home: {
     title: "الرئيسية",
     subtitle: "مرحباً بك في لوحة تحكم WeWiFi. اختر قسماً من القائمة للبدء.",
     cards: {
+      customers: {
+        title: "الزبائن",
+        description: "سجل الزبائن وملفاتهم",
+      },
       subscribers: {
         title: "المشتركين",
         description: "إدارة الزبائن والاشتراكات",
@@ -528,6 +551,14 @@ export const ar: TranslationSchema = {
         title: "المتصلين",
         description: "عرض المتصلين عبر MikroTik",
       },
+      expiring: {
+        title: "المنتهية",
+        description: "اشتراكات ستنتهي قريباً",
+      },
+      availableUsernames: {
+        title: "أسماء متاحة",
+        description: "مجموعة الأسماء حسب السرعة",
+      },
       statistics: {
         title: "الاحصائيات",
         description: "مؤشرات وبيانات حقيقية",
@@ -535,6 +566,10 @@ export const ar: TranslationSchema = {
       finance: {
         title: "المالية",
         description: "الفواتير والديون والإيرادات",
+      },
+      settings: {
+        title: "الإعدادات",
+        description: "السجل، Excel، والمستخدمين",
       },
     },
   },
@@ -563,6 +598,7 @@ export const ar: TranslationSchema = {
       total: "{{count}} اسم",
       available: "{{count}} جاهز",
       price: "{{price}} ₪ / شهر",
+      fairUsage: "سياسة الاستخدام العادل: {{gb}} جيجا (رفع + تنزيل)",
     },
     form: {
       addTitle: "إضافة سرعة",
@@ -620,6 +656,7 @@ export const ar: TranslationSchema = {
       speed: "السرعة",
       status: "الحالة",
       expires: "ينتهي",
+      usage: "الاستهلاك",
       createdAt: "تاريخ الإضافة",
       actions: "إجراءات",
     },
@@ -633,6 +670,7 @@ export const ar: TranslationSchema = {
       expiresOn: "حتى {{date}}",
       firstConnectionAt: "أول اتصال: {{datetime}}",
       expiresAt: "ينتهي: {{datetime}}",
+      usageExceeded: "انتهت الكمية",
     },
     details: {
       title: "تفاصيل {{username}}",
@@ -695,6 +733,7 @@ export const ar: TranslationSchema = {
   sms: smsAr,
   activityLogs: activityLogsAr,
   users: usersAr,
+  settings: settingsAr,
   support: {
     title: "الدعم الفني",
     subtitle:
@@ -706,20 +745,23 @@ export const ar: TranslationSchema = {
     },
     whatsapp: {
       sendToGroup: "إرسال إلى مجموعة واتساب",
+      sendToGroupNamed: "إرسال إلى {{group}}",
       sendAction: "إرسال التذكرة عبر واتساب",
       successTitle: "تم إنشاء التذكرة",
-      successSubtitle: "التذكرة {{ticket}} جاهزة — يمكنك مشاركتها مع فريق الدعم على واتساب.",
-      messageHeader: "تذكرة دعم فني",
-      openHint:
-        "سيُفتح واتساب مع نص جاهز. اختر مجموعة الدعم من المحادثات الأخيرة ثم اضغط إرسال.",
-      openHintGroup:
-        "على الجوال: يُفتح رابط المجموعة والنص منسوخ — الصق في المحادثة ثم أرسل.",
-      openHintComposeGroup:
-        "سيُفتح واتساب ويب مع الرسالة جاهزة. اختر مجموعة «{{group}}» من المحادثات الأخيرة ثم اضغط إرسال (سجّل دخول واتساب ويب مرة واحدة إن طُلب منك).",
-      copiedAndOpened: "تم نسخ الرسالة وفتح مجموعة واتساب — الصق ثم أرسل",
-      composeOpened: "تم فتح واتساب مع الرسالة — اختر المجموعة ثم أرسل",
-      composeWithGroup: "الرسالة جاهزة — اختر مجموعة «{{group}}» في واتساب ثم أرسل",
+      successSubtitle: "التذكرة {{ticket}} جاهزة — شاركها مع فريق الدعم على واتساب.",
+      openHint: "سيُفتح واتساب والرسالة مكتوبة في الأسفل — اختر المحادثة ثم أرسل.",
+      openHintGroupNamed:
+        "سيُفتح واتساب والرسالة جاهزة في مربع الكتابة. ابحث عن مجموعة «{{group}}» في القائمة، اضغط عليها، ثم أرسل.",
+      messageReady: "الرسالة جاهزة في واتساب — اختر المحادثة ثم أرسل",
+      messageReadyPickGroup: "الرسالة جاهزة — اختر «{{group}}» في واتساب ثم أرسل",
       previewLabel: "معاينة الرسالة",
+      template: {
+        header: "تذكرة دعم فني",
+        headerWithGroup: "تذكرة دعم · {{group}}",
+        subscriberBlock: "المشترك",
+        issueBlock: "الموضوع",
+        footer: "— WePaltel Support",
+      },
     },
     stats: {
       open: "تذاكر مفتوحة",

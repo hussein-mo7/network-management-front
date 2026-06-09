@@ -3,6 +3,8 @@ import { Loader } from "@/components/ui/feedback/Loader";
 import {
   AvailableUsernamesPageSkeleton,
   DataTableSkeleton,
+  ProfilePageSkeleton,
+  RegistryListLoadingSkeleton,
   SpeedTiersGridSkeleton,
   StatCardsRowSkeleton,
   SupportContentSkeleton,
@@ -17,7 +19,10 @@ export type LoadingLayout =
   | "support-content"
   | "available-usernames"
   | "table"
-  | "stats";
+  | "stats"
+  | "customers-table"
+  | "subscribers-table"
+  | "profile";
 
 type LoadingVariant = "page" | "section" | "inline" | "fullscreen";
 
@@ -29,9 +34,22 @@ interface LoadingStateProps {
   label?: string;
   className?: string;
   size?: "sm" | "md" | "lg";
+  showCheckboxes?: boolean;
+  showPasswordColumn?: boolean;
+  showProfileTabs?: boolean;
 }
 
-function SkeletonLayout({ layout }: { layout: LoadingLayout }) {
+function SkeletonLayout({
+  layout,
+  showCheckboxes,
+  showPasswordColumn,
+  showProfileTabs,
+}: {
+  layout: LoadingLayout;
+  showCheckboxes?: boolean;
+  showPasswordColumn?: boolean;
+  showProfileTabs?: boolean;
+}) {
   switch (layout) {
     case "speed-tiers":
       return <SpeedTiersGridSkeleton />;
@@ -43,6 +61,20 @@ function SkeletonLayout({ layout }: { layout: LoadingLayout }) {
       return <AvailableUsernamesPageSkeleton />;
     case "table":
       return <DataTableSkeleton />;
+    case "customers-table":
+      return (
+        <RegistryListLoadingSkeleton variant="customers" showCheckboxes={showCheckboxes} />
+      );
+    case "subscribers-table":
+      return (
+        <RegistryListLoadingSkeleton
+          variant="subscribers"
+          showCheckboxes={showCheckboxes}
+          showPasswordColumn={showPasswordColumn}
+        />
+      );
+    case "profile":
+      return <ProfilePageSkeleton showTabs={showProfileTabs} />;
     case "stats":
       return <StatCardsRowSkeleton />;
     default:
@@ -62,6 +94,9 @@ export function LoadingState({
   label,
   className,
   size = "md",
+  showCheckboxes,
+  showPasswordColumn,
+  showProfileTabs,
 }: LoadingStateProps) {
   const { t } = useTranslation();
   const message = label ?? t("common.loading");
@@ -101,7 +136,12 @@ export function LoadingState({
       aria-label={message}
     >
       <span className="sr-only">{message}</span>
-      <SkeletonLayout layout={layout} />
+      <SkeletonLayout
+        layout={layout}
+        showCheckboxes={showCheckboxes}
+        showPasswordColumn={showPasswordColumn}
+        showProfileTabs={showProfileTabs}
+      />
     </div>
   );
 }

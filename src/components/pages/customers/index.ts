@@ -1,7 +1,8 @@
 export { AssignUsernameModal } from "./AssignUsernameModal";
 export { CustomerAssignUsernameSection } from "./CustomerAssignUsernameSection";
 export { CustomerBalanceSection } from "./CustomerBalanceSection";
-export { CustomerFilters, type CustomerKindFilter } from "./CustomerFilters";
+export { CustomerFilters } from "./CustomerFilters";
+export type { CustomerRegistryKindFilter as CustomerKindFilter } from "@/lib/customerUtils";
 export { CustomerFormModal, type CustomerFormValues } from "./CustomerFormModal";
 export { CustomerKindBadge } from "./CustomerKindBadge";
 export { CustomerProfileHeader } from "./CustomerProfileHeader";

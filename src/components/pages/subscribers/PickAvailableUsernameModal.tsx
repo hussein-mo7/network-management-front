@@ -1,17 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  AvailableUsernameStatusBadgeCompact,
+} from "@/components/pages/available-usernames/AvailableUsernameStatusBadge";
+import { AvailableUsernameExpiryLabel } from "@/components/pages/available-usernames/AvailableUsernameExpiryLabel";
+import { AvailableUsernameUsageLabel } from "@/components/pages/available-usernames/AvailableUsernameUsageLabel";
+import { UsernameChangeCauseField } from "@/components/pages/subscribers/UsernameChangeCauseField";
 import { Modal, ModalFooterButton } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
 import { useAvailableUsernamesQuery } from "@/hooks/useAvailableUsernames";
 import { getAvailablePoolForSubscriber } from "@/lib/availableUsernamePool";
 import { buildSpeedLabel } from "@/lib/subscriberUtils";
-import { isInAvailablePool } from "@/types/availableUsername";
+import { isInAvailablePool, type AvailableUsername } from "@/types/availableUsername";
 import { cn } from "@/lib/cn";
 
 export interface PickedUsername {
   id: number;
   username: string;
   password: string;
+  changeCause: string;
 }
 
 interface PickAvailableUsernameModalProps {
@@ -58,16 +65,36 @@ export function PickAvailableUsernameModal({
   }, [useApi, apiRows, speedMbps, packageLine, excludeUsername]);
 
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [changeCause, setChangeCause] = useState("");
+  const [causeError, setCauseError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setSelectedId(pool[0]?.id ?? null);
+    setChangeCause("");
+    setCauseError(null);
   }, [open, pool]);
 
   const selected = pool.find((u) => u.id === selectedId);
 
+  const handleConfirm = () => {
+    if (!selected) return;
+    const trimmedCause = changeCause.trim();
+    if (!trimmedCause) {
+      setCauseError(t("subscribers.username.changeCauseRequired"));
+      return;
+    }
+    setCauseError(null);
+    onConfirm({
+      id: selected.id,
+      username: selected.username,
+      password: selected.password,
+      changeCause: trimmedCause,
+    });
+  };
+
   return (
-    <Modal open={open} onClose={onClose} title={title}>
+    <Modal open={open} onClose={onClose} title={title} className="sm:max-w-lg">
       <Text muted className="mb-4 text-sm">
         {hint}
       </Text>
@@ -82,32 +109,39 @@ export function PickAvailableUsernameModal({
         </div>
       ) : null}
 
-      <div className="max-h-52 space-y-1 overflow-y-auto rounded-lg border border-border p-2">
+      <div className="max-h-72 overflow-y-auto rounded-lg border border-border">
         {poolLoading ? (
-          <p className="px-2 py-6 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">{t("common.loading")}</p>
         ) : pool.length === 0 ? (
-          <p className="px-2 py-6 text-center text-sm text-muted-foreground">
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">
             {t("subscribers.username.poolEmpty")}
           </p>
         ) : (
-          pool.map((u) => (
-            <button
-              key={u.id}
-              type="button"
-              onClick={() => setSelectedId(u.id)}
-              className={cn(
-                "flex w-full items-center justify-between rounded-md px-3 py-2 text-start text-sm transition-colors",
-                selectedId === u.id ? "bg-muted font-medium" : "hover:bg-muted/50",
-              )}
-            >
-              <span className="font-mono" dir="ltr">
-                {u.username}
-              </span>
-              <span className="text-xs text-muted-foreground">{speedMbps}M</span>
-            </button>
-          ))
+          <ul className="divide-y divide-border">
+            {pool.map((row) => (
+              <PoolUsernameOption
+                key={row.id}
+                row={row}
+                speedMbps={speedMbps}
+                selected={selectedId === row.id}
+                onSelect={() => setSelectedId(row.id)}
+              />
+            ))}
+          </ul>
         )}
       </div>
+
+      {selected ? (
+        <UsernameChangeCauseField
+          className="mt-4"
+          value={changeCause}
+          onChange={(text) => {
+            setChangeCause(text);
+            setCauseError(null);
+          }}
+          error={causeError ?? undefined}
+        />
+      ) : null}
 
       <div className="mt-6 flex justify-end gap-2">
         <ModalFooterButton variant="outline" onClick={onClose}>
@@ -116,13 +150,62 @@ export function PickAvailableUsernameModal({
         <ModalFooterButton
           disabled={!selected || isSubmitting}
           isLoading={isSubmitting}
-          onClick={() =>
-            selected && onConfirm({ id: selected.id, username: selected.username, password: selected.password })
-          }
+          onClick={handleConfirm}
         >
           {t("subscribers.username.confirmPick")}
         </ModalFooterButton>
       </div>
     </Modal>
+  );
+}
+
+function PoolUsernameOption({
+  row,
+  speedMbps,
+  selected,
+  onSelect,
+}: {
+  row: AvailableUsername;
+  speedMbps: number;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onSelect}
+        className={cn(
+          "flex w-full items-start gap-3 px-4 py-3 text-start transition-colors",
+          selected ? "bg-muted/70" : "hover:bg-muted/40",
+        )}
+      >
+        <span
+          className={cn(
+            "mt-1.5 h-4 w-4 shrink-0 rounded-full border-2",
+            selected ? "border-primary bg-primary" : "border-border bg-background",
+          )}
+          aria-hidden
+        />
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-sm font-medium text-foreground" dir="ltr">
+            {row.username}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+            <AvailableUsernameStatusBadgeCompact row={row} />
+            <span className="text-xs text-muted-foreground">
+              {t("availableUsernames.table.expires")}:
+            </span>
+            <AvailableUsernameExpiryLabel row={row} />
+            <span className="text-xs text-muted-foreground">
+              {t("availableUsernames.table.usage")}:
+            </span>
+            <AvailableUsernameUsageLabel row={row} speedMbps={speedMbps} />
+          </div>
+        </div>
+      </button>
+    </li>
   );
 }

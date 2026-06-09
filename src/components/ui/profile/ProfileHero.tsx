@@ -70,8 +70,8 @@ export function ProfileHero({
         {backLabel}
       </Link>
 
-      <Card className="overflow-hidden p-0">
-        <div className="border-b border-border/60 bg-gradient-to-br from-muted/40 via-surface to-surface px-4 py-5 sm:px-6 sm:py-6">
+      <Card className="overflow-hidden border-border/70 p-0 shadow-sm">
+        <div className="border-b border-border/60 bg-gradient-to-br from-primary/[0.06] via-muted/30 to-surface px-4 py-5 sm:px-6 sm:py-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="flex min-w-0 items-start gap-4">
               <div
@@ -96,7 +96,7 @@ export function ProfileHero({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 p-4 sm:grid-cols-3 sm:gap-3 sm:p-5 lg:grid-cols-3 xl:grid-cols-6">
+        <div className="grid grid-cols-2 gap-2.5 bg-muted/10 p-4 sm:grid-cols-3 sm:gap-3 sm:p-5 lg:grid-cols-3 xl:grid-cols-6">
           {items.map((item) => (
             <ProfileHeroField key={item.label} {...item} />
           ))}

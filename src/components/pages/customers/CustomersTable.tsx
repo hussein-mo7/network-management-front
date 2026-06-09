@@ -9,9 +9,13 @@ import {
   dataTableActionsHeadCellClass,
   dataTableBodyRowClass,
   dataTableCellClass,
+  dataTableCheckboxCellClass,
+  dataTableCheckboxHeadClass,
   dataTableFixedClass,
   dataTableHeadCellClass,
   dataTableHeadRowClass,
+  dataTableNumericCellClass,
+  dataTableNumericHeadCellClass,
   dataTableScrollMinClass,
   dataTableWrapClass,
   LtrText,
@@ -34,6 +38,14 @@ interface CustomersTableProps {
   className?: string;
 }
 
+/** Column widths must sum to 100% for table-fixed alignment */
+function buildColumnWidths(showCheckboxes: boolean): string[] {
+  if (showCheckboxes) {
+    return ["3%", "28%", "10%", "14%", "14%", "9%", "11%", "11%"];
+  }
+  return ["30%", "11%", "15%", "15%", "10%", "12%", "12%"];
+}
+
 export function CustomersTable({
   rows,
   selectedIds,
@@ -47,18 +59,7 @@ export function CustomersTable({
   const { t } = useTranslation();
   const allSelected = rows.length > 0 && rows.every((r) => selectedIds.has(r.id));
   const showActions = true;
-
-  const columnWidths = [
-    ...(showCheckboxes ? ["w-[4%]"] : []),
-    "w-[22%]",
-    "w-[9%]",
-    "w-[11%]",
-    "w-[14%]",
-    "w-[13%]",
-    "w-[9%]",
-    "w-[9%]",
-    ...(showActions ? ["w-[11%]"] : ["w-[4%]"]),
-  ];
+  const columnWidths = buildColumnWidths(showCheckboxes);
 
   if (rows.length === 0) {
     return (
@@ -102,15 +103,15 @@ export function CustomersTable({
                 <div className="min-w-0 flex-1">
                   <Link to={customerProfilePath(row.lineId)} className="block">
                     <div className="flex items-start justify-between gap-2">
-                      <TableSubscriberCell name={row.fullName} initials={initials} />
+                      <TableSubscriberCell
+                        name={row.fullName}
+                        subtitle={row.lineId}
+                        initials={initials}
+                      />
                       <CustomerKindBadge kind={kind} />
                     </div>
                   </Link>
                   <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/80 pt-4 text-sm">
-                    <div>
-                      <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.lineId")}</dt>
-                      <dd className="mt-1 font-mono text-xs" dir="ltr">{row.lineId}</dd>
-                    </div>
                     <div>
                       <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.username")}</dt>
                       <dd className="mt-1 font-mono text-xs" dir="ltr">{row.username ?? "—"}</dd>
@@ -123,7 +124,7 @@ export function CustomersTable({
                       <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.speed")}</dt>
                       <dd className="mt-1">{buildSpeedLabel(row.speedMbps)}</dd>
                     </div>
-                    <div className="col-span-2">
+                    <div>
                       <dt className="text-xs font-medium text-muted-foreground">{t("customers.table.balance")}</dt>
                       <dd className={cn("mt-1 tabular-nums", row.balance < 0 ? "text-foreground" : "text-muted-foreground")}>
                         {row.balance}
@@ -164,144 +165,139 @@ export function CustomersTable({
       </div>
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-      <table className={cn(dataTableFixedClass, dataTableScrollMinClass)}>
-        <colgroup>
-          {columnWidths.map((width, index) => (
-            <col key={index} className={width} />
-          ))}
-        </colgroup>
-        <thead>
-          <tr className={dataTableHeadRowClass}>
-            {showCheckboxes ? (
-              <th className="px-3 py-2.5 text-center align-middle">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={(e) => onToggleAll(e.target.checked)}
-                  aria-label={t("customers.table.selectAll")}
-                  className="rounded border-border"
-                />
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass, "min-w-[880px]")}>
+          <colgroup>
+            {columnWidths.map((width, index) => (
+              <col key={index} style={{ width }} />
+            ))}
+          </colgroup>
+          <thead>
+            <tr className={dataTableHeadRowClass}>
+              {showCheckboxes ? (
+                <th className={dataTableCheckboxHeadClass}>
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={(e) => onToggleAll(e.target.checked)}
+                    aria-label={t("customers.table.selectAll")}
+                    className="rounded border-border"
+                  />
+                </th>
+              ) : null}
+              <th className={dataTableHeadCellClass}>{t("customers.table.fullName")}</th>
+              <th className={dataTableHeadCellClass}>{t("customers.table.type")}</th>
+              <th className={dataTableHeadCellClass}>{t("customers.table.username")}</th>
+              <th className={dataTableHeadCellClass}>{t("customers.table.phone")}</th>
+              <th className={cn("whitespace-nowrap", dataTableHeadCellClass)}>
+                {t("customers.table.speed")}
               </th>
-            ) : null}
-            <th className={dataTableHeadCellClass}>{t("customers.table.fullName")}</th>
-            <th className={dataTableHeadCellClass}>{t("customers.table.lineId")}</th>
-            <th className={dataTableHeadCellClass}>{t("customers.table.type")}</th>
-            <th className={dataTableHeadCellClass}>{t("customers.table.username")}</th>
-            <th className={dataTableHeadCellClass}>{t("customers.table.phone")}</th>
-            <th className={cn("whitespace-nowrap", dataTableHeadCellClass)}>
-              {t("customers.table.speed")}
-            </th>
-            <th className={cn("text-end", dataTableHeadCellClass)}>
-              {t("customers.table.balance")}
-            </th>
-            {showActions ? (
-              <th className={dataTableActionsHeadCellClass}>
-                {t("customers.table.actions")}
-              </th>
-            ) : null}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const kind = getCustomerKind(row);
-            const initials = getSubscriberInitials(row.fullName);
+              <th className={dataTableNumericHeadCellClass}>{t("customers.table.balance")}</th>
+              {showActions ? (
+                <th className={dataTableActionsHeadCellClass}>{t("customers.table.actions")}</th>
+              ) : null}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => {
+              const kind = getCustomerKind(row);
+              const initials = getSubscriberInitials(row.fullName);
 
-            return (
-              <tr
-                key={row.id}
-                className={cn(dataTableBodyRowClass, selectedIds.has(row.id) && "bg-muted/40")}
-              >
-                {showCheckboxes ? (
-                  <td className="px-4 py-3 text-center align-middle">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.has(row.id)}
-                      onChange={() => onToggleRow(row.id)}
-                      aria-label={row.lineId}
-                      className="rounded border-border"
-                    />
-                  </td>
-                ) : null}
-                <td className={cn("max-w-0", dataTableCellClass)}>
-                  <Link to={customerProfilePath(row.lineId)} className="block min-w-0 hover:underline">
-                    <TableSubscriberCell name={row.fullName} initials={initials} />
-                  </Link>
-                </td>
-                <td className={dataTableCellClass}>
-                  <LtrText className="font-mono text-xs text-muted-foreground">{row.lineId}</LtrText>
-                </td>
-                <td className={dataTableCellClass}>
-                  <CustomerKindBadge kind={kind} />
-                </td>
-                <td className={dataTableCellClass}>
-                  {row.username ? (
-                    <LtrText className="font-mono text-xs">{row.username}</LtrText>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </td>
-                <td className={dataTableCellClass}>
-                  {row.phone ? (
-                    <LtrText className="text-sm">{row.phone}</LtrText>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </td>
-                <td className={cn("whitespace-nowrap text-muted-foreground", dataTableCellClass)}>
-                  {buildSpeedLabel(row.speedMbps)}
-                </td>
-                <td
-                  className={cn(
-                    dataTableCellClass,
-                    "whitespace-nowrap text-end tabular-nums",
-                    row.balance < 0 ? "text-foreground" : "text-muted-foreground",
-                  )}
+              return (
+                <tr
+                  key={row.id}
+                  className={cn(dataTableBodyRowClass, selectedIds.has(row.id) && "bg-muted/40")}
                 >
-                  {row.balance}
-                </td>
-                {showActions ? (
-                  <td className={dataTableActionsCellClass}>
-                    <div className="inline-flex justify-center gap-0.5">
-                      <Link
-                        to={customerProfilePath(row.lineId)}
-                        aria-label={t("customers.actions.openProfile")}
-                        className={cn(
-                          buttonBaseClassName,
-                          buttonVariants.ghost,
-                          buttonSizes.icon,
-                          "inline-flex items-center justify-center",
-                        )}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                      {onEdit ? (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => onEdit(row)}
-                          aria-label={t("common.edit")}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                      ) : null}
-                      {onDelete ? (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => onDelete(row)}
-                          aria-label={t("common.delete")}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      ) : null}
-                    </div>
+                  {showCheckboxes ? (
+                    <td className={dataTableCheckboxCellClass}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(row.id)}
+                        onChange={() => onToggleRow(row.id)}
+                        aria-label={row.lineId}
+                        className="rounded border-border"
+                      />
+                    </td>
+                  ) : null}
+                  <td className={cn("max-w-0", dataTableCellClass)}>
+                    <Link to={customerProfilePath(row.lineId)} className="block min-w-0 hover:underline">
+                      <TableSubscriberCell
+                        name={row.fullName}
+                        subtitle={row.lineId}
+                        initials={initials}
+                      />
+                    </Link>
                   </td>
-                ) : null}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  <td className={dataTableCellClass}>
+                    <CustomerKindBadge kind={kind} />
+                  </td>
+                  <td className={dataTableCellClass}>
+                    {row.username ? (
+                      <LtrText className="font-mono text-xs">{row.username}</LtrText>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className={dataTableCellClass}>
+                    {row.phone ? (
+                      <LtrText className="text-sm">{row.phone}</LtrText>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className={cn("whitespace-nowrap text-muted-foreground", dataTableCellClass)}>
+                    <LtrText>{buildSpeedLabel(row.speedMbps)}</LtrText>
+                  </td>
+                  <td
+                    className={cn(
+                      dataTableNumericCellClass,
+                      row.balance < 0 ? "text-foreground" : "text-muted-foreground",
+                    )}
+                  >
+                    <LtrText className="w-full text-right">{row.balance}</LtrText>
+                  </td>
+                  {showActions ? (
+                    <td className={dataTableActionsCellClass}>
+                      <div className="inline-flex justify-center gap-0.5">
+                        <Link
+                          to={customerProfilePath(row.lineId)}
+                          aria-label={t("customers.actions.openProfile")}
+                          className={cn(
+                            buttonBaseClassName,
+                            buttonVariants.ghost,
+                            buttonSizes.icon,
+                            "inline-flex items-center justify-center",
+                          )}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Link>
+                        {onEdit ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onEdit(row)}
+                            aria-label={t("common.edit")}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        ) : null}
+                        {onDelete ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onDelete(row)}
+                            aria-label={t("common.delete")}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        ) : null}
+                      </div>
+                    </td>
+                  ) : null}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );

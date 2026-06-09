@@ -34,7 +34,7 @@ type Dialog =
 
 export function SubscribersPage() {
   const { t } = useTranslation();
-  const { canManage } = useRoleAccess();
+  const { canManage, canViewPasswords } = useRoleAccess();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<SubscriberListStatusFilter>("all");
   const [speedMbps, setSpeedMbps] = useState<number | "all">("all");
@@ -74,7 +74,7 @@ export function SubscribersPage() {
   const speedOptions = useMemo(
     () =>
       mergeSpeedFilterOptions(
-        speeds.filter((s) => !s.deleted).map((s) => s.valueMbps),
+        speeds.map((s) => s.valueMbps),
         getDistinctSpeeds(speedMbps === "all" ? rows : rowsForSpeedOptions),
       ),
     [speeds, rows, rowsForSpeedOptions, speedMbps],
@@ -223,7 +223,12 @@ export function SubscribersPage() {
           ) : null}
 
           {isLoading ? (
-            <LoadingState layout="table" variant="section" />
+            <LoadingState
+              layout="subscribers-table"
+              variant="section"
+              showCheckboxes={canManage}
+              showPasswordColumn={canViewPasswords}
+            />
           ) : isError ? (
             <div className="rounded-lg border border-dashed border-border px-4 py-10 text-center">
               <Text muted>
