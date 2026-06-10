@@ -1,21 +1,34 @@
 import type { AuthSession, LoginPayload } from "@/types/auth";
-import { ADMIN_PERMISSIONS, ADMIN_ROLE, VIEWER_PERMISSIONS, VIEWER_ROLE } from "@/lib/roles";
+import { ADMIN_ROLE, permissionsForRoleName, SUPER_ADMIN_ROLE, VIEWER_ROLE } from "@/lib/roles";
+
+function resolveDevRole(username: string): string {
+  const normalized = username.trim().toLowerCase();
+  if (normalized === "viewer") return VIEWER_ROLE;
+  if (normalized === "superadmin" || normalized === "super_admin") return SUPER_ADMIN_ROLE;
+  return ADMIN_ROLE;
+}
 
 export function createDevSession(payload: LoginPayload): AuthSession {
-  const isViewer = payload.username.trim().toLowerCase() === "viewer";
+  const roleName = resolveDevRole(payload.username);
+  const isViewer = roleName === VIEWER_ROLE;
+  const isSuperAdmin = roleName === SUPER_ADMIN_ROLE;
 
   return {
     user: {
       id: 1,
-      name: isViewer ? "Viewer User" : "Development Manager",
-      username: payload.username || "admin",
-      email: isViewer ? "viewer@wewifi.local" : "admin@wewifi.local",
-      role_id: isViewer ? 2 : 1,
-      role_name: isViewer ? VIEWER_ROLE : ADMIN_ROLE,
-      role_display_name: isViewer ? "Viewer" : "Admin",
+      name: isViewer ? "Viewer User" : isSuperAdmin ? "Super Admin" : "Operations Admin",
+      username: payload.username || "ops",
+      email: isViewer
+        ? "viewer@wewifi.local"
+        : isSuperAdmin
+          ? "superadmin@wewifi.local"
+          : "ops@wewifi.local",
+      role_id: isViewer ? 3 : isSuperAdmin ? 1 : 2,
+      role_name: roleName,
+      role_display_name: isViewer ? "Viewer" : isSuperAdmin ? "Super Admin" : "Admin",
       status: "active",
     },
-    permissions: [...(isViewer ? VIEWER_PERMISSIONS : ADMIN_PERMISSIONS)],
+    permissions: permissionsForRoleName(roleName),
   };
 }
 

@@ -1,4 +1,4 @@
-import { ADMIN_PERMISSIONS, VIEWER_PERMISSIONS } from "@/lib/roles";
+import { permissionsForRoleName } from "@/lib/roles";
 import type { AuthSession, AuthUser } from "@/types/auth";
 
 export interface BackendAuthUser {
@@ -9,13 +9,6 @@ export interface BackendAuthUser {
   roleId: number;
   role: string;
   status?: "active" | "inactive" | null;
-}
-
-function permissionsForRole(roleName: string): string[] {
-  if (roleName === "viewer") {
-    return [...VIEWER_PERMISSIONS];
-  }
-  return [...ADMIN_PERMISSIONS];
 }
 
 export function mapBackendUserToSession(user: BackendAuthUser): AuthSession {
@@ -33,7 +26,7 @@ export function mapBackendUserToSession(user: BackendAuthUser): AuthSession {
 
   return {
     user: mappedUser,
-    permissions: permissionsForRole(roleName),
+    permissions: permissionsForRoleName(roleName),
   };
 }
 

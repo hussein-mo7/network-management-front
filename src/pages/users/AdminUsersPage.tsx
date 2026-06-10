@@ -27,7 +27,7 @@ type Dialog =
 
 export function AdminUsersPage() {
   const { t } = useTranslation();
-  const { canManage } = useRoleAccess();
+  const { canManageUsers } = useRoleAccess();
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -118,7 +118,7 @@ export function AdminUsersPage() {
           ) : null}
         </div>
 
-        {canManage ? (
+        {canManageUsers ? (
           <Button className="w-full sm:w-auto" size="sm" onClick={() => setDialog({ type: "create" })}>
             <Plus className="h-4 w-4" />
             {t("users.actions.add")}
@@ -150,7 +150,7 @@ export function AdminUsersPage() {
               <AdminUsersTable
                 rows={rows}
                 hasSearch={Boolean(debouncedSearch)}
-                canManage={canManage}
+                canManage={canManageUsers}
                 onEdit={(row) => setDialog({ type: "edit", row })}
                 onDelete={(row) => setDialog({ type: "delete", row })}
                 onToggleStatus={handleToggleStatus}

@@ -1,5 +1,6 @@
 import type { UserRole } from "@/types/auth";
 
+export const SUPER_ADMIN_ROLE = "super_admin" as const;
 export const ADMIN_ROLE: UserRole = "admin";
 export const VIEWER_ROLE: UserRole = "viewer";
 
@@ -13,11 +14,9 @@ export const VIEWER_PERMISSIONS = [
   "online_users.view",
 ] as const;
 
-/** Full permissions for admin role */
+/** Admin — full operations except user management */
 export const ADMIN_PERMISSIONS = [
   ...VIEWER_PERMISSIONS,
-  "dashboard.view",
-  "subscription_statistics.view",
   "disabled.view",
   "speeds.view",
   "settings.view",
@@ -37,18 +36,40 @@ export const ADMIN_PERMISSIONS = [
   "sms.view",
   "sms.send",
   "logs.view",
-  "users.view",
-  "users.create",
-  "users.update",
   "speeds.manage",
 ] as const;
 
-const ADMIN_ROLE_NAMES = new Set(["admin", "super_admin", "system_admin"]);
+/** Super admin — everything including user management */
+export const SUPER_ADMIN_PERMISSIONS = [
+  ...ADMIN_PERMISSIONS,
+  "users.view",
+  "users.create",
+  "users.update",
+  "users.delete",
+  "users.change_status",
+] as const;
 
-export function isAdminRole(role?: string): role is typeof ADMIN_ROLE {
+const SUPER_ADMIN_ROLE_NAMES = new Set([SUPER_ADMIN_ROLE, "system_admin"]);
+const ADMIN_ROLE_NAMES = new Set([ADMIN_ROLE, ...SUPER_ADMIN_ROLE_NAMES]);
+
+export function isSuperAdminRole(role?: string): boolean {
+  return role !== undefined && SUPER_ADMIN_ROLE_NAMES.has(role);
+}
+
+export function isAdminRole(role?: string): role is typeof ADMIN_ROLE | typeof SUPER_ADMIN_ROLE {
   return role !== undefined && ADMIN_ROLE_NAMES.has(role);
 }
 
 export function isViewerRole(role?: string): role is typeof VIEWER_ROLE {
   return role === VIEWER_ROLE;
+}
+
+export function permissionsForRoleName(roleName: string): string[] {
+  if (roleName === VIEWER_ROLE) {
+    return [...VIEWER_PERMISSIONS];
+  }
+  if (isSuperAdminRole(roleName)) {
+    return [...SUPER_ADMIN_PERMISSIONS];
+  }
+  return [...ADMIN_PERMISSIONS];
 }

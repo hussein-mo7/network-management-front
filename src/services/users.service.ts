@@ -102,7 +102,15 @@ export const usersService = {
       await new Promise((r) => setTimeout(r, 200));
       return createMockAdminUser(values);
     }
-    const { data } = await apiClient.post<{ data: AdminUsersApiRow }>("/users", values);
+    const { data } = await apiClient.post<{ data: AdminUsersApiRow }>("/users", {
+      name: values.name,
+      username: values.username,
+      email: values.email.trim() || null,
+      password: values.password,
+      confirm_password: values.confirmPassword,
+      role_id: values.roleId,
+      status: values.status,
+    });
     return mapAdminUser(data.data);
   },
 
@@ -113,7 +121,12 @@ export const usersService = {
       if (!updated) throw new Error("User not found");
       return updated;
     }
-    const { data } = await apiClient.put<{ data: AdminUsersApiRow }>(`/users/${id}`, values);
+    const { data } = await apiClient.put<{ data: AdminUsersApiRow }>(`/users/${id}`, {
+      ...(values.name !== undefined ? { name: values.name } : {}),
+      ...(values.email !== undefined ? { email: values.email.trim() || null } : {}),
+      ...(values.password ? { password: values.password, confirm_password: values.confirmPassword } : {}),
+      ...(values.roleId !== undefined ? { role_id: values.roleId } : {}),
+    });
     return mapAdminUser(data.data);
   },
 

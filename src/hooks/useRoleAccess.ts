@@ -1,5 +1,5 @@
 import { useAuth } from "@/hooks/useAuth";
-import { isAdminRole, isViewerRole } from "@/lib/roles";
+import { isAdminRole, isSuperAdminRole, isViewerRole } from "@/lib/roles";
 
 export function useRoleAccess() {
   const { user } = useAuth();
@@ -7,10 +7,13 @@ export function useRoleAccess() {
 
   return {
     roleName,
+    isSuperAdmin: isSuperAdminRole(roleName),
     isAdmin: isAdminRole(roleName),
     isViewer: isViewerRole(roleName),
-    /** Admin-only write actions (create, edit, delete, import) */
+    /** Admin write actions (create, edit, delete, import) on operational pages */
     canManage: isAdminRole(roleName),
+    /** Super admin only — admin users CRUD */
+    canManageUsers: isSuperAdminRole(roleName),
     /** Admin-only: reveal subscriber / pool passwords */
     canViewPasswords: isAdminRole(roleName),
   };

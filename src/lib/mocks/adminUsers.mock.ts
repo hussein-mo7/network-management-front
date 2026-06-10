@@ -6,108 +6,50 @@ import type {
   AdminUserStatus,
 } from "@/types/adminUser";
 
+/** Matches API seed roles */
 export const mockAdminRoles: AdminRole[] = [
-  { id: 1, name: "super_admin", displayName: "Super admin" },
+  { id: 1, name: "super_admin", displayName: "Super Admin" },
   { id: 2, name: "admin", displayName: "Admin" },
   { id: 3, name: "viewer", displayName: "Viewer" },
 ];
 
+/** Fresh starter accounts — mirrors DB seed */
 export const mockAdminUsers: AdminUser[] = [
   {
     id: 1,
-    name: "أحمد محمود",
-    username: "ahmad.admin",
-    email: "ahmad@wewifi.ps",
+    name: "Super Admin",
+    username: "superadmin",
+    email: "superadmin@we.wifi",
     roleId: 1,
     roleName: "super_admin",
-    roleDisplayName: "مدير النظام",
+    roleDisplayName: "Super Admin",
     status: "active",
-    lastLoginAt: "2026-05-31T08:12:00.000Z",
-    createdAt: "2025-01-10T10:00:00.000Z",
+    lastLoginAt: null,
+    createdAt: "2026-06-10T08:00:00.000Z",
   },
   {
     id: 2,
-    name: "خالد عمر",
-    username: "khaled.ops",
-    email: "khaled@wewifi.ps",
+    name: "Operations Admin",
+    username: "ops",
+    email: "ops@we.wifi",
     roleId: 2,
     roleName: "admin",
-    roleDisplayName: "مسؤول",
+    roleDisplayName: "Admin",
     status: "active",
-    lastLoginAt: "2026-05-30T16:45:00.000Z",
-    createdAt: "2025-03-02T09:30:00.000Z",
+    lastLoginAt: null,
+    createdAt: "2026-06-10T08:00:00.000Z",
   },
   {
     id: 3,
-    name: "سارة ناصر",
-    username: "sara.support",
-    email: "sara@wewifi.ps",
-    roleId: 2,
-    roleName: "admin",
-    roleDisplayName: "مسؤول",
-    status: "active",
-    lastLoginAt: "2026-05-29T11:20:00.000Z",
-    createdAt: "2025-04-15T14:00:00.000Z",
-  },
-  {
-    id: 4,
-    name: "يوسف حمدان",
-    username: "yousef.billing",
-    email: "yousef@wewifi.ps",
-    roleId: 2,
-    roleName: "admin",
-    roleDisplayName: "مسؤول",
-    status: "inactive",
-    lastLoginAt: "2026-04-20T07:55:00.000Z",
-    createdAt: "2025-06-01T08:00:00.000Z",
-  },
-  {
-    id: 5,
-    name: "لينا فراس",
-    username: "lina.viewer",
-    email: "lina@wewifi.ps",
+    name: "Viewer",
+    username: "viewer",
+    email: "viewer@we.wifi",
     roleId: 3,
     roleName: "viewer",
-    roleDisplayName: "عرض فقط",
+    roleDisplayName: "Viewer",
     status: "active",
-    lastLoginAt: "2026-05-28T13:10:00.000Z",
-    createdAt: "2025-08-12T12:00:00.000Z",
-  },
-  {
-    id: 6,
-    name: "محمود رائد",
-    username: "mahmoud.noc",
-    email: "mahmoud@wewifi.ps",
-    roleId: 2,
-    roleName: "admin",
-    roleDisplayName: "مسؤول",
-    status: "active",
-    lastLoginAt: "2026-05-31T06:30:00.000Z",
-    createdAt: "2025-09-05T10:15:00.000Z",
-  },
-  {
-    id: 7,
-    name: "نور إياد",
-    username: "nour.finance",
-    email: "nour@wewifi.ps",
-    roleId: 2,
-    roleName: "admin",
-    roleDisplayName: "مسؤول",
-    status: "active",
-    lastLoginAt: "2026-05-27T09:00:00.000Z",
-    createdAt: "2025-10-20T11:45:00.000Z",
-  },
-  {
-    id: 8,
-    name: "رامي سامي",
-    username: "rami.viewer",
-    email: null,
-    roleId: 3,
-    roleName: "viewer",
-    roleDisplayName: "عرض فقط",
-    status: "inactive",
     lastLoginAt: null,
-    createdAt: "2026-01-08T15:30:00.000Z",
+    createdAt: "2026-06-10T08:00:00.000Z",
   },
 ];
 
@@ -173,9 +115,14 @@ export function updateMockAdminUser(id: number, values: Partial<AdminUserFormVal
 }
 
 export function deleteMockAdminUser(id: number): boolean {
-  const before = mockUsersStore.length;
+  const target = mockUsersStore.find((u) => u.id === id);
+  if (!target) return false;
+  if (target.roleName === "super_admin") {
+    const superCount = mockUsersStore.filter((u) => u.roleName === "super_admin").length;
+    if (superCount <= 1) return false;
+  }
   mockUsersStore = mockUsersStore.filter((u) => u.id !== id);
-  return mockUsersStore.length < before;
+  return true;
 }
 
 export function setMockAdminUserStatus(id: number, status: AdminUserStatus): AdminUser | null {

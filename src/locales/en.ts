@@ -53,7 +53,8 @@ export const en: TranslationSchema = {
     loginFailed: "Sign in failed",
     loginError: "An error occurred while signing in",
     devModeTitle: "Development mode:",
-    devModeMessage: "Server is offline — any username and password will work. Use username viewer to test read-only mode.",
+    devModeMessage:
+      "Server is offline — any username and password will work. Use superadmin (full access), ops (admin without users), or viewer (read-only).",
     panelTitle: "A complete dashboard to manage WiFi subscriptions with ease.",
     panelSubtitle:
       "Track subscribers, invoices, available usernames, and online users — all in one place.",

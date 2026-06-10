@@ -28,4 +28,4 @@ export interface AuthSession {
   permissions: string[];
 }
 
-export type UserRole = "admin" | "viewer";
+export type UserRole = "super_admin" | "admin" | "viewer";
