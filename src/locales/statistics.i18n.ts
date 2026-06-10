@@ -304,7 +304,7 @@ export const statisticsAr: StatisticsI18n = {
     customerKinds: "مزيج دورة الحياة",
     customerKindsSub: "زبائن، مشتركين، منتهية، موقوفون",
     poolBreakdown: "صحة مخزون الأسماء",
-    poolBreakdownSub: "أيام التبريد المتبقية حسب السرعة",
+    poolBreakdownSub: "أيام التجميد المتبقية حسب السرعة",
     status_new: "جديد",
     status_active: "فعال",
     status_disabled: "منتهية / قريبة",
