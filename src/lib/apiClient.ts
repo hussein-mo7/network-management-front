@@ -42,8 +42,12 @@ apiClient.interceptors.response.use(
         : getApiErrorMessage(error.response?.data, error.message || i18n.t("common.unexpectedError"));
 
     const isAuthMe = error.config?.url?.includes("/auth/me");
+    const isAuthLogin = error.config?.url?.includes("/auth/login");
+    const inactiveAccount =
+      status === 403 &&
+      /not active|inactive/i.test(message);
 
-    if (status === 401 && !isAuthMe) {
+    if ((status === 401 && !isAuthMe) || (inactiveAccount && !isAuthLogin)) {
       window.dispatchEvent(new CustomEvent("auth:unauthorized"));
     }
 

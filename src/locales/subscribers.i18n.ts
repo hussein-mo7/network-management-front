@@ -214,6 +214,7 @@ export type SubscribersI18n = {
   logs: {
     title: string;
     subtitle: string;
+    sectionSubtitle: string;
     empty: string;
     emptyHint: string;
     loadError: string;
@@ -527,6 +528,7 @@ export const subscribersEn: SubscribersI18n = {
   logs: {
     title: "Activity log",
     subtitle: "Changes made to this subscriber — who edited what and when.",
+    sectionSubtitle: "{{count}} of {{total}} entries",
     empty: "No activity recorded for this subscriber yet",
     emptyHint: "Updates to the profile, username, invoices, and other actions will appear here.",
     loadError: "Could not load activity log for this subscriber.",
@@ -872,6 +874,7 @@ export const subscribersAr: SubscribersI18n = {
   logs: {
     title: "سجل النشاط",
     subtitle: "التغييرات على هذا المشترك — من قام بالتعديل وماذا ومتى.",
+    sectionSubtitle: "{{count}} من {{total}} سجل",
     empty: "لا يوجد نشاط مسجّل لهذا المشترك بعد",
     emptyHint: "ستظهر هنا تحديثات الملف، اسم المستخدم، الفواتير، وغيرها من الإجراءات.",
     loadError: "تعذّر تحميل سجل النشاط لهذا المشترك.",

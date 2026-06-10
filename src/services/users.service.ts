@@ -110,10 +110,10 @@ export const usersService = {
     const { data } = await apiClient.post<{ data: AdminUsersApiRow }>("/users", {
       name: values.name,
       username: values.username,
-      email: values.email.trim() || null,
+      email: values.email.trim() || undefined,
       password: values.password,
-      confirm_password: values.confirmPassword,
-      role_id: values.roleId,
+      confirmPassword: values.confirmPassword,
+      roleId: values.roleId,
       status: values.status,
     });
     return mapAdminUser(data.data);
@@ -128,9 +128,9 @@ export const usersService = {
     }
     const { data } = await apiClient.put<{ data: AdminUsersApiRow }>(`/users/${id}`, {
       ...(values.name !== undefined ? { name: values.name } : {}),
-      ...(values.email !== undefined ? { email: values.email.trim() || null } : {}),
-      ...(values.password ? { password: values.password, confirm_password: values.confirmPassword } : {}),
-      ...(values.roleId !== undefined ? { role_id: values.roleId } : {}),
+      ...(values.email !== undefined ? { email: values.email.trim() || undefined } : {}),
+      ...(values.password ? { password: values.password, confirmPassword: values.confirmPassword } : {}),
+      ...(values.roleId !== undefined ? { roleId: values.roleId } : {}),
     });
     return mapAdminUser(data.data);
   },

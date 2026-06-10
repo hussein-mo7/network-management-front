@@ -115,12 +115,17 @@ export function useSubscriberInvoicesQuery(subscriberId: number, lineId: string)
 export function useSubscriberLogsQuery(
   subscriberId: number,
   context: { lineId: string; fullName: string },
+  params: { page?: number; limit?: number } = {},
   enabled = true,
 ) {
+  const page = params.page ?? 1;
+  const limit = params.limit ?? 15;
+
   return useQuery({
-    queryKey: subscriberLogsQueryKey(subscriberId),
-    queryFn: () => subscribersService.getActivityLogs(subscriberId, context),
+    queryKey: subscriberLogsQueryKey(subscriberId, page, limit),
+    queryFn: () => subscribersService.getActivityLogs(subscriberId, context, { page, limit }),
     enabled: enabled && subscriberId > 0 && Boolean(context.lineId.trim()),
+    placeholderData: (prev) => prev,
   });
 }
 

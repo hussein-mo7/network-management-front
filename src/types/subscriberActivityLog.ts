@@ -1,5 +1,17 @@
 import type { ActivityAction, ActivitySubjectType } from "@/types/activityLog";
 
+export interface SubscriberActivityLogsListParams {
+  page?: number;
+  limit?: number;
+}
+
+export interface SubscriberActivityLogsListResult {
+  items: SubscriberActivityLog[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface SubscriberActivityLog {
   id: number;
   createdAt: string;

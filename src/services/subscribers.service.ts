@@ -20,7 +20,10 @@ import {
 } from "@/lib/mapSubscriberActivityLog";
 import { listMockSubscriberActivityLogs } from "@/lib/mocks/subscriberActivityLogs.mock";
 import type { Subscriber, SubscriberInvoice, SpeedHistoryEntry, UsernameHistoryEntry } from "@/types/subscriber";
-import type { SubscriberActivityLog } from "@/types/subscriberActivityLog";
+import type {
+  SubscriberActivityLogsListParams,
+  SubscriberActivityLogsListResult,
+} from "@/types/subscriberActivityLog";
 
 const USE_SUBSCRIBER_LOGS_MOCK = import.meta.env.VITE_USE_SUBSCRIBER_LOGS_MOCK === "true";
 
@@ -294,21 +297,43 @@ export const subscribersService = {
   async getActivityLogs(
     subscriberId: number,
     context: { lineId: string; fullName: string },
-  ): Promise<SubscriberActivityLog[]> {
+    params: SubscriberActivityLogsListParams = {},
+  ): Promise<SubscriberActivityLogsListResult> {
+    const page = params.page ?? 1;
+    const limit = params.limit ?? 15;
+
     if (USE_SUBSCRIBER_LOGS_MOCK) {
       await new Promise((r) => setTimeout(r, 180));
-      return listMockSubscriberActivityLogs({
-        subscriberId,
-        lineId: context.lineId,
-        fullName: context.fullName,
-      });
+      return listMockSubscriberActivityLogs(
+        {
+          subscriberId,
+          lineId: context.lineId,
+          fullName: context.fullName,
+        },
+        { page, limit },
+      );
     }
 
-    const response = await apiGet<ApiListEnvelope<BackendSubscriberActivityLogRow[]>>(
-      `/subscribers/${subscriberId}/logs`,
-    );
-    const rows = response.data ?? [];
-    return rows.map(mapSubscriberActivityLog).sort((a, b) => b.id - a.id);
+    const response = await apiClient
+      .get<
+        ApiListEnvelope<{
+          items?: BackendSubscriberActivityLogRow[];
+          total: number;
+          page: number;
+          limit: number;
+        }>
+      >(`/subscribers/${subscriberId}/logs`, { params: { page, limit } })
+      .then((r) => r.data);
+
+    const payload = response.data;
+    const rows = Array.isArray(payload) ? payload : (payload?.items ?? []);
+
+    return {
+      items: rows.map(mapSubscriberActivityLog),
+      total: Array.isArray(payload) ? rows.length : (payload?.total ?? rows.length),
+      page: Array.isArray(payload) ? page : (payload?.page ?? page),
+      limit: Array.isArray(payload) ? limit : (payload?.limit ?? limit),
+    };
   },
 
   async listInvoices(subscriberId: number, lineId: string): Promise<SubscriberInvoice[]> {

@@ -1,6 +1,8 @@
 import { format, parseISO } from "date-fns";
 import { History, ScrollText } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { TablePagination } from "@/components/ui/data/TablePagination";
 import { LoadingState } from "@/components/ui/feedback";
 import { Text } from "@/components/ui/typography";
 import { useSubscriberLogsQuery } from "@/hooks/useSubscribers";
@@ -8,6 +10,8 @@ import { formatSubscriberLogSummary } from "@/lib/mapSubscriberActivityLog";
 import type { Subscriber } from "@/types/subscriber";
 import type { SubscriberActivityLog } from "@/types/subscriberActivityLog";
 import { cn } from "@/lib/cn";
+
+const PAGE_SIZE = 15;
 
 interface SubscriberLogsTabProps {
   subscriber: Pick<Subscriber, "id" | "lineId" | "fullName">;
@@ -99,13 +103,18 @@ function LogEntry({ log }: { log: SubscriberActivityLog }) {
 
 export function SubscriberLogsTab({ subscriber }: SubscriberLogsTabProps) {
   const { t } = useTranslation();
-  const logsQuery = useSubscriberLogsQuery(subscriber.id, {
-    lineId: subscriber.lineId,
-    fullName: subscriber.fullName,
-  });
+  const [page, setPage] = useState(1);
 
-  const logs = logsQuery.data ?? [];
-  const showLoading = logsQuery.isLoading && logs.length === 0;
+  const logsQuery = useSubscriberLogsQuery(
+    subscriber.id,
+    { lineId: subscriber.lineId, fullName: subscriber.fullName },
+    { page, limit: PAGE_SIZE },
+  );
+
+  const logs = logsQuery.data?.items ?? [];
+  const total = logsQuery.data?.total ?? 0;
+  const showInitialLoading = logsQuery.isLoading && logs.length === 0;
+  const isBackgroundRefresh = logsQuery.isFetching && !showInitialLoading;
 
   return (
     <section className="space-y-4">
@@ -122,7 +131,20 @@ export function SubscriberLogsTab({ subscriber }: SubscriberLogsTabProps) {
       </div>
 
       <div className="rounded-xl border border-border bg-surface px-4 py-4 sm:px-6 sm:py-5">
-        {showLoading ? (
+        {total > 0 ? (
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <Text muted className="text-sm">
+              {t("subscribers.logs.sectionSubtitle", { count: logs.length, total })}
+            </Text>
+            {isBackgroundRefresh ? (
+              <Text muted className="text-xs">
+                {t("common.loading")}
+              </Text>
+            ) : null}
+          </div>
+        ) : null}
+
+        {showInitialLoading ? (
           <LoadingState variant="inline" />
         ) : logsQuery.isError ? (
           <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -142,11 +164,21 @@ export function SubscriberLogsTab({ subscriber }: SubscriberLogsTabProps) {
             <p className="mt-1 max-w-md text-xs text-muted-foreground">{t("subscribers.logs.emptyHint")}</p>
           </div>
         ) : (
-          <ol className="m-0 list-none p-0">
-            {logs.map((log) => (
-              <LogEntry key={log.id} log={log} />
-            ))}
-          </ol>
+          <>
+            <ol className="m-0 list-none p-0">
+              {logs.map((log) => (
+                <LogEntry key={log.id} log={log} />
+              ))}
+            </ol>
+            <TablePagination
+              page={page}
+              limit={logsQuery.data?.limit ?? PAGE_SIZE}
+              total={total}
+              onPageChange={setPage}
+              disabled={logsQuery.isFetching}
+              className="mt-6 border-t border-border pt-4"
+            />
+          </>
         )}
       </div>
     </section>
