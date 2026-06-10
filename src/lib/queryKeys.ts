@@ -17,6 +17,8 @@ export const subscriberUsernameHistoryQueryKey = (id: number) =>
 export const subscriberSpeedHistoryQueryKey = (id: number) =>
   ["subscribers", id, "speed-history"] as const;
 
+export const subscriberLogsQueryKey = (id: number) => ["subscribers", id, "logs"] as const;
+
 export const customersQueryKey = (params?: CustomersListParams) =>
   ["customers", params ?? {}] as const;
 

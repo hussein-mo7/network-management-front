@@ -1,10 +1,10 @@
-import { Banknote, FileText, Gauge, MessageSquare, User } from "lucide-react";
+import { Banknote, FileText, Gauge, History, MessageSquare, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { subscriberProfilePath } from "@/lib/routePaths";
 import { cn } from "@/lib/cn";
 
-export type SubscriberProfileTab = "stats" | "username" | "sms" | "pricing" | "invoices";
+export type SubscriberProfileTab = "stats" | "username" | "sms" | "pricing" | "invoices" | "logs";
 
 const TABS: { id: SubscriberProfileTab; icon: typeof Gauge }[] = [
   { id: "stats", icon: Gauge },
@@ -12,6 +12,7 @@ const TABS: { id: SubscriberProfileTab; icon: typeof Gauge }[] = [
   { id: "sms", icon: MessageSquare },
   { id: "pricing", icon: Banknote },
   { id: "invoices", icon: FileText },
+  { id: "logs", icon: History },
 ];
 
 interface SubscriberProfileTabsProps {

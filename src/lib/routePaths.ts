@@ -26,6 +26,7 @@ export const SUBSCRIBER_PROFILE_TABS: SubscriberProfileTab[] = [
   "sms",
   "pricing",
   "invoices",
+  "logs",
 ];
 
 export function parseSubscriberProfileTab(value: string | undefined): SubscriberProfileTab | null {

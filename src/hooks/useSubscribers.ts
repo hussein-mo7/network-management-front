@@ -9,6 +9,7 @@ import {
 import {
   subscriberByLineIdQueryKey,
   subscriberInvoicesQueryKey,
+  subscriberLogsQueryKey,
   subscriberProfileQueryKey,
   subscriberSpeedHistoryQueryKey,
   subscriberUsernameHistoryQueryKey,
@@ -26,6 +27,7 @@ import type { SubscriberInvoice } from "@/types/subscriber";
 export {
   subscriberByLineIdQueryKey,
   subscriberInvoicesQueryKey,
+  subscriberLogsQueryKey,
   subscriberProfileQueryKey,
   subscriberSpeedHistoryQueryKey,
   subscriberUsernameHistoryQueryKey,
@@ -107,6 +109,18 @@ export function useSubscriberInvoicesQuery(subscriberId: number, lineId: string)
     queryKey: subscriberInvoicesQueryKey(subscriberId),
     queryFn: () => subscribersService.listInvoices(subscriberId, lineId),
     enabled: subscriberId > 0 && Boolean(lineId),
+  });
+}
+
+export function useSubscriberLogsQuery(
+  subscriberId: number,
+  context: { lineId: string; fullName: string },
+  enabled = true,
+) {
+  return useQuery({
+    queryKey: subscriberLogsQueryKey(subscriberId),
+    queryFn: () => subscribersService.getActivityLogs(subscriberId, context),
+    enabled: enabled && subscriberId > 0 && Boolean(context.lineId.trim()),
   });
 }
 

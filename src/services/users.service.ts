@@ -14,7 +14,12 @@ import type {
   AdminUserStatus,
 } from "@/types/adminUser";
 
-const USE_API = import.meta.env.VITE_USE_ADMIN_USERS_API === "true";
+import { isDevAuthMode } from "@/lib/devAuth";
+
+/** Use live API when real auth is on (unless explicitly forced to mock). */
+const USE_API =
+  import.meta.env.VITE_USE_ADMIN_USERS_API === "true" ||
+  (import.meta.env.VITE_USE_ADMIN_USERS_API !== "false" && !isDevAuthMode());
 
 export type { AdminUsersListParams };
 

@@ -14,7 +14,15 @@ import {
   type BackendUsernameHistoryRow,
   type SubscriberProfileDto,
 } from "@/lib/mapSubscribers";
+import {
+  mapSubscriberActivityLog,
+  type BackendSubscriberActivityLogRow,
+} from "@/lib/mapSubscriberActivityLog";
+import { listMockSubscriberActivityLogs } from "@/lib/mocks/subscriberActivityLogs.mock";
 import type { Subscriber, SubscriberInvoice, SpeedHistoryEntry, UsernameHistoryEntry } from "@/types/subscriber";
+import type { SubscriberActivityLog } from "@/types/subscriberActivityLog";
+
+const USE_SUBSCRIBER_LOGS_MOCK = import.meta.env.VITE_USE_SUBSCRIBER_LOGS_MOCK === "true";
 
 export interface SubscriberUpdatePayload {
   fullName?: string;
@@ -281,6 +289,26 @@ export const subscribersService = {
       `/subscribers/${subscriberId}/speed-history`,
     );
     return mapSpeedHistory(response.data ?? [], lineId);
+  },
+
+  async getActivityLogs(
+    subscriberId: number,
+    context: { lineId: string; fullName: string },
+  ): Promise<SubscriberActivityLog[]> {
+    if (USE_SUBSCRIBER_LOGS_MOCK) {
+      await new Promise((r) => setTimeout(r, 180));
+      return listMockSubscriberActivityLogs({
+        subscriberId,
+        lineId: context.lineId,
+        fullName: context.fullName,
+      });
+    }
+
+    const response = await apiGet<ApiListEnvelope<BackendSubscriberActivityLogRow[]>>(
+      `/subscribers/${subscriberId}/logs`,
+    );
+    const rows = response.data ?? [];
+    return rows.map(mapSubscriberActivityLog).sort((a, b) => b.id - a.id);
   },
 
   async listInvoices(subscriberId: number, lineId: string): Promise<SubscriberInvoice[]> {

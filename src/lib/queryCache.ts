@@ -3,6 +3,7 @@ import type { SubscriberProfileDto } from "@/lib/mapSubscribers";
 import {
   customerByLineIdQueryKey,
   subscriberByLineIdQueryKey,
+  subscriberLogsQueryKey,
   subscriberProfileQueryKey,
 } from "@/lib/queryKeys";
 import { STATISTICS_QUERY_KEY } from "@/hooks/useStatistics";
@@ -61,6 +62,7 @@ export function invalidateSubscriberCaches(
   const { subscriberId, lineId } = options;
 
   queryClient.invalidateQueries({ queryKey: subscriberProfileQueryKey(subscriberId) });
+  queryClient.invalidateQueries({ queryKey: subscriberLogsQueryKey(subscriberId) });
   if (lineId?.trim()) {
     queryClient.invalidateQueries({ queryKey: subscriberByLineIdQueryKey(lineId.trim()) });
     queryClient.invalidateQueries({ queryKey: customerByLineIdQueryKey(lineId.trim()) });

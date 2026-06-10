@@ -161,7 +161,7 @@ export type SubscribersI18n = {
       uploadImage: string;
       empty: string;
     };
-    tabs: { stats: string; username: string; sms: string; pricing: string; invoices: string };
+    tabs: { stats: string; username: string; sms: string; pricing: string; invoices: string; logs: string };
     stats: {
       usageDays: string;
       usageDaysHint: string;
@@ -210,6 +210,20 @@ export type SubscribersI18n = {
     printedAt: string;
     remaining: string;
     paidAt: string;
+  };
+  logs: {
+    title: string;
+    subtitle: string;
+    empty: string;
+    emptyHint: string;
+    loadError: string;
+    by: string;
+    systemUser: string;
+    summaries: {
+      Created: Record<string, string>;
+      Updated: Record<string, string>;
+      Deleted: Record<string, string>;
+    };
   };
   username: {
     changeUsername: string;
@@ -459,6 +473,7 @@ export const subscribersEn: SubscribersI18n = {
       sms: "SMS",
       pricing: "Monthly price",
       invoices: "Invoices",
+      logs: "Activity",
     },
     stats: {
       usageDays: "Days in cycle",
@@ -508,6 +523,44 @@ export const subscribersEn: SubscribersI18n = {
     printedAt: "Print date",
     remaining: "Remaining",
     paidAt: "Paid on",
+  },
+  logs: {
+    title: "Activity log",
+    subtitle: "Changes made to this subscriber — who edited what and when.",
+    empty: "No activity recorded for this subscriber yet",
+    emptyHint: "Updates to the profile, username, invoices, and other actions will appear here.",
+    loadError: "Could not load activity log for this subscriber.",
+    by: "By {{name}}",
+    systemUser: "System",
+    summaries: {
+      Created: {
+        Subscriber: "Subscriber profile created",
+        Invoice: "Invoice created",
+        Username: "Username assigned",
+        Customer: "Customer record created",
+        SMS: "SMS sent",
+        Speed: "Speed tier created",
+        Other: "Record created",
+      },
+      Updated: {
+        Subscriber: "Subscriber profile updated",
+        Invoice: "Invoice updated",
+        Username: "Username changed",
+        Customer: "Customer record updated",
+        SMS: "SMS updated",
+        Speed: "Speed tier updated",
+        Other: "Record updated",
+      },
+      Deleted: {
+        Subscriber: "Subscriber removed",
+        Invoice: "Invoice deleted",
+        Username: "Username removed",
+        Customer: "Customer record deleted",
+        SMS: "SMS deleted",
+        Speed: "Speed tier deleted",
+        Other: "Record deleted",
+      },
+    },
   },
   username: {
     changeUsername: "Change username",
@@ -765,6 +818,7 @@ export const subscribersAr: SubscribersI18n = {
       sms: "رسائل",
       pricing: "السعر الشهري",
       invoices: "الفواتير",
+      logs: "السجل",
     },
     stats: {
       usageDays: "أيام في الدورة",
@@ -814,6 +868,44 @@ export const subscribersAr: SubscribersI18n = {
     printedAt: "تاريخ الطباعة",
     remaining: "المتبقي",
     paidAt: "تاريخ الدفع",
+  },
+  logs: {
+    title: "سجل النشاط",
+    subtitle: "التغييرات على هذا المشترك — من قام بالتعديل وماذا ومتى.",
+    empty: "لا يوجد نشاط مسجّل لهذا المشترك بعد",
+    emptyHint: "ستظهر هنا تحديثات الملف، اسم المستخدم، الفواتير، وغيرها من الإجراءات.",
+    loadError: "تعذّر تحميل سجل النشاط لهذا المشترك.",
+    by: "بواسطة {{name}}",
+    systemUser: "النظام",
+    summaries: {
+      Created: {
+        Subscriber: "تم إنشاء ملف المشترك",
+        Invoice: "تم إنشاء فاتورة",
+        Username: "تم تعيين اسم مستخدم",
+        Customer: "تم إنشاء سجل زبون",
+        SMS: "تم إرسال رسالة",
+        Speed: "تم إنشاء سرعة",
+        Other: "تم إنشاء سجل",
+      },
+      Updated: {
+        Subscriber: "تم تحديث ملف المشترك",
+        Invoice: "تم تحديث فاتورة",
+        Username: "تم تغيير اسم المستخدم",
+        Customer: "تم تحديث سجل الزبون",
+        SMS: "تم تحديث رسالة",
+        Speed: "تم تحديث السرعة",
+        Other: "تم تحديث سجل",
+      },
+      Deleted: {
+        Subscriber: "تم حذف المشترك",
+        Invoice: "تم حذف فاتورة",
+        Username: "تم إزالة اسم المستخدم",
+        Customer: "تم حذف سجل الزبون",
+        SMS: "تم حذف رسالة",
+        Speed: "تم حذف السرعة",
+        Other: "تم حذف سجل",
+      },
+    },
   },
   username: {
     changeUsername: "تغيير اسم المستخدم",

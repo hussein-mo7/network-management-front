@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import type { InvoiceFormValues } from "@/components/pages/subscribers/InvoiceFormModal";
 import {
   SubscriberInvoicesTab,
+  SubscriberLogsTab,
   SubscriberPricingTab,
   SubscriberProfileHeader,
   PickAvailableUsernameModal,
@@ -363,6 +364,8 @@ export function SubscriberProfilePage() {
             onDeleteInvoice={canManage ? handleDeleteInvoice : undefined}
           />
         ) : null}
+
+        {activeTab === "logs" ? <SubscriberLogsTab subscriber={subscriber} /> : null}
       </div>
 
       <PickAvailableUsernameModal

@@ -18,7 +18,11 @@ import type { AdminUser, AdminUserFormValues } from "@/types/adminUser";
 import { ApiError } from "@/types/api";
 
 const PAGE_SIZE = 10;
-const USE_MOCK = import.meta.env.VITE_USE_ADMIN_USERS_API !== "true";
+import { isDevAuthMode } from "@/lib/devAuth";
+
+const USE_MOCK =
+  import.meta.env.VITE_USE_ADMIN_USERS_API === "false" ||
+  (import.meta.env.VITE_USE_ADMIN_USERS_API !== "true" && isDevAuthMode());
 
 type Dialog =
   | { type: "create" }
