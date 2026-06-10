@@ -692,7 +692,7 @@ export const ar: TranslationSchema = {
       expiresOn: "حتى {{date}}",
       firstConnectionAt: "أول اتصال: {{datetime}}",
       expiresAt: "ينتهي: {{datetime}}",
-      usageExceeded: "انتهت الكمية",
+      usageExceeded: "انتهت الكوتة",
     },
     details: {
       title: "تفاصيل {{username}}",

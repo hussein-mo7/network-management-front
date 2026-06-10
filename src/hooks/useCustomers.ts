@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CustomerFormValues } from "@/components/pages/customers";
+import { invalidateSubscriberCaches } from "@/lib/queryCache";
+import {
+  customerByLineIdQueryKey,
+  customersQueryKey,
+} from "@/lib/queryKeys";
 import { customersService, type CustomersListParams } from "@/services/customers.service";
 
-export const customersQueryKey = (params?: CustomersListParams) =>
-  ["customers", params ?? {}] as const;
-
-export const customerByLineIdQueryKey = (lineId: string) =>
-  ["customers", "line", lineId] as const;
+export { customerByLineIdQueryKey, customersQueryKey } from "@/lib/queryKeys";
 
 export function useCustomersQuery(params: CustomersListParams = {}) {
   return useQuery({
@@ -29,6 +30,7 @@ export function useCustomerMutations() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["customers"] });
     queryClient.invalidateQueries({ queryKey: ["subscribers"] });
+    queryClient.invalidateQueries({ queryKey: ["subscribers", "line"] });
   };
 
   const createMutation = useMutation({
@@ -51,7 +53,10 @@ export function useCustomerMutations() {
         lineId: values.packageLine !== undefined ? String(values.packageLine) : undefined,
         notes: values.notes || null,
       }),
-    onSuccess: invalidate,
+    onSuccess: (_data, { id }) => {
+      invalidate();
+      invalidateSubscriberCaches(queryClient, { subscriberId: id });
+    },
   });
 
   const deleteMutation = useMutation({

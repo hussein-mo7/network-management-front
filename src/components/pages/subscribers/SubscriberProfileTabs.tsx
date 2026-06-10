@@ -1,15 +1,16 @@
-import { FileText, Gauge, MessageSquare, User } from "lucide-react";
+import { Banknote, FileText, Gauge, MessageSquare, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { subscriberProfilePath } from "@/lib/routePaths";
 import { cn } from "@/lib/cn";
 
-export type SubscriberProfileTab = "stats" | "username" | "sms" | "invoices";
+export type SubscriberProfileTab = "stats" | "username" | "sms" | "pricing" | "invoices";
 
 const TABS: { id: SubscriberProfileTab; icon: typeof Gauge }[] = [
   { id: "stats", icon: Gauge },
   { id: "username", icon: User },
   { id: "sms", icon: MessageSquare },
+  { id: "pricing", icon: Banknote },
   { id: "invoices", icon: FileText },
 ];
 

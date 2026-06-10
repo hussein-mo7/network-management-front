@@ -6,7 +6,6 @@ import { SubscriberRouterSection } from "@/components/pages/subscribers/Subscrib
 import { Button } from "@/components/ui/buttons";
 import { Input, PasswordInput, Textarea } from "@/components/ui/forms";
 import { DataUsageDisplay, StatCard } from "@/components/ui/data";
-import { SubscriberMonthlyPriceSection } from "@/components/pages/subscribers/SubscriberMonthlyPriceSection";
 import { ProfileSection } from "@/components/ui/profile";
 import { Text } from "@/components/ui/typography";
 import { resolveUsageLimitMb } from "@/lib/speedFairUsage";
@@ -191,13 +190,6 @@ export function SubscriberStatsTab({
           />
         </div>
       </div>
-
-      <SubscriberMonthlyPriceSection
-        monthlyPrice={subscriber.monthlyPrice}
-        canManage={canManage}
-        onSave={onSave}
-        isSubmitting={isSubmitting}
-      />
 
       <ProfileSection title={t("subscribers.profile.formSection")} bodyClassName="p-0">
         <div

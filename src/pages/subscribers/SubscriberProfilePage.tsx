@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import type { InvoiceFormValues } from "@/components/pages/subscribers/InvoiceFormModal";
 import {
   SubscriberInvoicesTab,
+  SubscriberPricingTab,
   SubscriberProfileHeader,
   PickAvailableUsernameModal,
   SubscriberProfileTabs,
@@ -340,6 +341,15 @@ export function SubscriberProfilePage() {
 
         {activeTab === "sms" ? (
           <SubscriberSmsTab subscriber={subscriber} canManage={canManage} />
+        ) : null}
+
+        {activeTab === "pricing" ? (
+          <SubscriberPricingTab
+            monthlyPrice={subscriber.monthlyPrice}
+            canManage={canManage}
+            onSave={canManage ? handleSave : undefined}
+            isSubmitting={updateMutation.isPending}
+          />
         ) : null}
 
         {activeTab === "invoices" ? (

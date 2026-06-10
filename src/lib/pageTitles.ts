@@ -11,7 +11,8 @@ const ROUTE_TITLE_KEYS: Array<{ match: (path: string) => boolean; titleKey: stri
   { match: (path) => path === "/subscribers/new", titleKey: "customers.titleNew" },
   {
     match: (path) =>
-      /^\/subscribers\/[^/]+(\/(stats|invoices|username))?$/.test(path) && path !== "/subscribers/new",
+      /^\/subscribers\/[^/]+(\/(stats|invoices|username|sms|pricing))?$/.test(path) &&
+      path !== "/subscribers/new",
     titleKey: "subscribers.titleProfile",
   },
   { match: (path) => path.startsWith("/subscribers"), titleKey: "subscribers.title" },

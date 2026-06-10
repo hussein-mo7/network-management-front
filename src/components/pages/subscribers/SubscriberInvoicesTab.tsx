@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/buttons";
 import { StatusBadge } from "@/components/ui/data";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
+import { formatMoneyILS } from "@/lib/formatMoney";
 import { getPaymentMethodLabel } from "@/lib/invoiceUtils";
 import type { Subscriber, SubscriberInvoice } from "@/types/subscriber";
 import { format, parseISO } from "date-fns";
@@ -73,7 +74,9 @@ export function SubscriberInvoicesTab({
       <div className="rounded-xl border border-border bg-muted/30 px-4 py-3 sm:flex sm:items-center sm:justify-between">
         <div>
           <Text className="text-sm font-medium">{t("subscribers.invoices.balance")}</Text>
-          <p className="text-2xl font-bold text-foreground">{balance} ₪</p>
+          <p className="text-2xl font-bold text-foreground tabular-nums" dir="ltr">
+            {formatMoneyILS(balance)}
+          </p>
         </div>
         {canManage && onAddInvoice ? (
           <Button size="sm" className="mt-3 sm:mt-0" onClick={() => setModalOpen(true)}>
@@ -93,6 +96,7 @@ export function SubscriberInvoicesTab({
                 <th className="px-4 py-3 text-start font-semibold">#</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.amount")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.paid")}</th>
+                <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.remaining")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.status")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.invoices.paymentMethod")}</th>
                 <th className="px-4 py-3 text-start font-semibold">{t("subscribers.table.createdAt")}</th>
@@ -105,8 +109,11 @@ export function SubscriberInvoicesTab({
               {invoices.map((inv) => (
                 <tr key={inv.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-3">{inv.id}</td>
-                  <td className="px-4 py-3">{inv.amount} ₪</td>
-                  <td className="px-4 py-3">{inv.paidAmount} ₪</td>
+                  <td className="px-4 py-3 tabular-nums" dir="ltr">{formatMoneyILS(inv.amount)}</td>
+                  <td className="px-4 py-3 tabular-nums" dir="ltr">{formatMoneyILS(inv.paidAmount)}</td>
+                  <td className="px-4 py-3 tabular-nums" dir="ltr">
+                    {formatMoneyILS(Math.max(0, inv.amount - inv.paidAmount))}
+                  </td>
                   <td className="px-4 py-3">
                     <StatusBadge
                       label={t(`subscribers.invoices.status_${inv.status}`)}

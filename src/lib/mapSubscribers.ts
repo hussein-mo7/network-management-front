@@ -157,7 +157,8 @@ export function mapSubscriberRecord(row: BackendSubscriberRow): Subscriber {
 }
 
 export function mapInvoiceRecord(row: BackendInvoiceRow, lineId: string): SubscriberInvoice {
-  const paidAmount = toNumber(row.paidAmount, 0);
+  const raw = row as BackendInvoiceRow & { paid_amount?: string | number };
+  const paidAmount = toNumber(raw.paidAmount ?? raw.paid_amount, 0);
   const amount = toNumber(row.amount, 0);
   let status: InvoiceStatus = row.status;
   if (paidAmount > amount) status = "debt";

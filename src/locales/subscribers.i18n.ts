@@ -161,7 +161,7 @@ export type SubscribersI18n = {
       uploadImage: string;
       empty: string;
     };
-    tabs: { stats: string; username: string; sms: string; invoices: string };
+    tabs: { stats: string; username: string; sms: string; pricing: string; invoices: string };
     stats: {
       usageDays: string;
       usageDaysHint: string;
@@ -206,6 +206,8 @@ export type SubscribersI18n = {
     previewTitle: string;
     previewHeading: string;
     print: string;
+    printedBy: string;
+    printedAt: string;
     remaining: string;
     paidAt: string;
   };
@@ -451,7 +453,13 @@ export const subscribersEn: SubscribersI18n = {
       uploadImage: "Upload image",
       empty: "No router assigned yet.",
     },
-    tabs: { stats: "User data", username: "Username", sms: "SMS", invoices: "Invoices" },
+    tabs: {
+      stats: "User data",
+      username: "Username",
+      sms: "SMS",
+      pricing: "Monthly price",
+      invoices: "Invoices",
+    },
     stats: {
       usageDays: "Days in cycle",
       usageDaysHint: "Since first contact",
@@ -496,6 +504,8 @@ export const subscribersEn: SubscribersI18n = {
     previewTitle: "Invoice #{{id}}",
     previewHeading: "Invoice",
     print: "Print",
+    printedBy: "Printed by",
+    printedAt: "Print date",
     remaining: "Remaining",
     paidAt: "Paid on",
   },
@@ -749,7 +759,13 @@ export const subscribersAr: SubscribersI18n = {
       uploadImage: "رفع صورة",
       empty: "لم يُعيَّن راوتر بعد.",
     },
-    tabs: { stats: "بيانات المستخدم", username: "اسم المستخدم", sms: "رسائل", invoices: "الفواتير" },
+    tabs: {
+      stats: "بيانات المستخدم",
+      username: "اسم المستخدم",
+      sms: "رسائل",
+      pricing: "السعر الشهري",
+      invoices: "الفواتير",
+    },
     stats: {
       usageDays: "أيام في الدورة",
       usageDaysHint: "منذ أول اتصال",
@@ -794,6 +810,8 @@ export const subscribersAr: SubscribersI18n = {
     previewTitle: "فاتورة رقم {{id}}",
     previewHeading: "فاتورة",
     print: "طباعة",
+    printedBy: "طُبعت بواسطة",
+    printedAt: "تاريخ الطباعة",
     remaining: "المتبقي",
     paidAt: "تاريخ الدفع",
   },
@@ -876,7 +894,7 @@ export const subscribersAr: SubscribersI18n = {
     changeCauseColumn: "السبب",
     changeCauseTemplates: {
       username_expired: "انتهاء صلاحية اسم المستخدم",
-      quota_finished: "انتهاء الكمية",
+      quota_finished: "انتهاء الكوتة",
       subscriber_request: "تغيير سرعة",
       other: "أخرى (مخصص)",
     },

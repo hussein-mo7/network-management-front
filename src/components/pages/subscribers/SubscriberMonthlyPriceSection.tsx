@@ -1,10 +1,7 @@
-import { Banknote } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/buttons";
-import { Input } from "@/components/ui/forms";
-import { ProfileSection } from "@/components/ui/profile";
-import { Text } from "@/components/ui/typography";
+import { cn } from "@/lib/cn";
 import type { SubscriberProfilePatch } from "@/hooks/useSubscribers";
 
 interface SubscriberMonthlyPriceSectionProps {
@@ -54,50 +51,62 @@ export function SubscriberMonthlyPriceSection({
   const dirty = priceInput.trim() !== formatPriceField(monthlyPrice);
 
   return (
-    <ProfileSection
-      title={t("subscribers.profile.monthlyPriceSectionTitle")}
-      description={t("subscribers.profile.monthlyPriceHint")}
-      bodyClassName="p-4 sm:p-5"
-    >
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-        <div className="flex min-w-0 flex-1 items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-            <Banknote className="h-5 w-5" strokeWidth={2} aria-hidden />
-          </div>
-          <div className="min-w-0 flex-1">
-            <Input
-              label={t("subscribers.profile.monthlyPriceLabel")}
+    <section className="rounded-xl border border-border bg-surface px-4 py-4 sm:px-5 sm:py-5">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground">
+            {t("subscribers.profile.monthlyPriceSectionTitle")}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t("subscribers.profile.monthlyPriceHint")}
+          </p>
+        </div>
+
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:min-w-[12rem]">
+          <div className="flex items-center gap-2">
+            <input
               type="number"
               min={0}
               step="0.01"
               inputMode="decimal"
               dir="ltr"
-              disabled={!canManage}
+              disabled={!canManage || isSubmitting}
               value={priceInput}
               onChange={(e) => {
                 setPriceInput(e.target.value);
                 setError(null);
               }}
-              error={error ?? undefined}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && canManage && dirty) {
+                  e.preventDefault();
+                  void handleSave();
+                }
+              }}
+              aria-label={t("subscribers.profile.monthlyPriceLabel")}
+              className={cn(
+                "h-11 min-w-0 flex-1 rounded-lg border bg-background px-3 text-end text-base font-semibold tabular-nums text-foreground",
+                "focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25",
+                "disabled:cursor-not-allowed disabled:opacity-60",
+                error ? "border-danger" : "border-border",
+              )}
             />
-            <Text muted className="mt-2 text-xs">
-              {t("subscribers.profile.monthlyPriceSectionHint")}
-            </Text>
+            <span className="shrink-0 text-sm font-medium text-muted-foreground">₪</span>
+            {canManage && onSave && dirty ? (
+              <Button
+                type="button"
+                size="sm"
+                className="shrink-0"
+                onClick={handleSave}
+                disabled={isSubmitting}
+                isLoading={isSubmitting}
+              >
+                {t("common.save")}
+              </Button>
+            ) : null}
           </div>
+          {error ? <p className="text-xs text-danger">{error}</p> : null}
         </div>
-        {canManage && onSave ? (
-          <Button
-            type="button"
-            size="sm"
-            className="w-full shrink-0 sm:w-auto"
-            onClick={handleSave}
-            disabled={!dirty || isSubmitting}
-            isLoading={isSubmitting}
-          >
-            {t("common.save")}
-          </Button>
-        ) : null}
       </div>
-    </ProfileSection>
+    </section>
   );
 }

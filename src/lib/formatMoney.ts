@@ -6,3 +6,10 @@ export function formatMoney(amount: number, locale?: string): string {
   });
   return `${formatted} ₪`;
 }
+
+export function formatMoneyILS(value: number): string {
+  if (!Number.isFinite(value)) return "0 ₪";
+  const rounded = Math.round(value * 100) / 100;
+  const text = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);
+  return `${text} ₪`;
+}

@@ -4,6 +4,7 @@ export { SubscriberFormModal, type SubscriberFormValues } from "./SubscriberForm
 export { InvoiceFormModal, type InvoiceFormValues } from "./InvoiceFormModal";
 export { PickAvailableUsernameModal, type PickedUsername } from "./PickAvailableUsernameModal";
 export { SubscriberInvoicesTab } from "./SubscriberInvoicesTab";
+export { SubscriberPricingTab } from "./SubscriberPricingTab";
 export { SubscriberProfileHeader } from "./SubscriberProfileHeader";
 export { SubscriberProfileTabs, type SubscriberProfileTab } from "./SubscriberProfileTabs";
 export { SubscriberRouterSection } from "./SubscriberRouterSection";

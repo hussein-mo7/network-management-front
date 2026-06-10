@@ -1,11 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { invalidatePoolAndStatsCaches } from "@/lib/queryCache";
+import { availableUsernamesQueryKey } from "@/lib/queryKeys";
 import { usernamesService } from "@/services/usernames.service";
 import type { AvailableUsernameFormValues } from "@/components/pages/available-usernames";
-import { SPEEDS_QUERY_KEY } from "@/hooks/useSpeeds";
 
-export function availableUsernamesQueryKey(speedId: number) {
-  return ["available-usernames", speedId] as const;
-}
+export { availableUsernamesQueryKey } from "@/lib/queryKeys";
 
 export function useAvailableUsernamesQuery(speedId: number, enabled = true) {
   return useQuery({
@@ -20,7 +19,7 @@ export function useUsernameMutations(speedId: number) {
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: availableUsernamesQueryKey(speedId) });
-    queryClient.invalidateQueries({ queryKey: SPEEDS_QUERY_KEY });
+    invalidatePoolAndStatsCaches(queryClient);
   };
 
   const createMutation = useMutation({

@@ -20,7 +20,13 @@ export function smsPath(section: SmsSection = "send"): string {
   return section === "send" ? "/sms" : `/sms/${section}`;
 }
 
-export const SUBSCRIBER_PROFILE_TABS: SubscriberProfileTab[] = ["stats", "username", "sms", "invoices"];
+export const SUBSCRIBER_PROFILE_TABS: SubscriberProfileTab[] = [
+  "stats",
+  "username",
+  "sms",
+  "pricing",
+  "invoices",
+];
 
 export function parseSubscriberProfileTab(value: string | undefined): SubscriberProfileTab | null {
   if (value && SUBSCRIBER_PROFILE_TABS.includes(value as SubscriberProfileTab)) {
