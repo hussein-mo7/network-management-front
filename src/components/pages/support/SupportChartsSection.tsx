@@ -4,7 +4,6 @@ import {
   CHART_COLORS,
   CHART_PALETTE,
   ChartCard,
-  ChartLegendRow,
   donutChartOption,
   EChart,
   groupedBarChartOption,
@@ -70,18 +69,8 @@ function StatusDonutChart({ data, title }: { data: ChartCountItem[]; title: stri
     [data, t],
   );
 
-  const legendItems = chartData.map((item) => ({
-    label: item.name,
-    color: item.color,
-    type: "square" as const,
-  }));
-
   return (
-    <ChartCard
-      title={title}
-      description={t("support.charts.byStatusHint")}
-      legend={<ChartLegendRow items={legendItems} />}
-    >
+    <ChartCard title={title} description={t("support.charts.byStatusHint")}>
       <EChart option={donutChartOption(chartData)} refreshKey={i18n.language} />
     </ChartCard>
   );
@@ -98,18 +87,8 @@ function DailyTrendChart({ data, title }: { data: DailyTrendPoint[]; title: stri
     [t],
   );
 
-  const legendItems = series.map((item) => ({
-    label: item.name,
-    color: item.color,
-    type: "line" as const,
-  }));
-
   return (
-    <ChartCard
-      title={title}
-      description={t("support.charts.dailyTrendHint")}
-      legend={<ChartLegendRow items={legendItems} />}
-    >
+    <ChartCard title={title} description={t("support.charts.dailyTrendHint")}>
       <EChart
         option={multiLineChartOption(
           data.map((row) => row.label),
@@ -133,18 +112,8 @@ function WeeklyBarChart({ data, title }: { data: DailyTrendPoint[]; title: strin
     [t],
   );
 
-  const legendItems = series.map((item) => ({
-    label: item.name,
-    color: item.color,
-    type: "square" as const,
-  }));
-
   return (
-    <ChartCard
-      title={title}
-      description={t("support.charts.weeklyActivityHint")}
-      legend={<ChartLegendRow items={legendItems} />}
-    >
+    <ChartCard title={title} description={t("support.charts.weeklyActivityHint")}>
       <EChart
         option={groupedBarChartOption(
           data.map((row) => row.label),
@@ -173,18 +142,8 @@ function ChannelPieChart({ data, title }: { data: ChartCountItem[]; title: strin
     [data, t],
   );
 
-  const legendItems = chartData.map((item) => ({
-    label: item.name,
-    color: item.color,
-    type: "square" as const,
-  }));
-
   return (
-    <ChartCard
-      title={title}
-      description={t("support.charts.byChannelHint")}
-      legend={<ChartLegendRow items={legendItems} />}
-    >
+    <ChartCard title={title} description={t("support.charts.byChannelHint")}>
       <EChart option={pieChartOption(chartData)} refreshKey={i18n.language} />
     </ChartCard>
   );

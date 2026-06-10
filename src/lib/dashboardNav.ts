@@ -8,6 +8,7 @@ import {
   Home,
   MessageSquare,
   Settings,
+  ShieldAlert,
   Tags,
   UserCog,
   Users,
@@ -25,7 +26,12 @@ export interface DashboardNavItem {
 /** Read-only role — sidebar whitelist */
 export const viewerNavItems: DashboardNavItem[] = [
   { labelKey: "nav.items.home", to: "/", icon: Home },
-  { labelKey: "nav.items.statistics", to: "/statistics", icon: BarChart3, permission: "dashboard.view" },
+  {
+    labelKey: "nav.items.statistics",
+    to: "/statistics",
+    icon: BarChart3,
+    permission: "subscription_statistics.view",
+  },
   { labelKey: "nav.items.customers", to: "/customers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.subscribers", to: "/subscribers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.onlineUsers", to: "/online-users", icon: Wifi, permission: "online_users.view" },
@@ -41,7 +47,12 @@ export const viewerNavItems: DashboardNavItem[] = [
 /** Admin / manager — full operations menu (logs & users live under Settings) */
 export const adminNavItems: DashboardNavItem[] = [
   { labelKey: "nav.items.home", to: "/", icon: Home },
-  { labelKey: "nav.items.statistics", to: "/statistics", icon: BarChart3, permission: "dashboard.view" },
+  {
+    labelKey: "nav.items.statistics",
+    to: "/statistics",
+    icon: BarChart3,
+    permission: "subscription_statistics.view",
+  },
   { labelKey: "nav.items.customers", to: "/customers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.subscribers", to: "/subscribers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.onlineUsers", to: "/online-users", icon: Wifi, permission: "online_users.view" },
@@ -74,6 +85,8 @@ export interface SettingsHubItem {
   icon: LucideIcon;
   permission?: string;
   badgeKey?: string;
+  /** Hide from settings hub unless the user can perform admin write actions */
+  requiresManage?: boolean;
 }
 
 export const settingsHubItems: SettingsHubItem[] = [
@@ -83,6 +96,14 @@ export const settingsHubItems: SettingsHubItem[] = [
     to: "/logs",
     icon: ClipboardList,
     permission: "logs.view",
+  },
+  {
+    titleKey: "settings.hub.data.title",
+    descriptionKey: "settings.hub.data.description",
+    to: "/settings/data",
+    icon: ShieldAlert,
+    permission: "settings.view",
+    requiresManage: true,
   },
   {
     titleKey: "settings.hub.excel.title",

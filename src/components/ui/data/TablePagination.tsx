@@ -9,6 +9,7 @@ interface TablePaginationProps {
   total: number;
   onPageChange: (page: number) => void;
   className?: string;
+  compact?: boolean;
   disabled?: boolean;
   labels?: {
     showing?: string;
@@ -56,6 +57,7 @@ export function TablePagination({
   total,
   onPageChange,
   className,
+  compact = false,
   disabled = false,
   labels,
 }: TablePaginationProps) {
@@ -74,14 +76,24 @@ export function TablePagination({
 
   if (total === 0) return null;
 
+  const btnSize = compact ? "h-7 min-w-7 px-1.5 text-xs" : "h-9 min-w-9 px-2.5 text-sm";
+  const navBtnSize = compact ? "h-7 px-2" : "h-9 px-2.5 sm:px-3";
+  const iconSize = compact ? "h-3.5 w-3.5" : "h-4 w-4";
+
   return (
     <div
       className={cn(
-        "flex flex-col items-stretch gap-4 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col items-stretch gap-2 sm:flex-row sm:items-center sm:justify-between",
+        !compact && "gap-4 border-t border-border pt-4",
         className,
       )}
     >
-      <p className="text-center text-sm text-muted-foreground sm:text-start">
+      <p
+        className={cn(
+          "text-center text-muted-foreground sm:text-start",
+          compact ? "text-[11px] sm:text-xs" : "text-sm",
+        )}
+      >
         {labels?.showing ? (
           labels.showing
         ) : (
@@ -99,18 +111,23 @@ export function TablePagination({
       <nav
         aria-label={ariaLabel}
         dir="ltr"
-        className="mx-auto flex max-w-full items-center gap-1 overflow-x-auto rounded-lg border border-border bg-muted/40 p-1 sm:mx-0"
+        className={cn(
+          "mx-auto flex max-w-full items-center gap-0.5 overflow-x-auto rounded-md border border-border bg-muted/40 p-0.5 sm:mx-0",
+          compact && "p-0.5",
+        )}
       >
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 shrink-0 gap-1.5 px-2.5 sm:px-3"
+          className={cn("shrink-0 gap-1", navBtnSize)}
           disabled={disabled || safePage <= 1}
           onClick={() => onPageChange(safePage - 1)}
           aria-label={previous}
         >
-          <ChevronLeft className="h-4 w-4 shrink-0 rtl:rotate-180" aria-hidden />
-          <span className="hidden min-[480px]:inline">{previous}</span>
+          <ChevronLeft className={cn("shrink-0 rtl:rotate-180", iconSize)} aria-hidden />
+          <span className={cn(compact ? "hidden sm:inline" : "hidden min-[480px]:inline")}>
+            {previous}
+          </span>
         </Button>
 
         <div className="flex items-center gap-0.5 px-0.5">
@@ -119,7 +136,10 @@ export function TablePagination({
               return (
                 <span
                   key={`ellipsis-${index}`}
-                  className="flex h-9 min-w-9 items-center justify-center px-1 text-sm text-muted-foreground"
+                  className={cn(
+                    "flex items-center justify-center px-1 text-muted-foreground",
+                    btnSize,
+                  )}
                   aria-hidden
                 >
                   …
@@ -141,7 +161,8 @@ export function TablePagination({
                 }
                 aria-current={isActive ? "page" : undefined}
                 className={cn(
-                  "flex h-9 min-w-9 items-center justify-center rounded-md px-2.5 text-sm font-medium tabular-nums transition-colors",
+                  "flex items-center justify-center rounded-md font-medium tabular-nums transition-colors",
+                  btnSize,
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-sm"
@@ -158,13 +179,15 @@ export function TablePagination({
         <Button
           variant="ghost"
           size="sm"
-          className="h-9 shrink-0 gap-1.5 px-2.5 sm:px-3"
+          className={cn("shrink-0 gap-1", navBtnSize)}
           disabled={disabled || safePage >= totalPages}
           onClick={() => onPageChange(safePage + 1)}
           aria-label={next}
         >
-          <span className="hidden min-[480px]:inline">{next}</span>
-          <ChevronRight className="h-4 w-4 shrink-0 rtl:rotate-180" aria-hidden />
+          <span className={cn(compact ? "hidden sm:inline" : "hidden min-[480px]:inline")}>
+            {next}
+          </span>
+          <ChevronRight className={cn("shrink-0 rtl:rotate-180", iconSize)} aria-hidden />
         </Button>
       </nav>
     </div>

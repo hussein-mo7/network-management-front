@@ -13,11 +13,12 @@ export function CustomerFilters({ search, onSearchChange, className }: CustomerF
 
   return (
     <SearchField
+      size="compact"
       value={search}
       onChange={onSearchChange}
       placeholder={t("customers.filters.searchPlaceholder")}
       ariaLabel={t("customers.filters.search")}
-      className={cn("max-w-none sm:max-w-lg", className)}
+      className={cn("max-w-none sm:max-w-sm lg:max-w-md", className)}
     />
   );
 }

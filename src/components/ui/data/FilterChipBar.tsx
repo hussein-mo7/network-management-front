@@ -12,27 +12,40 @@ interface FilterChipBarProps {
   onChange: (id: string) => void;
   options: FilterChipOption[];
   className?: string;
+  size?: "default" | "compact";
 }
 
-export function FilterChipBar({ label, value, onChange, options, className }: FilterChipBarProps) {
+export function FilterChipBar({
+  label,
+  value,
+  onChange,
+  options,
+  className,
+  size = "default",
+}: FilterChipBarProps) {
+  const compact = size === "compact";
+
   return (
-    <div className={cn("space-y-2", className)}>
+    <div className={cn(compact ? "min-w-0 space-y-1" : "space-y-2", className)}>
       {label ? (
-        <span className="text-xs font-medium text-muted-foreground">{label}</span>
+        <span
+          className={cn(
+            "font-medium text-muted-foreground",
+            compact ? "text-[11px]" : "text-xs",
+          )}
+        >
+          {label}
+        </span>
       ) : null}
 
       <div
         className={cn(
-          "-mx-1 overflow-x-auto overscroll-x-contain px-1",
+          "-mx-0.5 overflow-x-auto overscroll-x-contain px-0.5",
           "[scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
-          "sm:mx-0 sm:overflow-visible sm:px-0",
         )}
       >
         <div
-          className={cn(
-            "flex w-max min-w-full flex-nowrap gap-2 pb-0.5",
-            "sm:w-auto sm:flex-wrap",
-          )}
+          className="flex w-max min-w-full flex-nowrap gap-1 pb-0.5 sm:gap-1.5"
           role="tablist"
         >
           {options.map((option) => {
@@ -45,20 +58,24 @@ export function FilterChipBar({ label, value, onChange, options, className }: Fi
                 aria-selected={selected}
                 onClick={() => onChange(option.id)}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-medium transition-all",
+                  "inline-flex shrink-0 items-center gap-1 rounded-full border font-medium transition-colors",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
+                  compact
+                    ? "px-2.5 py-1 text-[11px] sm:px-3 sm:text-xs"
+                    : "gap-2 px-3.5 py-1.5 text-xs",
                   selected
-                    ? "border-primary/40 bg-primary text-primary-foreground shadow-sm ring-2 ring-primary/15"
-                    : "border-border/70 bg-background text-muted-foreground shadow-sm hover:border-border hover:bg-muted/40 hover:text-foreground",
+                    ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                    : "border-border/70 bg-muted/25 text-muted-foreground hover:border-border hover:bg-muted/50 hover:text-foreground",
                 )}
               >
                 <span className="whitespace-nowrap">{option.label}</span>
                 {option.count !== undefined ? (
                   <span
                     className={cn(
-                      "rounded-full px-1.5 py-0.5 text-[10px] font-semibold leading-none tabular-nums",
+                      "rounded-full px-1 py-0.5 text-[10px] font-semibold leading-none tabular-nums",
                       selected
-                        ? "bg-background/20 text-background"
-                        : "bg-background text-muted-foreground",
+                        ? "bg-primary-foreground/20 text-primary-foreground"
+                        : "bg-background/80 text-foreground/70",
                     )}
                   >
                     {option.count}

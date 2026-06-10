@@ -11,6 +11,36 @@ export const CHART_GRID = {
   containLabel: true,
 } as const;
 
+export const CHART_GRID_WITH_LEGEND = {
+  ...CHART_GRID,
+  bottom: 36,
+} as const;
+
+const LEGEND_TEXT = {
+  color: CHART_AXIS_COLOR,
+  fontSize: 11,
+} as const;
+
+function bottomLegend(
+  names: string[],
+  icon: "circle" | "roundRect" = "roundRect",
+): NonNullable<EChartsOption["legend"]> {
+  return {
+    type: "scroll",
+    bottom: 0,
+    left: "center",
+    selectedMode: true,
+    icon,
+    itemWidth: icon === "circle" ? 8 : 10,
+    itemHeight: icon === "circle" ? 8 : 10,
+    itemGap: 16,
+    textStyle: LEGEND_TEXT,
+    pageIconColor: CHART_AXIS_COLOR,
+    pageTextStyle: LEGEND_TEXT,
+    data: names,
+  };
+}
+
 const TOOLTIP_BASE = {
   backgroundColor: "rgba(255, 255, 255, 0.98)",
   borderColor: "#e2e8f0",
@@ -98,15 +128,17 @@ export function donutChartOption(
   innerRadius = "58%",
   outerRadius = "82%",
 ): EChartsOption {
+  const names = data.map((d) => d.name);
   return {
     animationDuration: 600,
     animationEasing: "cubicOut",
     tooltip: itemTooltip(),
+    legend: bottomLegend(names),
     series: [
       {
         type: "pie",
         radius: [innerRadius, outerRadius],
-        center: ["50%", "50%"],
+        center: ["50%", "44%"],
         padAngle: 2,
         avoidLabelOverlap: true,
         itemStyle: {
@@ -139,15 +171,17 @@ export function pieChartOption(
     ? [innerRadius, outerRadius]
     : outerRadius;
 
+  const names = data.map((d) => d.name);
   return {
     animationDuration: 600,
     animationEasing: "cubicOut",
     tooltip: itemTooltip(),
+    legend: bottomLegend(names),
     series: [
       {
         type: "pie",
         radius,
-        center: ["50%", "50%"],
+        center: ["50%", "45%"],
         padAngle: 2,
         avoidLabelOverlap: true,
         itemStyle: {
@@ -183,8 +217,12 @@ export function multiLineChartOption(
 ): EChartsOption {
   return {
     animationDuration: 700,
-    grid: CHART_GRID,
+    grid: CHART_GRID_WITH_LEGEND,
     tooltip: axisTooltip(valueFormatter),
+    legend: bottomLegend(
+      series.map((s) => s.name),
+      "circle",
+    ),
     xAxis: categoryAxis(categories),
     yAxis: valueAxis(valueFormatter),
     series: series.map((s) => ({
@@ -209,11 +247,12 @@ export function singleLineChartOption(
   name?: string,
   valueFormatter?: (value: number) => string,
 ): EChartsOption {
+  const seriesName = name ?? "";
   const rows = categories.map((label, i) => ({ label, count: values[i] ?? 0 }));
   return multiLineChartOption(
     categories,
     rows,
-    [{ key: "count", name: name ?? "", color }],
+    [{ key: "count", name: seriesName, color }],
     valueFormatter,
   );
 }
@@ -226,8 +265,9 @@ export function stackedBarChartOption(
 ): EChartsOption {
   return {
     animationDuration: 650,
-    grid: CHART_GRID,
+    grid: CHART_GRID_WITH_LEGEND,
     tooltip: axisTooltip(valueFormatter),
+    legend: bottomLegend(series.map((s) => s.name)),
     xAxis: { ...categoryAxis(categories), boundaryGap: true },
     yAxis: valueAxis(valueFormatter),
     series: series.map((s, index) => ({
@@ -253,15 +293,17 @@ export function verticalBarChartOption(
   name?: string,
   valueFormatter?: (value: number) => string,
 ): EChartsOption {
+  const seriesName = name ?? "";
   return {
     animationDuration: 650,
-    grid: CHART_GRID,
+    grid: seriesName ? CHART_GRID_WITH_LEGEND : CHART_GRID,
     tooltip: axisTooltip(valueFormatter),
+    ...(seriesName ? { legend: bottomLegend([seriesName]) } : {}),
     xAxis: categoryAxis(categories),
     yAxis: valueAxis(valueFormatter),
     series: [
       {
-        name,
+        name: seriesName,
         type: "bar",
         barMaxWidth: 40,
         itemStyle: { color, borderRadius: [6, 6, 0, 0] },
@@ -279,8 +321,9 @@ export function groupedBarChartOption(
 ): EChartsOption {
   return {
     animationDuration: 650,
-    grid: CHART_GRID,
+    grid: CHART_GRID_WITH_LEGEND,
     tooltip: axisTooltip(valueFormatter),
+    legend: bottomLegend(series.map((s) => s.name)),
     xAxis: categoryAxis(categories),
     yAxis: valueAxis(valueFormatter),
     series: series.map((s) => ({
@@ -301,8 +344,9 @@ export function coloredVerticalBarChartOption(
 ): EChartsOption {
   return {
     animationDuration: 650,
-    grid: CHART_GRID,
+    grid: CHART_GRID_WITH_LEGEND,
     tooltip: axisTooltip(valueFormatter),
+    legend: bottomLegend(data.map((d) => d.name)),
     xAxis: categoryAxis(data.map((d) => d.name)),
     yAxis: valueAxis(valueFormatter),
     series: [
@@ -310,6 +354,7 @@ export function coloredVerticalBarChartOption(
         type: "bar",
         barMaxWidth: 40,
         data: data.map((d) => ({
+          name: d.name,
           value: d.value,
           itemStyle: { color: d.color, borderRadius: [6, 6, 0, 0] },
         })),
@@ -324,8 +369,9 @@ export function horizontalBarChartOption(
 ): EChartsOption {
   return {
     animationDuration: 650,
-    grid: { ...CHART_GRID, left: 8 },
+    grid: { ...CHART_GRID_WITH_LEGEND, left: 8 },
     tooltip: axisTooltip(valueFormatter),
+    legend: bottomLegend(data.map((d) => d.name)),
     xAxis: valueAxis(valueFormatter),
     yAxis: {
       type: "category",
@@ -344,6 +390,7 @@ export function horizontalBarChartOption(
         type: "bar",
         barMaxWidth: 22,
         data: data.map((d) => ({
+          name: d.name,
           value: d.value,
           itemStyle: { color: d.color, borderRadius: [0, 6, 6, 0] },
         })),

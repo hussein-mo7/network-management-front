@@ -75,6 +75,54 @@ export function StatCardsRowSkeleton({ count = 4 }: { count?: number }) {
   );
 }
 
+export function StatisticsPageSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-primary/[0.06] via-surface to-accent/[0.04] px-5 py-8 sm:px-8">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 space-y-3">
+            <Skeleton className="h-6 w-28 rounded-full" />
+            <Skeleton className="h-8 w-48 max-w-full" />
+            <Skeleton className="h-4 w-80 max-w-full" />
+          </div>
+          <div className="flex gap-4">
+            <Skeleton className="h-14 w-24 rounded-xl" />
+            <Skeleton className="h-14 w-24 rounded-xl" />
+            <Skeleton className="h-14 w-24 rounded-xl" />
+          </div>
+        </div>
+      </div>
+
+      <StatCardsRowSkeleton count={7} />
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-xl border border-border" />
+        ))}
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-20 rounded-xl border border-border" />
+        ))}
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-64 rounded-xl border border-border" />
+        ))}
+      </div>
+
+      <Skeleton className="h-48 rounded-xl border border-border" />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Skeleton className="h-56 rounded-xl border border-border" />
+        <Skeleton className="h-56 rounded-xl border border-border" />
+      </div>
+    </div>
+  );
+}
+
 export function DataTableSkeleton({ rows = 6, columns = 5 }: { rows?: number; columns?: number }) {
   return (
     <div className={dataTableWrapClass}>

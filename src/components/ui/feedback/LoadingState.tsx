@@ -7,6 +7,7 @@ import {
   RegistryListLoadingSkeleton,
   SpeedTiersGridSkeleton,
   StatCardsRowSkeleton,
+  StatisticsPageSkeleton,
   SupportContentSkeleton,
   SupportPageSkeleton,
 } from "@/components/ui/feedback/loading-skeletons";
@@ -20,6 +21,7 @@ export type LoadingLayout =
   | "available-usernames"
   | "table"
   | "stats"
+  | "statistics"
   | "customers-table"
   | "subscribers-table"
   | "profile";
@@ -77,6 +79,8 @@ function SkeletonLayout({
       return <ProfilePageSkeleton showTabs={showProfileTabs} />;
     case "stats":
       return <StatCardsRowSkeleton />;
+    case "statistics":
+      return <StatisticsPageSkeleton />;
     default:
       return (
         <div className="space-y-3">

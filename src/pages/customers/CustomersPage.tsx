@@ -23,8 +23,7 @@ import { cn } from "@/lib/cn";
 type Dialog =
   | { type: "edit"; row: Customer }
   | { type: "delete"; row: Customer }
-  | { type: "deleteBulk" }
-  | { type: "deleteAll" };
+  | { type: "deleteBulk" };
 
 export function CustomersPage() {
   const { t } = useTranslation();
@@ -42,14 +41,10 @@ export function CustomersPage() {
   );
 
   const { data: rows = [], isLoading, isError, error, refetch } = useCustomersQuery(listParams);
-  const { updateMutation, deleteMutation, deleteBulkMutation, deleteAllMutation } =
-    useCustomerMutations();
+  const { updateMutation, deleteMutation, deleteBulkMutation } = useCustomerMutations();
 
   const isSubmitting =
-    updateMutation.isPending ||
-    deleteMutation.isPending ||
-    deleteBulkMutation.isPending ||
-    deleteAllMutation.isPending;
+    updateMutation.isPending || deleteMutation.isPending || deleteBulkMutation.isPending;
 
   const showError = (err: unknown) => {
     const message =
@@ -114,17 +109,6 @@ export function CustomersPage() {
     }
   };
 
-  const handleDeleteAll = async () => {
-    try {
-      await deleteAllMutation.mutateAsync();
-      setSelectedIds(new Set());
-      toast.success(t("customers.form.deleteAllSuccess"));
-      setDialog(null);
-    } catch (err) {
-      showError(err);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between lg:gap-6">
@@ -147,27 +131,14 @@ export function CustomersPage() {
       </div>
 
       <section className="rounded-xl border border-border bg-surface">
-        <div className="border-b border-border px-4 py-4 sm:px-6">
+        <div className="border-b border-border/70 bg-muted/10 px-3 py-2.5 sm:px-4">
           <CustomerFilters search={search} onSearchChange={setSearch} />
         </div>
 
-        <div className="px-4 py-4 sm:px-6">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <Text muted className="text-sm">
-              {t("customers.table.sectionSubtitle", { count: rows.length })}
-            </Text>
-            {canManage && rows.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground"
-                onClick={() => setDialog({ type: "deleteAll" })}
-              >
-                <Trash2 className="h-4 w-4" />
-                {t("customers.actions.deleteAll")}
-              </Button>
-            ) : null}
-          </div>
+        <div className="px-3 py-3 sm:px-4 sm:py-4">
+          <Text muted className="mb-3 text-sm">
+            {t("customers.table.sectionSubtitle", { count: rows.length })}
+          </Text>
 
           {canManage && selectedIds.size > 0 ? (
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
@@ -243,17 +214,6 @@ export function CustomersPage() {
         variant="danger"
       />
 
-      <ConfirmDialog
-        open={dialog?.type === "deleteAll"}
-        onClose={() => setDialog(null)}
-        onConfirm={handleDeleteAll}
-        title={t("customers.form.deleteAllTitle")}
-        message={t("customers.form.deleteAllMessage", { count: rows.length })}
-        confirmLabel={t("customers.actions.deleteAll")}
-        cancelLabel={t("common.cancel")}
-        isLoading={isSubmitting}
-        variant="danger"
-      />
     </div>
   );
 }

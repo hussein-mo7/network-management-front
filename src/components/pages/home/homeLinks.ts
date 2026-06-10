@@ -26,7 +26,7 @@ export const HOME_LINKS: HomeLinkItem[] = [
     titleKey: "home.cards.statistics.title",
     descriptionKey: "home.cards.statistics.description",
     to: "/statistics",
-    permission: "dashboard.view",
+    permission: "subscription_statistics.view",
     icon: BarChart3,
     accentClass: "bg-primary/15 text-primary ring-primary/20",
     section: "quick",

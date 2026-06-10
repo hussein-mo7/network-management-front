@@ -23,15 +23,18 @@ export function ExpiringFilters({
   const { t } = useTranslation();
 
   return (
-    <div className={cn("flex flex-col gap-4", className)}>
+    <div className={cn("flex flex-col gap-2.5", className)}>
       <SearchField
+        size="compact"
         value={search}
         onChange={onSearchChange}
         placeholder={t("subscribers.filters.searchPlaceholder")}
         ariaLabel={t("subscribers.filters.search")}
+        className="max-w-none sm:max-w-sm lg:max-w-md"
       />
 
       <FilterChipBar
+        size="compact"
         label={t("expiring.filters.label")}
         value={urgency}
         onChange={(id) => onUrgencyChange(id as ExpiringUrgencyFilter)}

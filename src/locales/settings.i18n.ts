@@ -6,6 +6,24 @@ export type SettingsI18n = {
     logs: { title: string; description: string };
     excel: { title: string; description: string };
     users: { title: string; description: string };
+    data: { title: string; description: string };
+  };
+  data: {
+    backToSettings: string;
+    title: string;
+    subtitle: string;
+    dangerZoneTitle: string;
+    dangerZoneHint: string;
+    customers: {
+      title: string;
+      description: string;
+      recordCount: string;
+    };
+    subscribers: {
+      title: string;
+      description: string;
+      recordCount: string;
+    };
   };
   excel: {
     backToSettings: string;
@@ -26,7 +44,7 @@ export type SettingsI18n = {
 
 export const settingsEn: SettingsI18n = {
   title: "Settings",
-  subtitle: "Admin tools — activity log, Excel import/export, and user management.",
+  subtitle: "Admin tools — activity log, data management, Excel import/export, and user management.",
   hub: {
     comingSoon: "UI only",
     logs: {
@@ -40,6 +58,28 @@ export const settingsEn: SettingsI18n = {
     users: {
       title: "Users & permissions",
       description: "Manage dashboard accounts and roles.",
+    },
+    data: {
+      title: "Data management",
+      description: "Bulk delete customers and subscribers — irreversible actions.",
+    },
+  },
+  data: {
+    backToSettings: "Back to settings",
+    title: "Data management",
+    subtitle: "Destructive bulk operations for customers and subscribers. Use only when you need to clear registry data.",
+    dangerZoneTitle: "Danger zone",
+    dangerZoneHint:
+      "These actions permanently remove records and cannot be undone. Individual delete on list pages is unchanged.",
+    customers: {
+      title: "Delete all customers",
+      description: "Remove every customer currently in the registry list.",
+      recordCount: "{{count}} customers",
+    },
+    subscribers: {
+      title: "Delete all subscribers",
+      description: "Remove every active subscriber on the subscribers list (non-expired usernames).",
+      recordCount: "{{count}} subscribers",
     },
   },
   excel: {
@@ -61,7 +101,7 @@ export const settingsEn: SettingsI18n = {
 
 export const settingsAr: SettingsI18n = {
   title: "الإعدادات",
-  subtitle: "أدوات الإدارة — سجل العمليات، Excel، وإدارة المستخدمين.",
+  subtitle: "أدوات الإدارة — سجل العمليات، إدارة البيانات، Excel، وإدارة المستخدمين.",
   hub: {
     comingSoon: "واجهة فقط",
     logs: {
@@ -75,6 +115,28 @@ export const settingsAr: SettingsI18n = {
     users: {
       title: "المستخدمين والصلاحيات",
       description: "إدارة حسابات لوحة التحكم والأدوار.",
+    },
+    data: {
+      title: "إدارة البيانات",
+      description: "حذف جماعي للزبائن والمشتركين — إجراءات لا رجعة فيها.",
+    },
+  },
+  data: {
+    backToSettings: "العودة للإعدادات",
+    title: "إدارة البيانات",
+    subtitle: "عمليات حذف جماعية للزبائن والمشتركين. استخدمها فقط عند الحاجة لتفريغ السجل.",
+    dangerZoneTitle: "منطقة خطرة",
+    dangerZoneHint:
+      "هذه الإجراءات تحذف السجلات نهائياً ولا يمكن التراجع. الحذف الفردي من صفحات القوائم يبقى كما هو.",
+    customers: {
+      title: "حذف كل الزبائن",
+      description: "إزالة كل الزبائن الموجودين حالياً في سجل الزبائن.",
+      recordCount: "{{count}} زبون",
+    },
+    subscribers: {
+      title: "حذف كل المشتركين",
+      description: "إزالة كل المشتركين النشطين في قائمة المشتركين (أسماء غير منتهية).",
+      recordCount: "{{count}} مشترك",
     },
   },
   excel: {

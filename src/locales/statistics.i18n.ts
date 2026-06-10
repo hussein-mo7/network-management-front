@@ -4,6 +4,12 @@ export type StatisticsI18n = {
   refresh: string;
   yearLabel: string;
   todayBadge: string;
+  liveBadge: string;
+  hero: {
+    totalRecords: string;
+    activeSubscribers: string;
+    poolAvailable: string;
+  };
   overview: {
     totalRecords: string;
     totalRecordsHint: string;
@@ -79,10 +85,16 @@ export type StatisticsI18n = {
   recent: {
     newSubscribersTitle: string;
     newSubscribersSub: string;
+    emptyNewForDay: string;
     usernameChangesTitle: string;
     usernameChangesSub: string;
     emptyNew: string;
     emptyChanges: string;
+    emptyChangesForDay: string;
+    previousDay: string;
+    nextDay: string;
+    today: string;
+    yesterday: string;
     name: string;
     lineId: string;
     username: string;
@@ -90,7 +102,9 @@ export type StatisticsI18n = {
     oldUsername: string;
     currentUsername: string;
     addedAt: string;
+    addedAtShort: string;
     changedAt: string;
+    changedAtShort: string;
   };
   links: {
     viewExpiring: string;
@@ -106,6 +120,12 @@ export const statisticsEn: StatisticsI18n = {
   refresh: "Refresh",
   yearLabel: "Year",
   todayBadge: "Today",
+  liveBadge: "Live data",
+  hero: {
+    totalRecords: "Registry",
+    activeSubscribers: "Active",
+    poolAvailable: "Pool",
+  },
   overview: {
     totalRecords: "Total customers",
     totalRecordsHint: "Everyone in the registry",
@@ -179,12 +199,18 @@ export const statisticsEn: StatisticsI18n = {
     days_low: "Under 7 days",
   },
   recent: {
-    newSubscribersTitle: "New today",
-    newSubscribersSub: "Customers added today",
-    usernameChangesTitle: "Username changes today",
-    usernameChangesSub: "Recent username swaps",
+    newSubscribersTitle: "New customers",
+    newSubscribersSub: "Pick a day from the last week",
+    emptyNewForDay: "No customers added on {{date}}",
+    previousDay: "Previous day",
+    nextDay: "Next day",
+    usernameChangesTitle: "Username changes",
+    usernameChangesSub: "Browse by day",
     emptyNew: "No new customers today",
     emptyChanges: "No username changes today",
+    emptyChangesForDay: "No changes on {{date}}",
+    today: "Today",
+    yesterday: "Yesterday",
     name: "Name",
     lineId: "Line ID",
     username: "Username",
@@ -192,7 +218,9 @@ export const statisticsEn: StatisticsI18n = {
     oldUsername: "Previous",
     currentUsername: "Current",
     addedAt: "Added",
+    addedAtShort: "Time",
     changedAt: "Changed",
+    changedAtShort: "Time",
   },
   links: {
     viewExpiring: "Expiring list",
@@ -208,6 +236,12 @@ export const statisticsAr: StatisticsI18n = {
   refresh: "تحديث",
   yearLabel: "السنة",
   todayBadge: "اليوم",
+  liveBadge: "بيانات مباشرة",
+  hero: {
+    totalRecords: "السجل",
+    activeSubscribers: "فعال",
+    poolAvailable: "المخزون",
+  },
   overview: {
     totalRecords: "إجمالي الزبائن",
     totalRecordsHint: "كل السجلات في النظام",
@@ -281,12 +315,18 @@ export const statisticsAr: StatisticsI18n = {
     days_low: "أقل من 7 أيام",
   },
   recent: {
-    newSubscribersTitle: "جدد اليوم",
-    newSubscribersSub: "زبائن أُضيفوا اليوم",
-    usernameChangesTitle: "تغييرات الأسماء اليوم",
-    usernameChangesSub: "آخر تبديلات أسماء المستخدم",
+    newSubscribersTitle: "زبائن جدد",
+    newSubscribersSub: "تصفح حسب اليوم",
+    emptyNewForDay: "لا إضافات في {{date}}",
+    previousDay: "اليوم السابق",
+    nextDay: "اليوم التالي",
+    usernameChangesTitle: "تغييرات الأسماء",
+    usernameChangesSub: "تصفح حسب اليوم",
     emptyNew: "لا إضافات اليوم",
     emptyChanges: "لا تغييرات أسماء اليوم",
+    emptyChangesForDay: "لا تغييرات في {{date}}",
+    today: "اليوم",
+    yesterday: "أمس",
     name: "الاسم",
     lineId: "رقم الخط",
     username: "اسم المستخدم",
@@ -294,7 +334,9 @@ export const statisticsAr: StatisticsI18n = {
     oldUsername: "السابق",
     currentUsername: "الحالي",
     addedAt: "تاريخ الإضافة",
+    addedAtShort: "الوقت",
     changedAt: "تاريخ التغيير",
+    changedAtShort: "الوقت",
   },
   links: {
     viewExpiring: "قائمة المنتهية",

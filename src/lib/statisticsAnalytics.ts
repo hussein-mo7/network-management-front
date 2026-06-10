@@ -168,7 +168,11 @@ export function computeStatisticsData(input: ComputeStatisticsInput): Statistics
     now = new Date(),
   } = input;
 
-  const poolRows = availableUsernames.filter((row) => isInAvailablePool(row, now));
+  const activeTiers = speedTiers.filter((tier) => !tier.deleted);
+  const activeSpeedIds = new Set(activeTiers.map((tier) => tier.id));
+  const poolRows = availableUsernames.filter(
+    (row) => isInAvailablePool(row, now) && activeSpeedIds.has(row.speedId),
+  );
   const activeList = subscribers.filter((s) => s.username && !isStoppedSubscriber(s));
   const expiringSoon = subscribers.filter(
     (s) => isOnExpiringPage(s, now) && !isExpiringSubscription(s, now),
@@ -209,51 +213,38 @@ export function computeStatisticsData(input: ComputeStatisticsInput): Statistics
     facilityMap.set(sub.facilityType, (facilityMap.get(sub.facilityType) ?? 0) + 1);
   }
 
-  const recentNewSubscribers = subscribers
-    .filter((s) => {
+  const newSubscriberDayCounts = Array.from({ length: 8 }, (_, offset) => {
+    const day = subDays(now, offset);
+    const key = format(day, "yyyy-MM-dd");
+    const count = subscribers.filter((s) => {
       try {
-        return isSameDay(parseISO(s.createdAt), now);
+        return isSameDay(parseISO(s.createdAt), day);
       } catch {
         return false;
       }
-    })
-    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .map((s) => ({
-      id: s.id,
-      lineId: s.lineId,
-      username: s.username,
-      fullName: s.fullName,
-      phone: s.phone,
-      createdAt: s.createdAt,
-    }));
+    }).length;
+    return { date: key, count };
+  });
 
-  const todayUsernameChanges = usernameHistory
-    .filter((h) => {
+  const usernameChangeDayCounts = Array.from({ length: 8 }, (_, offset) => {
+    const day = subDays(now, offset);
+    const key = format(day, "yyyy-MM-dd");
+    const count = usernameHistory.filter((h) => {
       try {
-        return isSameDay(parseISO(h.changedAt), now);
+        return isSameDay(parseISO(h.changedAt), day);
       } catch {
         return false;
       }
-    })
-    .map((h) => {
-      const sub = subscribers.find((s) => s.lineId === h.subscriberLineId);
-      return {
-        id: h.id,
-        subscriberId: sub?.id ?? null,
-        lineId: h.subscriberLineId,
-        fullName: sub?.fullName ?? "—",
-        phone: sub?.phone ?? null,
-        oldUsername: h.oldUsername,
-        currentUsername: sub?.username ?? "—",
-        changedAt: h.changedAt,
-      };
-    })
-    .sort((a, b) => b.changedAt.localeCompare(a.changedAt));
+    }).length;
+    return { date: key, count };
+  });
 
   const dailyNewSource = subscribers.map((s) => ({ date: s.createdAt }));
-  const dailyAvailableSource = availableUsernames.map((u) => ({ date: u.createdAt }));
+  const dailyAvailableSource = availableUsernames
+    .filter((u) => activeSpeedIds.has(u.speedId))
+    .map((u) => ({ date: u.createdAt }));
 
-  const breakdownBySpeed: StatisticsData["availableDaysBreakdownBySpeed"] = speedTiers.map((tier) => {
+  const breakdownBySpeed: StatisticsData["availableDaysBreakdownBySpeed"] = activeTiers.map((tier) => {
     const rowsForSpeed = poolRows.filter((r) => r.speedId === tier.id);
     const categories: AvailableDaysCategory[] = ["full", "half", "quarter", "low"];
     const breakdown = categories.map((category) => ({
@@ -300,12 +291,14 @@ export function computeStatisticsData(input: ComputeStatisticsInput): Statistics
     },
     thisWeek: {
       newSubscribers: subscribers.filter((s) => inWeek(s.createdAt, now)).length,
-      availableUsernamesAdded: availableUsernames.filter((u) => inWeek(u.createdAt, now)).length,
+      availableUsernamesAdded: availableUsernames.filter(
+        (u) => activeSpeedIds.has(u.speedId) && inWeek(u.createdAt, now),
+      ).length,
       speedChanges: speedHistory.filter((h) => inWeek(h.changedAt, now)).length,
       usernameChanges: usernameHistory.filter((h) => inWeek(h.changedAt, now)).length,
     },
     thisMonth: { newSubscribers: newThisMonth },
-    speedTiers: speedTiers.map((t) => ({
+    speedTiers: activeTiers.map((t) => ({
       id: t.id,
       speedMbps: t.valueMbps,
       label: t.label,
@@ -320,8 +313,8 @@ export function computeStatisticsData(input: ComputeStatisticsInput): Statistics
       .sort(([, a], [, b]) => b - a)
       .slice(0, 10)
       .map(([facilityType, count]) => ({ facilityType, count })),
-    recentNewSubscribers,
-    todayUsernameChanges,
+    newSubscriberDayCounts,
+    usernameChangeDayCounts,
     charts: {
       dailyNewSubscribers: fillDailyCounts(dailyNewSource, (r) => r.date, now),
       dailyAvailableAdded: fillDailyCounts(dailyAvailableSource, (r) => r.date, now),

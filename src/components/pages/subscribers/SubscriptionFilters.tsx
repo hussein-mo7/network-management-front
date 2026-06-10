@@ -34,16 +34,18 @@ export function SubscriptionFilters({
       className={cn(className)}
       search={
         <SearchField
+          size="compact"
           value={search}
           onChange={onSearchChange}
           placeholder={t("subscribers.filters.searchPlaceholder")}
           ariaLabel={t("subscribers.filters.search")}
-          className="max-w-none sm:max-w-lg"
+          className="max-w-none sm:max-w-sm lg:max-w-md"
         />
       }
     >
       <FilterGroup label={t("subscribers.filters.status")}>
         <FilterChipBar
+          size="compact"
           value={status}
           onChange={(id) => onStatusChange(id as SubscriberListStatusFilter)}
           options={STATUS_FILTERS.map((value) => ({
@@ -55,6 +57,7 @@ export function SubscriptionFilters({
 
       <FilterGroup label={t("subscribers.filters.speed")}>
         <FilterChipBar
+          size="compact"
           value={speedMbps === "all" ? "all" : String(speedMbps)}
           onChange={(id) => onSpeedChange(id === "all" ? "all" : Number(id))}
           options={[

@@ -93,6 +93,13 @@ export interface CustomerKindBreakdown {
   stopped: number;
 }
 
+export interface StatisticsDayListResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
 export interface StatisticsData {
   overview: StatisticsOverview;
   thisWeek: StatisticsThisWeek;
@@ -101,8 +108,8 @@ export interface StatisticsData {
   subscribersBySpeed: SpeedCountRow[];
   availableBySpeed: SpeedCountRow[];
   facilityTypes: FacilityTypeRow[];
-  recentNewSubscribers: RecentSubscriberRow[];
-  todayUsernameChanges: UsernameChangeRow[];
+  newSubscriberDayCounts: DailyCountRow[];
+  usernameChangeDayCounts: DailyCountRow[];
   charts: {
     dailyNewSubscribers: DailyCountRow[];
     dailyAvailableAdded: DailyCountRow[];

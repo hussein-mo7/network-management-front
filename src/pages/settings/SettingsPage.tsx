@@ -3,12 +3,17 @@ import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/cards";
 import { Heading, Text } from "@/components/ui/typography";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { settingsHubItems } from "@/lib/dashboardNav";
 export function SettingsPage() {
   const { t } = useTranslation();
   const { can } = usePermissions();
+  const { canManage } = useRoleAccess();
 
-  const items = settingsHubItems.filter((item) => !item.permission || can(item.permission));
+  const items = settingsHubItems.filter((item) => {
+    if (item.requiresManage && !canManage) return false;
+    return !item.permission || can(item.permission);
+  });
 
   return (
     <div className="space-y-6">

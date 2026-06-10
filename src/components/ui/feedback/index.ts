@@ -9,6 +9,7 @@ export {
   SpeedTiersGridSkeleton,
   SpeedTierPickerSkeleton,
   StatCardsRowSkeleton,
+  StatisticsPageSkeleton,
   SupportPageSkeleton,
   SupportContentSkeleton,
   AvailableUsernamesPageSkeleton,

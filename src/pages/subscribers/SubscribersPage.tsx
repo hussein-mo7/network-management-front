@@ -29,8 +29,7 @@ import type { Subscriber } from "@/types/subscriber";
 type Dialog =
   | { type: "edit"; row: Subscriber }
   | { type: "delete"; row: Subscriber }
-  | { type: "deleteBulk" }
-  | { type: "deleteAll" };
+  | { type: "deleteBulk" };
 
 export function SubscribersPage() {
   const { t } = useTranslation();
@@ -64,7 +63,7 @@ export function SubscribersPage() {
     enabled: speedMbps !== "all",
   });
 
-  const { updateMutation, deleteMutation, deleteAllMutation } = useSubscriberListMutations();
+  const { updateMutation, deleteMutation } = useSubscriberListMutations();
 
   const filteredRows = useMemo(() => {
     const onList = rows.filter((row) => isOnSubscribersList(row));
@@ -80,8 +79,7 @@ export function SubscribersPage() {
     [speeds, rows, rowsForSpeedOptions, speedMbps],
   );
 
-  const isSubmitting =
-    updateMutation.isPending || deleteMutation.isPending || deleteAllMutation.isPending;
+  const isSubmitting = updateMutation.isPending || deleteMutation.isPending;
 
   const showError = (err: unknown) => {
     const message =
@@ -154,17 +152,6 @@ export function SubscribersPage() {
     }
   };
 
-  const handleDeleteAll = async () => {
-    try {
-      await deleteAllMutation.mutateAsync();
-      setSelectedIds(new Set());
-      toast.success(t("subscribers.form.deleteAllSuccess"));
-      setDialog(null);
-    } catch (err) {
-      showError(err);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="min-w-0">
@@ -175,7 +162,7 @@ export function SubscribersPage() {
       </div>
 
       <section className="rounded-xl border border-border bg-surface">
-        <div className="border-b border-border px-4 py-4 sm:px-6">
+        <div className="border-b border-border/70 bg-muted/10 px-3 py-2.5 sm:px-4">
           <SubscriptionFilters
             search={search}
             onSearchChange={setSearch}
@@ -187,23 +174,10 @@ export function SubscribersPage() {
           />
         </div>
 
-        <div className="px-4 py-4 sm:px-6">
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <Text muted className="text-sm">
-              {t("subscribers.table.sectionSubtitle", { count: filteredRows.length })}
-            </Text>
-            {canManage && filteredRows.length > 0 ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground"
-                onClick={() => setDialog({ type: "deleteAll" })}
-              >
-                <Trash2 className="h-4 w-4" />
-                {t("subscribers.actions.deleteAll")}
-              </Button>
-            ) : null}
-          </div>
+        <div className="px-3 py-3 sm:px-4 sm:py-4">
+          <Text muted className="mb-3 text-sm">
+            {t("subscribers.table.sectionSubtitle", { count: filteredRows.length })}
+          </Text>
 
           {canManage && selectedIds.size > 0 ? (
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 px-4 py-3">
@@ -303,17 +277,6 @@ export function SubscribersPage() {
         variant="danger"
       />
 
-      <ConfirmDialog
-        open={dialog?.type === "deleteAll"}
-        onClose={() => setDialog(null)}
-        onConfirm={handleDeleteAll}
-        title={t("subscribers.form.deleteAllTitle")}
-        message={t("subscribers.form.deleteAllMessage", { count: filteredRows.length })}
-        confirmLabel={t("subscribers.actions.deleteAll")}
-        cancelLabel={t("common.cancel")}
-        isLoading={isSubmitting}
-        variant="danger"
-      />
     </div>
   );
 }

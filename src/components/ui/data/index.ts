@@ -25,3 +25,4 @@ export {
   dataTableScrollMinClass,
 } from "./tableClasses";
 export { TableSubscriberCell } from "./TableSubscriberCell";
+export { TablePagination } from "./TablePagination";

@@ -1,33 +1,23 @@
 import type { ReactNode } from "react";
-import { SlidersHorizontal } from "lucide-react";
-import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/cn";
 
 interface ListFiltersPanelProps {
   search: ReactNode;
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
 }
 
-/** Shared filter shell for list pages — search on top, chip groups in a soft panel. */
+/** Compact filter toolbar — search plus inline chip rows. */
 export function ListFiltersPanel({ search, children, className }: ListFiltersPanelProps) {
-  const { t } = useTranslation();
-
   return (
-    <div className={cn("space-y-4", className)}>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="min-w-0 flex-1">{search}</div>
-      </div>
+    <div className={cn("flex flex-col gap-2.5", className)}>
+      {search}
 
-      <div className="overflow-hidden rounded-xl border border-border/70 bg-gradient-to-b from-muted/30 to-muted/10">
-        <div className="flex items-center gap-2 border-b border-border/50 px-4 py-2.5 sm:px-5">
-          <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-          <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("common.filters")}
-          </span>
+      {children ? (
+        <div className="flex flex-col gap-2 border-t border-border/50 pt-2.5 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-5 lg:gap-y-2">
+          {children}
         </div>
-        <div className="space-y-5 p-4 sm:p-5">{children}</div>
-      </div>
+      ) : null}
     </div>
   );
 }
@@ -40,9 +30,16 @@ interface FilterGroupProps {
 
 export function FilterGroup({ label, children, className }: FilterGroupProps) {
   return (
-    <div className={cn("space-y-2.5", className)}>
-      <span className="block text-xs font-semibold text-foreground/80">{label}</span>
-      {children}
+    <div
+      className={cn(
+        "flex min-w-0 flex-col gap-1 sm:flex-row sm:items-center sm:gap-2 lg:shrink-0",
+        className,
+      )}
+    >
+      <span className="shrink-0 text-[11px] font-semibold text-muted-foreground sm:min-w-[3.25rem]">
+        {label}
+      </span>
+      <div className="min-w-0 flex-1">{children}</div>
     </div>
   );
 }

@@ -5,7 +5,6 @@ import {
   CHART_PALETTE,
   ChartCard,
   ChartEmpty,
-  ChartLegendRow,
   donutChartOption,
   EChart,
   pieChartOption,
@@ -70,11 +69,6 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
         className="md:col-span-2"
         title={t("finance.charts.revenueTrend")}
         description={t("finance.charts.revenueTrendSub")}
-        legend={
-          <ChartLegendRow
-            items={[{ label: t("finance.charts.paidLabel"), color: CHART_COLORS.primary, type: "line" }]}
-          />
-        }
         chartClassName="h-64"
       >
         <EChart
@@ -92,11 +86,6 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
       <ChartCard
         title={t("finance.charts.revenueBySpeed")}
         description={t("finance.charts.revenueBySpeedSub")}
-        legend={
-          speedData.length > 0 ? (
-            <ChartLegendRow items={speedData.map((d) => ({ label: d.name, color: d.color }))} />
-          ) : undefined
-        }
       >
         {speedData.length === 0 ? (
           <ChartEmpty />
@@ -108,11 +97,6 @@ export function FinanceChartsSection({ stats }: FinanceChartsSectionProps) {
       <ChartCard
         title={t("finance.charts.byMethod")}
         description={t("finance.charts.byMethodSub")}
-        legend={
-          methodData.length > 0 ? (
-            <ChartLegendRow items={methodData.map((d) => ({ label: d.name, color: d.color }))} />
-          ) : undefined
-        }
       >
         {methodData.length === 0 ? (
           <ChartEmpty />

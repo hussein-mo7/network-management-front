@@ -32,6 +32,9 @@ const ROUTE_TITLE_KEYS: Array<{ match: (path: string) => boolean; titleKey: stri
   { match: (path) => path === "/finance", titleKey: "nav.items.finance" },
   { match: (path) => path === "/users", titleKey: "pages.users" },
   { match: (path) => path === "/logs", titleKey: "nav.items.logs" },
+  { match: (path) => path === "/settings/data", titleKey: "settings.data.title" },
+  { match: (path) => path === "/settings/excel", titleKey: "settings.excel.title" },
+  { match: (path) => path === "/settings", titleKey: "settings.title" },
 ];
 
 const DEFAULT_TITLE_KEY = "nav.dashboard";

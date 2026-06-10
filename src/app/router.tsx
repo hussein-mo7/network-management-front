@@ -16,7 +16,7 @@ import { StatisticsPage } from "@/pages/statistics/StatisticsPage";
 import { SubscriberProfilePage, SubscribersPage } from "@/pages/subscribers";
 import { ActivityLogsPage } from "@/pages/activity-logs/ActivityLogsPage";
 import { AdminUsersPage } from "@/pages/users/AdminUsersPage";
-import { ExcelToolsPage, SettingsPage } from "@/pages/settings";
+import { ExcelToolsPage, SettingsDataPage, SettingsPage } from "@/pages/settings";
 
 export function AppRouter() {
   return (
@@ -34,7 +34,7 @@ export function AppRouter() {
           <Route
             path="statistics"
             element={
-              <RequirePermission permission="dashboard.view">
+              <RequirePermission anyOf={["dashboard.view", "subscription_statistics.view"]}>
                 <StatisticsPage />
               </RequirePermission>
             }
@@ -168,6 +168,14 @@ export function AppRouter() {
             element={
               <RequirePermission permission="settings.view">
                 <SettingsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="settings/data"
+            element={
+              <RequirePermission permission="settings.view">
+                <SettingsDataPage />
               </RequirePermission>
             }
           />

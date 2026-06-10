@@ -3,4 +3,7 @@ export { StatisticsChartsSection } from "./StatisticsChartsSection";
 export { StatisticsLifecycleCards } from "./StatisticsLifecycleCards";
 export { StatisticsOverviewCards } from "./StatisticsOverviewCards";
 export { StatisticsPoolSection } from "./StatisticsPoolSection";
-export { StatisticsRecentSection } from "./StatisticsRecentSection";
+export { StatisticsDayFilter } from "./StatisticsDayFilter";
+export { StatisticsDaySectionShell } from "./StatisticsDaySectionShell";
+export { StatisticsNewSubscribersSection } from "./StatisticsNewSubscribersSection";
+export { StatisticsUsernameChangesSection } from "./StatisticsUsernameChangesSection";

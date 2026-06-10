@@ -5,7 +5,6 @@ import {
   CHART_PALETTE,
   ChartCard,
   ChartEmpty,
-  ChartLegendRow,
   coloredVerticalBarChartOption,
   donutChartOption,
   EChart,
@@ -137,12 +136,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
     [data.facilityTypes],
   );
 
-  const trendLegend = TREND_KEYS.map((key) => ({
-    label: statusLabel(key),
-    color: STATUS_COLORS[key],
-    type: "line" as const,
-  }));
-
   const chartKey = lang;
 
   return (
@@ -150,11 +143,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
       <ChartCard
         title={t("statistics.charts.statusDonut")}
         description={t("statistics.charts.statusDonutSub")}
-        legend={
-          distribution.length > 0 ? (
-            <ChartLegendRow items={distribution.map((d) => ({ label: d.name, color: d.color }))} />
-          ) : undefined
-        }
       >
         {distribution.length === 0 ? (
           <ChartEmpty />
@@ -166,11 +154,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
       <ChartCard
         title={t("statistics.charts.customerKinds")}
         description={t("statistics.charts.customerKindsSub")}
-        legend={
-          kindData.length > 0 ? (
-            <ChartLegendRow items={kindData.map((d) => ({ label: d.name, color: d.color }))} />
-          ) : undefined
-        }
       >
         {kindData.length === 0 ? (
           <ChartEmpty />
@@ -183,7 +166,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
         className="xl:col-span-2"
         title={t("statistics.charts.monthlyTrend")}
         description={t("statistics.charts.monthlyTrendSub", { year: data.subscription.year })}
-        legend={<ChartLegendRow items={trendLegend} />}
         chartClassName="h-64"
       >
         <EChart
@@ -196,7 +178,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
         className="xl:col-span-2"
         title={t("statistics.charts.monthlyBars")}
         description={t("statistics.charts.monthlyBarsSub")}
-        legend={<ChartLegendRow items={trendLegend.map((i) => ({ ...i, type: "square" as const }))} />}
         chartClassName="h-64"
       >
         <EChart
@@ -208,11 +189,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
       <ChartCard
         title={t("statistics.charts.subscribersBySpeed")}
         description={t("statistics.charts.subscribersBySpeedSub")}
-        legend={
-          speedSubData.length > 0 ? (
-            <ChartLegendRow items={speedSubData.map((d) => ({ label: d.name, color: d.color }))} />
-          ) : undefined
-        }
       >
         {speedSubData.length === 0 ? (
           <ChartEmpty />
@@ -238,11 +214,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
       <ChartCard
         title={t("statistics.charts.dailyNew")}
         description={t("statistics.charts.dailyNewSub")}
-        legend={
-          <ChartLegendRow
-            items={[{ label: t("statistics.activity.newSubscribers"), color: CHART_COLORS.primary, type: "line" }]}
-          />
-        }
       >
         <EChart
           option={singleLineChartOption(
@@ -258,11 +229,6 @@ export function StatisticsChartsSection({ data }: StatisticsChartsSectionProps) 
       <ChartCard
         title={t("statistics.charts.dailyAvailable")}
         description={t("statistics.charts.dailyAvailableSub")}
-        legend={
-          <ChartLegendRow
-            items={[{ label: t("statistics.activity.usernamesAdded"), color: CHART_COLORS.accent, type: "line" }]}
-          />
-        }
       >
         <EChart
           option={singleLineChartOption(
