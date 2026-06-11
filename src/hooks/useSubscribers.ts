@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InvoiceFormValues } from "@/components/pages/subscribers/InvoiceFormModal";
+import { balanceDeltaForInvoice } from "@/lib/invoiceUtils";
 import {
   applyBalanceDelta,
   invalidatePoolAndStatsCaches,
@@ -262,14 +263,13 @@ export function useSubscriberInvoiceMutations(subscriberId: number, lineId: stri
   const createMutation = useMutation({
     mutationFn: (values: InvoiceFormValues) =>
       subscribersService.createInvoice(subscriberId, lineId, {
-        amount: Number(values.amount) || 0,
         paidAmount: Number(values.paidAmount) || 0,
         paymentMethod: values.paymentMethod as import("@/types/subscriber").PaymentMethod,
         notes: values.notes,
       }),
     onSuccess: (_invoice, values) => {
-      const delta = (Number(values.paidAmount) || 0) - (Number(values.amount) || 0);
-      applyBalanceDelta(queryClient, subscriberId, lineId, delta);
+      const paid = Number(values.paidAmount) || 0;
+      applyBalanceDelta(queryClient, subscriberId, lineId, balanceDeltaForInvoice(paid, paid));
       invalidateInvoices();
     },
   });
@@ -282,8 +282,13 @@ export function useSubscriberInvoiceMutations(subscriberId: number, lineId: stri
         subscriberInvoicesQueryKey(subscriberId),
       );
       const removed = invoices?.find((row) => row.id === invoiceId);
-      if (removed && removed.paidAmount > 0) {
-        applyBalanceDelta(queryClient, subscriberId, lineId, -removed.paidAmount);
+      if (removed) {
+        applyBalanceDelta(
+          queryClient,
+          subscriberId,
+          lineId,
+          -balanceDeltaForInvoice(removed.amount, removed.paidAmount),
+        );
       }
       invalidateInvoices();
     },

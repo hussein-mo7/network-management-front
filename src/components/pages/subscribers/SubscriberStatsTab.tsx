@@ -21,6 +21,7 @@ interface SubscriberStatsTabProps {
   subscriber: Subscriber;
   canManage?: boolean;
   canViewPasswords?: boolean;
+  showNotes?: boolean;
   daysGone?: number | null;
   daysRemaining?: number | null;
   onSave?: (patch: SubscriberProfileSavePatch) => void | Promise<void>;
@@ -52,6 +53,7 @@ export function SubscriberStatsTab({
   subscriber,
   canManage = false,
   canViewPasswords = false,
+  showNotes = true,
   daysGone = null,
   daysRemaining = null,
   onSave,
@@ -229,7 +231,7 @@ export function SubscriberStatsTab({
             const patch: SubscriberProfileSavePatch = {
               fullName: values.fullName.trim(),
               phone: values.phone.trim() || null,
-              notes: values.notes.trim() || null,
+              ...(showNotes ? { notes: values.notes.trim() || null } : {}),
             };
             const password = values.password.trim();
             const previous = (subscriber.password ?? "").trim();
@@ -341,12 +343,14 @@ export function SubscriberStatsTab({
             </div>
           ) : null}
 
-          <Textarea
-            label={t("subscribers.form.notes")}
-            rows={3}
-            {...register("notes")}
-            disabled={!canManage}
-          />
+          {showNotes ? (
+            <Textarea
+              label={t("subscribers.form.notes")}
+              rows={3}
+              {...register("notes")}
+              disabled={!canManage}
+            />
+          ) : null}
 
           {canManage ? (
             <div className="flex justify-end border-t border-border/60 pt-4">

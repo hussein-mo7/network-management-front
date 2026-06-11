@@ -347,7 +347,6 @@ export const subscribersService = {
     subscriberId: number,
     lineId: string,
     body: {
-      amount: number;
       paidAmount: number;
       paymentMethod: import("@/types/subscriber").PaymentMethod;
       notes?: string;
@@ -356,7 +355,6 @@ export const subscribersService = {
     const response = await apiPost<ApiListEnvelope<BackendInvoiceRow>>(
       `/subscribers/${subscriberId}/invoices`,
       {
-        amount: String(body.amount),
         paidAmount: String(body.paidAmount),
         paymentMethod: mapPaymentMethodToApi(body.paymentMethod),
         notes: body.notes?.trim() || undefined,

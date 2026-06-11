@@ -42,7 +42,7 @@ export function AppRouter() {
           <Route
             path="customers"
             element={
-              <RequirePermission permission="subscribers.view">
+              <RequirePermission permission="customers.view">
                 <CustomersPage />
               </RequirePermission>
             }
@@ -58,7 +58,7 @@ export function AppRouter() {
           <Route
             path="customers/:lineId"
             element={
-              <RequirePermission permission="subscribers.view">
+              <RequirePermission permission="customers.view">
                 <CustomerProfilePage />
               </RequirePermission>
             }

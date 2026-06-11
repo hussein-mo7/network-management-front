@@ -17,7 +17,6 @@ interface SubscriberInvoicesTabProps {
   balance: number;
   subscriber: Pick<Subscriber, "lineId" | "fullName" | "phone" | "facilityType">;
   canManage?: boolean;
-  monthlyPrice?: number;
   onAddInvoice?: (values: InvoiceFormValues) => Promise<void>;
   onDeleteInvoice?: (invoiceId: number) => Promise<void>;
 }
@@ -34,7 +33,6 @@ export function SubscriberInvoicesTab({
   balance,
   subscriber,
   canManage = false,
-  monthlyPrice,
   onAddInvoice,
   onDeleteInvoice,
 }: SubscriberInvoicesTabProps) {
@@ -162,7 +160,7 @@ export function SubscriberInvoicesTab({
         onClose={() => setModalOpen(false)}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
-        defaultAmount={monthlyPrice}
+        defaultPayment={balance < 0 ? Math.abs(balance) : 0}
       />
 
       <InvoicePreviewModal

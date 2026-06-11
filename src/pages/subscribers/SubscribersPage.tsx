@@ -15,6 +15,7 @@ import { LoadingState } from "@/components/ui/feedback";
 import { Heading, Text } from "@/components/ui/typography";
 import { useSubscriberListMutations, useSubscribersQuery } from "@/hooks/useSubscribers";
 import { useSpeedsQuery } from "@/hooks/useSpeeds";
+import { usePermissions } from "@/hooks/usePermissions";
 import { useRoleAccess } from "@/hooks/useRoleAccess";
 import { isOnSubscribersList } from "@/lib/customerUtils";
 import {
@@ -34,6 +35,7 @@ type Dialog =
 export function SubscribersPage() {
   const { t } = useTranslation();
   const { canManage, canViewPasswords } = useRoleAccess();
+  const { can } = usePermissions();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<SubscriberListStatusFilter>("all");
   const [speedMbps, setSpeedMbps] = useState<number | "all">("all");
@@ -227,20 +229,29 @@ export function SubscribersPage() {
       </section>
 
       <Text muted className="text-xs">
-        {t("subscribers.registryHint")}{" "}
-        <Link to="/customers" className="font-medium text-foreground underline-offset-2 hover:underline">
-          {t("nav.items.customers")}
-        </Link>
+        {t("subscribers.registryHint")}
+        {can("customers.view") ? (
+          <>
+            {" "}
+            <Link to="/customers" className="font-medium text-foreground underline-offset-2 hover:underline">
+              {t("nav.items.customers")}
+            </Link>
+          </>
+        ) : null}
         {" · "}
         {t("subscribers.expiringPageHint")}{" "}
         <Link to="/expiring" className="font-medium text-foreground underline-offset-2 hover:underline">
           {t("nav.items.expiring")}
         </Link>
-        {" · "}
-        {t("subscribers.stoppedPageHint")}{" "}
-        <Link to="/stopped" className="font-medium text-foreground underline-offset-2 hover:underline">
-          {t("nav.items.stopped")}
-        </Link>
+        {can("disabled.view") ? (
+          <>
+            {" · "}
+            {t("subscribers.stoppedPageHint")}{" "}
+            <Link to="/stopped" className="font-medium text-foreground underline-offset-2 hover:underline">
+              {t("nav.items.stopped")}
+            </Link>
+          </>
+        ) : null}
       </Text>
 
       <SubscriberFormModal

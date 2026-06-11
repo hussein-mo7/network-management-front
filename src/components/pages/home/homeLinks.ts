@@ -35,7 +35,7 @@ export const HOME_LINKS: HomeLinkItem[] = [
     titleKey: "home.cards.customers.title",
     descriptionKey: "home.cards.customers.description",
     to: "/customers",
-    permission: "subscribers.view",
+    permission: "customers.view",
     icon: Users,
     accentClass: "bg-accent/15 text-accent ring-accent/20",
     section: "quick",

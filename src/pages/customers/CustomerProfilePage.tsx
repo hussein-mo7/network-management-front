@@ -168,7 +168,6 @@ export function CustomerProfilePage() {
   const handleRecordPayment = async (amount: number, paymentMethod: PaymentMethod, notes?: string) => {
     try {
       await createInvoiceMutation.mutateAsync({
-        amount: 0,
         paidAmount: amount,
         paymentMethod,
         notes: notes ?? "",

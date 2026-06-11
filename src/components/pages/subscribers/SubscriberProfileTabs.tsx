@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 
 export type SubscriberProfileTab = "stats" | "username" | "sms" | "pricing" | "invoices" | "logs";
 
-const TABS: { id: SubscriberProfileTab; icon: typeof Gauge }[] = [
+const ALL_TABS: { id: SubscriberProfileTab; icon: typeof Gauge }[] = [
   { id: "stats", icon: Gauge },
   { id: "username", icon: User },
   { id: "sms", icon: MessageSquare },
@@ -17,19 +17,24 @@ const TABS: { id: SubscriberProfileTab; icon: typeof Gauge }[] = [
 
 interface SubscriberProfileTabsProps {
   lineId: string;
+  visibleTabs?: SubscriberProfileTab[];
 }
 
-export function SubscriberProfileTabs({ lineId }: SubscriberProfileTabsProps) {
+export function SubscriberProfileTabs({ lineId, visibleTabs }: SubscriberProfileTabsProps) {
   const { t } = useTranslation();
 
   if (!lineId.trim()) return null;
+
+  const tabs = visibleTabs
+    ? ALL_TABS.filter((tab) => visibleTabs.includes(tab.id))
+    : ALL_TABS;
 
   return (
     <nav
       className="flex gap-1 overflow-x-auto rounded-xl border border-border/70 bg-muted/25 p-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       aria-label={t("subscribers.profile.formSection")}
     >
-      {TABS.map(({ id, icon: Icon }) => (
+      {tabs.map(({ id, icon: Icon }) => (
         <NavLink
           key={id}
           to={subscriberProfilePath(lineId, id)}

@@ -34,6 +34,7 @@ import { LoadingState } from "@/components/ui/feedback";
 
 import { Text } from "@/components/ui/typography";
 
+import { usePermissions } from "@/hooks/usePermissions";
 import { useStatisticsQuery } from "@/hooks/useStatistics";
 
 import { cn } from "@/lib/cn";
@@ -49,6 +50,7 @@ const YEAR_OPTIONS = [0, 1, 2].map((offset) => new Date().getFullYear() - offset
 export function StatisticsPage() {
 
   const { t, i18n } = useTranslation();
+  const { can } = usePermissions();
 
   const [year, setYear] = useState(new Date().getFullYear());
 
@@ -330,13 +332,17 @@ export function StatisticsPage() {
 
       <div className="flex flex-wrap gap-2 border-t border-border pt-4">
 
-        <QuickLink to="/customers" label={t("statistics.links.viewCustomers")} />
+        {can("customers.view") ? (
+          <QuickLink to="/customers" label={t("statistics.links.viewCustomers")} />
+        ) : null}
 
         <QuickLink to="/subscribers" label={t("statistics.links.viewSubscribers")} />
 
         <QuickLink to="/expiring" label={t("statistics.links.viewExpiring")} />
 
-        <QuickLink to="/stopped" label={t("statistics.links.viewStopped")} />
+        {can("disabled.view") ? (
+          <QuickLink to="/stopped" label={t("statistics.links.viewStopped")} />
+        ) : null}
 
       </div>
 

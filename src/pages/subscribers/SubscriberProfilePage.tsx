@@ -14,7 +14,12 @@ import {
   SubscriberStatsTab,
   SubscriberUsernameTab,
 } from "@/components/pages/subscribers";
-import { parseSubscriberProfileTab, subscriberProfilePath } from "@/lib/routePaths";
+import {
+  isSubscriberProfileTabAllowed,
+  parseSubscriberProfileTab,
+  subscriberProfilePath,
+  subscriberProfileTabsForRole,
+} from "@/lib/routePaths";
 import { useSpeedsQuery } from "@/hooks/useSpeeds";
 import { ConfirmDialog } from "@/components/ui/modals";
 import { Button } from "@/components/ui/buttons";
@@ -44,7 +49,8 @@ export function SubscriberProfilePage() {
   }>();
   const decodedLineId = lineIdParam ? decodeURIComponent(lineIdParam) : "";
   const parsedTab = parseSubscriberProfileTab(tabParam);
-  const { canManage, canViewPasswords } = useRoleAccess();
+  const { canManage, canViewPasswords, isViewer } = useRoleAccess();
+  const allowedTabs = subscriberProfileTabsForRole(isViewer);
   const [stopDialogOpen, setStopDialogOpen] = useState(false);
   const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
   const [unpauseDialogOpen, setUnpauseDialogOpen] = useState(false);
@@ -219,6 +225,15 @@ export function SubscriberProfilePage() {
 
   const activeTab = parsedTab ?? "stats";
 
+  if (parsedTab && !isSubscriberProfileTabAllowed(parsedTab, isViewer)) {
+    return (
+      <Navigate
+        to={subscriberProfilePath(subscriber?.lineId ?? decodedLineId, "stats")}
+        replace
+      />
+    );
+  }
+
   if (profileQuery.isError || !subscriber) {
     return (
       <div className="space-y-4 py-12 text-center">
@@ -301,7 +316,7 @@ export function SubscriberProfilePage() {
         isPausing={pauseMutation.isPending}
       />
 
-      <SubscriberProfileTabs lineId={lineId} />
+      <SubscriberProfileTabs lineId={lineId} visibleTabs={allowedTabs} />
 
       <div>
         {activeTab === "stats" ? (
@@ -309,6 +324,7 @@ export function SubscriberProfilePage() {
             subscriber={subscriber}
             canManage={canManage}
             canViewPasswords={canViewPasswords}
+            showNotes={!isViewer}
             daysGone={daysGone}
             daysRemaining={daysRemaining}
             onSave={canManage ? handleSave : undefined}
@@ -359,7 +375,6 @@ export function SubscriberProfilePage() {
             balance={subscriber.balance}
             subscriber={subscriber}
             canManage={canManage}
-            monthlyPrice={subscriber.monthlyPrice}
             onAddInvoice={canManage ? handleAddInvoice : undefined}
             onDeleteInvoice={canManage ? handleDeleteInvoice : undefined}
           />

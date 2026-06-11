@@ -29,6 +29,16 @@ export const SUBSCRIBER_PROFILE_TABS: SubscriberProfileTab[] = [
   "logs",
 ];
 
+export const VIEWER_SUBSCRIBER_PROFILE_TABS: SubscriberProfileTab[] = ["stats", "username"];
+
+export function subscriberProfileTabsForRole(isViewer: boolean): SubscriberProfileTab[] {
+  return isViewer ? VIEWER_SUBSCRIBER_PROFILE_TABS : SUBSCRIBER_PROFILE_TABS;
+}
+
+export function isSubscriberProfileTabAllowed(tab: SubscriberProfileTab, isViewer: boolean): boolean {
+  return subscriberProfileTabsForRole(isViewer).includes(tab);
+}
+
 export function parseSubscriberProfileTab(value: string | undefined): SubscriberProfileTab | null {
   if (value && SUBSCRIBER_PROFILE_TABS.includes(value as SubscriberProfileTab)) {
     return value as SubscriberProfileTab;

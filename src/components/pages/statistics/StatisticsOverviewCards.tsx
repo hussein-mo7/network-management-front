@@ -10,6 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { StatCard } from "@/components/ui/data";
+import { usePermissions } from "@/hooks/usePermissions";
 import type { StatisticsOverview } from "@/types/statistics";
 
 interface StatisticsOverviewCardsProps {
@@ -24,6 +25,7 @@ export function StatisticsOverviewCards({
   weekUsernamesAdded,
 }: StatisticsOverviewCardsProps) {
   const { t } = useTranslation();
+  const { can } = usePermissions();
 
   const cards = [
     {
@@ -33,6 +35,7 @@ export function StatisticsOverviewCards({
       icon: Users,
       iconClassName: "bg-primary/10 text-primary",
       to: "/customers",
+      permission: "customers.view",
     },
     {
       label: t("statistics.overview.totalSubscribers"),
@@ -59,6 +62,7 @@ export function StatisticsOverviewCards({
       icon: UserPlus,
       iconClassName: "bg-muted/20 text-muted-foreground",
       to: "/customers",
+      permission: "customers.view",
     },
     {
       label: t("statistics.overview.expiringSoon"),
@@ -83,13 +87,16 @@ export function StatisticsOverviewCards({
       icon: PauseCircle,
       iconClassName: "bg-warning/10 text-warning",
       to: "/stopped",
+      permission: "disabled.view",
     },
   ] as const;
 
+  const visibleCards = cards.filter((card) => !card.permission || can(card.permission));
+
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-      {cards.map((card) => (
-        <Link key={card.label} to={card.to} className="block transition-opacity hover:opacity-90">
+      {visibleCards.map((card) => {
+        const content = (
           <StatCard
             label={card.label}
             value={card.value}
@@ -103,8 +110,14 @@ export function StatisticsOverviewCards({
             icon={card.icon}
             iconClassName={card.iconClassName}
           />
-        </Link>
-      ))}
+        );
+
+        return (
+          <Link key={card.label} to={card.to} className="block transition-opacity hover:opacity-90">
+            {content}
+          </Link>
+        );
+      })}
     </div>
   );
 }

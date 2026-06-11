@@ -8,7 +8,6 @@ import { PaymentMethodSelect } from "@/components/pages/subscribers/PaymentMetho
 import type { PaymentMethod } from "@/types/subscriber";
 
 export interface InvoiceFormValues {
-  amount: number;
   paidAmount: number;
   paymentMethod: PaymentMethod | "";
   notes: string;
@@ -19,7 +18,8 @@ interface InvoiceFormModalProps {
   onClose: () => void;
   onSubmit: (values: InvoiceFormValues) => void;
   isSubmitting?: boolean;
-  defaultAmount?: number;
+  /** Pre-fill with amount owed (positive number) when balance is negative */
+  defaultPayment?: number;
 }
 
 export function InvoiceFormModal({
@@ -27,7 +27,7 @@ export function InvoiceFormModal({
   onClose,
   onSubmit,
   isSubmitting = false,
-  defaultAmount,
+  defaultPayment,
 }: InvoiceFormModalProps) {
   const { t } = useTranslation();
 
@@ -38,8 +38,7 @@ export function InvoiceFormModal({
     formState: { errors },
   } = useForm<InvoiceFormValues>({
     defaultValues: {
-      amount: defaultAmount ?? 0,
-      paidAmount: 0,
+      paidAmount: defaultPayment ?? 0,
       paymentMethod: "",
       notes: "",
     },
@@ -48,13 +47,12 @@ export function InvoiceFormModal({
   useEffect(() => {
     if (open) {
       reset({
-        amount: defaultAmount ?? 0,
-        paidAmount: 0,
+        paidAmount: defaultPayment ?? 0,
         paymentMethod: "",
         notes: "",
       });
     }
-  }, [open, defaultAmount, reset]);
+  }, [open, defaultPayment, reset]);
 
   const handleClose = () => {
     reset();
@@ -67,24 +65,16 @@ export function InvoiceFormModal({
         <Text muted className="text-sm">{t("subscribers.invoices.addHint")}</Text>
 
         <Input
-          label={t("subscribers.invoices.amount")}
-          type="number"
-          min={0}
-          step="0.01"
-          error={errors.amount?.message}
-          {...register("amount", {
-            required: t("subscribers.invoices.amountRequired"),
-            valueAsNumber: true,
-            min: { value: 0.01, message: t("subscribers.invoices.amountRequired") },
-          })}
-        />
-
-        <Input
           label={t("subscribers.invoices.paidAmount")}
           type="number"
           min={0}
           step="0.01"
-          {...register("paidAmount", { valueAsNumber: true, min: 0 })}
+          error={errors.paidAmount?.message}
+          {...register("paidAmount", {
+            required: t("subscribers.invoices.amountRequired"),
+            valueAsNumber: true,
+            min: { value: 0.01, message: t("subscribers.invoices.amountRequired") },
+          })}
         />
 
         <PaymentMethodSelect register={register} error={errors.paymentMethod} />

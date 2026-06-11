@@ -7,7 +7,11 @@ export function computeInvoiceStatus(amount: number, paidAmount: number): Invoic
   return "partial";
 }
 
+/** Balance change when recording a payment invoice (matches API). */
 export function balanceDeltaForInvoice(amount: number, paidAmount: number): number {
+  if (paidAmount <= 0) return 0;
+  if (amount <= 0) return paidAmount;
+  if (amount === paidAmount) return paidAmount;
   return paidAmount - amount;
 }
 

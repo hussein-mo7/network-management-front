@@ -17,6 +17,7 @@ export const VIEWER_PERMISSIONS = [
 /** Admin — full operations except user management */
 export const ADMIN_PERMISSIONS = [
   ...VIEWER_PERMISSIONS,
+  "customers.view",
   "disabled.view",
   "speeds.view",
   "settings.view",

@@ -42,9 +42,6 @@ export function ActivityLogsPage() {
     <div className="space-y-6">
       <div className="min-w-0">
         <Heading as="h1">{t("activityLogs.title")}</Heading>
-        <Text muted className="mt-2 max-w-2xl">
-          {t("activityLogs.subtitle")}
-        </Text>
         {USE_MOCK ? (
           <p className="mt-2 text-xs text-warning">{t("activityLogs.mockHint")}</p>
         ) : null}
