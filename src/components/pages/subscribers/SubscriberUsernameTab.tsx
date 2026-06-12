@@ -118,8 +118,8 @@ export function SubscriberUsernameTab({
       ) : null}
 
       {isStopped ? (
-        <div className="flex items-start gap-3 rounded-xl border border-warning/30 bg-gradient-to-r from-warning/10 to-warning/5 px-4 py-4 sm:px-5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-warning/15 text-warning">
+        <div className="flex items-start gap-3 rounded-xl border border-danger/30 bg-gradient-to-r from-danger/10 to-danger/5 px-4 py-4 sm:px-5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-danger/15 text-danger">
             <UserRound className="h-4 w-4" aria-hidden />
           </div>
           <div>

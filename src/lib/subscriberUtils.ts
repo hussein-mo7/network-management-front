@@ -107,6 +107,7 @@ export function filterSubscribers(
 export function getSubscriberListStatus(
   row: Subscriber,
 ): Extract<import("@/types/subscriber").SubscriberLifecycleStatus, "active" | "no_subscription" | "suspended"> | "paused" {
+  if (row.isSuspended) return "suspended";
   if (row.isPaused) return "paused";
   const lifecycle = getSubscriberLifecycleStatus(row);
   if (lifecycle === "no_subscription") return "no_subscription";

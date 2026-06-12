@@ -16,10 +16,12 @@ import type { Subscriber } from "@/types/subscriber";
 interface SubscriberProfileHeaderProps {
   subscriber: Subscriber;
   onStop?: () => void;
+  onReactivate?: () => void;
   onPause?: () => void;
   onUnpause?: () => void;
   canManage?: boolean;
   isStopping?: boolean;
+  isReactivating?: boolean;
   isPausing?: boolean;
   backTo?: string;
   backLabel?: string;
@@ -28,10 +30,12 @@ interface SubscriberProfileHeaderProps {
 export function SubscriberProfileHeader({
   subscriber,
   onStop,
+  onReactivate,
   onPause,
   onUnpause,
   canManage = false,
   isStopping = false,
+  isReactivating = false,
   isPausing = false,
   backTo,
   backLabel,
@@ -49,6 +53,7 @@ export function SubscriberProfileHeader({
   const showUnpause =
     canManage && lifecycle === "active" && Boolean(subscriber.username) && subscriber.isPaused;
   const showStop = canManage && lifecycle === "active" && Boolean(subscriber.username);
+  const showReactivate = canManage && subscriber.isSuspended && Boolean(onReactivate);
   const usedMb = subscriber.totalUsage ?? 0;
   const limitMb = resolveUsageLimitMb(
     subscriber.usageLimit,
@@ -58,8 +63,19 @@ export function SubscriberProfileHeader({
   const showUsage = Boolean(subscriber.username && (usedMb > 0 || limitMb != null));
 
   const actions =
-    showPause || showUnpause || showStop ? (
+    showPause || showUnpause || showStop || showReactivate ? (
       <>
+        {showReactivate ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onReactivate}
+            isLoading={isReactivating}
+            disabled={isReactivating || isStopping || isPausing}
+          >
+            {t("subscribers.profile.reactivateSubscriber")}
+          </Button>
+        ) : null}
         {showPause ? (
           <Button
             variant="outline"

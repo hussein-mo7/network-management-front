@@ -16,6 +16,7 @@ interface AddFormValues {
   facilityTypeOther: string;
   phone: string;
   packageLine: number;
+  balance: number;
   notes: string;
 }
 
@@ -36,6 +37,7 @@ export function AddCustomerPage() {
       facilityTypeOther: "",
       phone: "",
       packageLine: 4,
+      balance: 0,
       notes: "",
     },
   });
@@ -52,6 +54,7 @@ export function AddCustomerPage() {
         facilityType: resolvedFacility,
         phone: values.phone.trim(),
         lineId: String(values.packageLine),
+        balance: Number.isFinite(values.balance) ? values.balance : 0,
         notes: values.notes.trim() || null,
       });
       toast.success(t("customers.form.createSuccess"));
@@ -131,6 +134,24 @@ export function AddCustomerPage() {
             min: { value: 1, message: t("customers.form.lineNumberRequired") },
           })}
         />
+
+        <div>
+          <Input
+            label={t("customers.form.balance")}
+            type="number"
+            step="0.01"
+            dir="ltr"
+            error={errors.balance?.message}
+            {...register("balance", {
+              valueAsNumber: true,
+              validate: (value) =>
+                Number.isFinite(value) || t("customers.form.balanceInvalid"),
+            })}
+          />
+          <Text muted className="mt-1.5 text-xs">
+            {t("customers.form.balanceHint")}
+          </Text>
+        </div>
 
         <Textarea label={t("customers.form.notes")} rows={3} {...register("notes")} />
 

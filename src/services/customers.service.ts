@@ -47,6 +47,7 @@ export const customersService = {
     facilityType: string;
     phone: string;
     lineId: string;
+    balance?: number;
     notes?: string | null;
   }): Promise<Customer> {
     const response = await apiPost<{ success: boolean; data: BackendSubscriberRow }>("/customers", body);

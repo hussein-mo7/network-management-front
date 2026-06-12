@@ -113,6 +113,11 @@ export type SubscribersI18n = {
     stopMessage: string;
     stopConfirm: string;
     stopSuccess: string;
+    reactivateSubscriber: string;
+    reactivateTitle: string;
+    reactivateMessage: string;
+    reactivateConfirm: string;
+    reactivateSuccess: string;
     pauseSubscriber: string;
     pauseTitle: string;
     pauseMessage: string;
@@ -420,6 +425,12 @@ export const subscribersEn: SubscribersI18n = {
     stopMessage: "Move {{name}} to stopped list and return username to the pool?",
     stopConfirm: "Stop",
     stopSuccess: "Subscriber stopped — username returned to pool when not expired",
+    reactivateSubscriber: "Reactivate subscriber",
+    reactivateTitle: "Reactivate subscriber",
+    reactivateMessage:
+      "Cancel stop for {{name}} and return them to the active subscribers list? Assign a username if needed.",
+    reactivateConfirm: "Reactivate",
+    reactivateSuccess: "Subscriber reactivated — returned to subscribers list",
     pauseSubscriber: "Pause temporarily",
     pauseTitle: "Pause temporarily",
     pauseMessage: "Mark {{name}} as temporarily paused?",
@@ -577,7 +588,7 @@ export const subscribersEn: SubscribersI18n = {
       "Select an available username. The current one is released to the pool (if not expired) or recorded in history only (if expired).",
     changeSuccess: "Username changed",
     reactivateSuccess: "Username assigned — subscriber is active again",
-    stoppedTitle: "Stopped subscriber",
+    stoppedTitle: "Canceled",
     stoppedNoUsername:
       "No username is linked. Assign one from the pool below to move them back to active subscribers.",
     stoppedWithStaleUsername:
@@ -662,7 +673,7 @@ export const subscribersAr: SubscribersI18n = {
   titleNew: "إضافة مشترك",
   status: {
     active: "نشط",
-    suspended: "موقوف",
+    suspended: "متوقف",
     paused: "موقف مؤقتاً",
     no_subscription: "بدون اشتراك",
     stopped: "متوقف",
@@ -766,6 +777,12 @@ export const subscribersAr: SubscribersI18n = {
     stopMessage: "نقل {{name}} لقائمة المتوقفين وإرجاع الاسم للمجموعة؟",
     stopConfirm: "إيقاف",
     stopSuccess: "تم إيقاف المشترك — يُعاد الاسم للمجموعة إن لم يكن منتهيًا",
+    reactivateSubscriber: "إلغاء الإيقاف",
+    reactivateTitle: "إلغاء إيقاف المشترك",
+    reactivateMessage:
+      "إلغاء إيقاف {{name}} وإعادته إلى قائمة المشتركين النشطين؟ عيّن اسم مستخدم إذا لزم.",
+    reactivateConfirm: "إلغاء الإيقاف",
+    reactivateSuccess: "تم إلغاء الإيقاف — عاد إلى قائمة المشتركين",
     pauseSubscriber: "توقيف مؤقت",
     pauseTitle: "توقيف مؤقت",
     pauseMessage: "تعليم {{name}} كموقف مؤقتاً؟",
@@ -922,7 +939,7 @@ export const subscribersAr: SubscribersI18n = {
       "اختر اسمًا متاحًا. الاسم الحالي يُعاد للمجموعة (إن لم ينتهِ) أو يُسجّل في السجل فقط (إن انتهى).",
     changeSuccess: "تم تغيير اسم المستخدم",
     reactivateSuccess: "تم تعيين الاسم — المشترك نشط مرة أخرى",
-    stoppedTitle: "مشترك موقوف",
+    stoppedTitle: "متوقف",
     stoppedNoUsername:
       "لا يوجد اسم مستخدم مرتبط. عيّن اسمًا من المجموعة أدناه لإعادته إلى المشتركين النشطين.",
     stoppedWithStaleUsername:

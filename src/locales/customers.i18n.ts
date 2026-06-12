@@ -65,6 +65,9 @@ export type CustomersI18n = {
     deleteAllMessage: string;
     deleteAllSuccess: string;
     saveProfile: string;
+    balance: string;
+    balanceHint: string;
+    balanceInvalid: string;
   };
   add: {
     title: string;
@@ -188,6 +191,9 @@ export const customersEn: CustomersI18n = {
     deleteAllMessage: "Delete all {{count}} customers on this list?",
     deleteAllSuccess: "All deleted",
     saveProfile: "Save changes",
+    balance: "Opening balance (₪)",
+    balanceHint: "Use a negative value for debt (e.g. -100). Leave 0 if none.",
+    balanceInvalid: "Enter a valid balance amount",
   },
   add: {
     title: "Add customer",
@@ -312,6 +318,9 @@ export const customersAr: CustomersI18n = {
     deleteAllMessage: "حذف كل {{count}} زبون في القائمة؟",
     deleteAllSuccess: "تم حذف الكل",
     saveProfile: "حفظ التعديلات",
+    balance: "الرصيد الافتتاحي (₪)",
+    balanceHint: "استخدم قيمة سالبة للدين (مثل -100). اترك 0 إن لم يكن هناك رصيد.",
+    balanceInvalid: "أدخل مبلغ رصيد صالحًا",
   },
   add: {
     title: "إضافة زبون",

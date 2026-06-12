@@ -52,6 +52,7 @@ export function SubscriberProfilePage() {
   const { canManage, canViewPasswords, isViewer } = useRoleAccess();
   const allowedTabs = subscriberProfileTabsForRole(isViewer);
   const [stopDialogOpen, setStopDialogOpen] = useState(false);
+  const [reactivateDialogOpen, setReactivateDialogOpen] = useState(false);
   const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
   const [unpauseDialogOpen, setUnpauseDialogOpen] = useState(false);
   const [pickUsernameOpen, setPickUsernameOpen] = useState(false);
@@ -76,6 +77,7 @@ export function SubscriberProfilePage() {
   const {
     updateMutation,
     stopMutation,
+    reactivateMutation,
     pauseMutation,
     assignUsernameMutation,
     autoAssignUsernameMutation,
@@ -106,6 +108,7 @@ export function SubscriberProfilePage() {
   const isSubmitting =
     updateMutation.isPending ||
     stopMutation.isPending ||
+    reactivateMutation.isPending ||
     assignUsernameMutation.isPending ||
     autoAssignUsernameMutation.isPending ||
     createMutation.isPending ||
@@ -172,6 +175,17 @@ export function SubscriberProfilePage() {
       toast.success(t("subscribers.profile.stopSuccess"));
       setStopDialogOpen(false);
       navigate("/stopped");
+    } catch (err) {
+      showError(err);
+    }
+  };
+
+  const handleReactivate = async () => {
+    try {
+      await reactivateMutation.mutateAsync();
+      toast.success(t("subscribers.profile.reactivateSuccess"));
+      setReactivateDialogOpen(false);
+      navigate(subscriberProfilePath(lineId, "stats"));
     } catch (err) {
       showError(err);
     }
@@ -310,9 +324,11 @@ export function SubscriberProfilePage() {
         subscriber={subscriber}
         canManage={canManage}
         onStop={subscriber.isSuspended ? undefined : () => setStopDialogOpen(true)}
+        onReactivate={subscriber.isSuspended ? () => setReactivateDialogOpen(true) : undefined}
         onPause={subscriber.isSuspended ? undefined : () => setPauseDialogOpen(true)}
         onUnpause={subscriber.isSuspended ? undefined : () => setUnpauseDialogOpen(true)}
         isStopping={stopMutation.isPending}
+        isReactivating={reactivateMutation.isPending}
         isPausing={pauseMutation.isPending}
       />
 
@@ -457,6 +473,18 @@ export function SubscriberProfilePage() {
         cancelLabel={t("common.cancel")}
         isLoading={isSubmitting}
         variant="danger"
+      />
+
+      <ConfirmDialog
+        open={reactivateDialogOpen}
+        onClose={() => setReactivateDialogOpen(false)}
+        onConfirm={handleReactivate}
+        title={t("subscribers.profile.reactivateTitle")}
+        message={t("subscribers.profile.reactivateMessage", { name: subscriber.fullName })}
+        confirmLabel={t("subscribers.profile.reactivateConfirm")}
+        cancelLabel={t("common.cancel")}
+        isLoading={reactivateMutation.isPending}
+        variant="default"
       />
 
       <ConfirmDialog

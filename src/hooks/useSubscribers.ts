@@ -202,6 +202,14 @@ export function useSubscriberProfileMutations(subscriberId: number) {
     },
   });
 
+  const reactivateMutation = useMutation({
+    mutationFn: () => subscribersService.update(subscriberId, { isSuspended: false }),
+    onSuccess: (subscriber) => {
+      patchSubscriberInCaches(queryClient, subscriber);
+      invalidateProfile(subscriber.lineId);
+    },
+  });
+
   const pauseMutation = useMutation({
     mutationFn: (paused: boolean) =>
       subscribersService.update(subscriberId, { isPaused: paused }),
@@ -245,6 +253,7 @@ export function useSubscriberProfileMutations(subscriberId: number) {
   return {
     updateMutation,
     stopMutation,
+    reactivateMutation,
     pauseMutation,
     assignUsernameMutation,
     autoAssignUsernameMutation,

@@ -39,6 +39,7 @@ export function useCustomerMutations() {
       facilityType: string;
       phone: string;
       lineId: string;
+      balance?: number;
       notes?: string | null;
     }) => customersService.create(values),
     onSuccess: invalidate,
