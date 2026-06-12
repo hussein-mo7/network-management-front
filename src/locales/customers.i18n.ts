@@ -129,7 +129,7 @@ export const customersEn: CustomersI18n = {
   kind: {
     customer: "Customer",
     subscriber: "Subscriber",
-    stopped: "Stopped",
+    stopped: "Canceled",
   },
   filters: {
     search: "Search",
@@ -138,7 +138,7 @@ export const customersEn: CustomersI18n = {
     kind_all: "All",
     kind_customer: "Customers only",
     kind_subscriber: "With username",
-    kind_stopped: "Stopped",
+    kind_stopped: "Canceled",
     speed: "Speed",
   },
   actions: {
@@ -205,7 +205,7 @@ export const customersEn: CustomersI18n = {
     noUsername: "No username yet",
     expiringHint: "Subscription cycle ended — see Expiring page.",
     subscriberHint: "Active subscription — open full subscriber profile.",
-    stoppedHint: "Stopped (موقوف) — removed from Subscribers; username returned to pool. Account stays here for balance and history.",
+    stoppedHint: "Canceled subscription — removed from Subscribers; username returned to pool. Account stays here for balance and history.",
     stoppedNoDebt: "No outstanding balance — no payment needed.",
     balanceOwed: "Balance owed",
     afterStoppedTitle: "After stop — payments & profile",
@@ -247,13 +247,13 @@ export const customersEn: CustomersI18n = {
 export const customersAr: CustomersI18n = {
   title: "الزبائن",
   subtitle:
-    "كل الأشخاص في النظام — بما فيهم الموقوفون الذين قد يبقى عليهم رصيد. عيّن اسمًا من المجموعة لبدء الاشتراك.",
+    "كل الأشخاص في النظام — بما فيهم المتوقفون الذين قد يبقى عليهم رصيد. عيّن اسمًا من المجموعة لبدء الاشتراك.",
   titleNew: "إضافة زبون",
   titleProfile: "ملف الزبون",
   kind: {
     customer: "زبون",
     subscriber: "مشترك",
-    stopped: "موقوف",
+    stopped: "متوقف",
   },
   filters: {
     search: "بحث",
@@ -262,7 +262,7 @@ export const customersAr: CustomersI18n = {
     kind_all: "الكل",
     kind_customer: "زبائن فقط",
     kind_subscriber: "لديهم اسم مستخدم",
-    kind_stopped: "موقوف",
+    kind_stopped: "متوقف",
     speed: "السرعة",
   },
   actions: {
@@ -329,7 +329,7 @@ export const customersAr: CustomersI18n = {
     noUsername: "بدون اسم مستخدم",
     expiringHint: "انتهت دورة الاشتراك — يظهر في صفحة المنتهية.",
     subscriberHint: "اشتراك نشط — افتح ملف المشترك الكامل.",
-    stoppedHint: "موقوف — أُزيل من المشتركين وأُعيد الاسم للمجموعة. يبقى هنا للرصيد والسجل.",
+    stoppedHint: "متوقف — أُزيل من المشتركين وأُعيد الاسم للمجموعة. يبقى هنا للرصيد والسجل.",
     stoppedNoDebt: "لا يوجد رصيد مستحق — لا حاجة لتسجيل دفعة.",
     balanceOwed: "رصيد مستحق",
     afterStoppedTitle: "بعد الإيقاف — الدفع والملف",

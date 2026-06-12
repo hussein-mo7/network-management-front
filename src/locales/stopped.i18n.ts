@@ -24,22 +24,22 @@ export type StoppedI18n = {
 };
 
 export const stoppedEn: StoppedI18n = {
-  title: "Stopped",
+  title: "Canceled",
   subtitle:
-    "Subscribers who were stopped (موقوف). Username returned to available pool. Customer record remains for balance.",
+    "Subscribers who canceled their subscription. Username returned to the available pool. Customer record remains for balance.",
   table: {
-    sectionSubtitle: "{{count}} stopped",
+    sectionSubtitle: "{{count}} canceled",
     subscriber: "Customer",
     lineId: "Line ID",
     fullName: "Name",
     phone: "Phone",
     balance: "Balance",
-    stoppedAt: "Stopped on",
+    stoppedAt: "Canceled on",
     owesBalance: "Outstanding balance",
     balanceCleared: "No debt — can assign username",
     actions: "Actions",
-    empty: "No stopped subscribers",
-    emptyHint: "Stopped accounts appear here after you stop an active subscription.",
+    empty: "No canceled subscribers",
+    emptyHint: "Canceled subscriptions appear here after a subscriber ends their active plan.",
     openCustomer: "Customer file",
     openProfile: "Open profile",
   },
@@ -50,11 +50,11 @@ export const stoppedEn: StoppedI18n = {
 };
 
 export const stoppedAr: StoppedI18n = {
-  title: "المتوقفون",
+  title: "المتوقفين",
   subtitle:
-    "مشتركون تم إيقافهم (موقوف). أُعيد اسم المستخدم للمجموعة. يبقى ملف الزبون للرصيد.",
+    "مشتركون تم إيقاف اشتراكهم. أُعيد اسم المستخدم للمجموعة. يبقى ملف الزبون للرصيد.",
   table: {
-    sectionSubtitle: "{{count}} موقوف",
+    sectionSubtitle: "{{count}} متوقف",
     subscriber: "الزبون",
     lineId: "رقم الخط",
     fullName: "الاسم",
@@ -64,8 +64,8 @@ export const stoppedAr: StoppedI18n = {
     owesBalance: "رصيد مستحق",
     balanceCleared: "لا دين — يمكن تعيين اسم مستخدم",
     actions: "إجراءات",
-    empty: "لا يوجد موقوفون",
-    emptyHint: "يظهر الموثوفون هنا بعد إيقاف اشتراك نشط.",
+    empty: "لا يوجد من المتوقفين",
+    emptyHint: "يظهر المتوقفون هنا بعد إيقاف اشتراك نشط.",
     openCustomer: "ملف الزبون",
     openProfile: "فتح الملف",
   },

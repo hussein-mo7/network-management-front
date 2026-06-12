@@ -200,7 +200,7 @@ export function CustomerProfilePage() {
             to="/stopped"
             className="mt-3 inline-block text-sm font-medium text-foreground underline-offset-2 hover:underline"
           >
-            {t("nav.items.stopped")}
+            {t("nav.items.canceled")}
           </Link>
         </ProfileSection>
       ) : null}

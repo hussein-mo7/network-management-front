@@ -10,6 +10,7 @@ export const VIEWER_PERMISSIONS = [
   "subscription_statistics.view",
   "subscribers.view",
   "expired.view",
+  "disabled.view",
   "available_usernames.view",
   "online_users.view",
 ] as const;

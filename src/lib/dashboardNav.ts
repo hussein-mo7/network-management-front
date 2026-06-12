@@ -41,6 +41,7 @@ export const viewerNavItems: DashboardNavItem[] = [
     icon: Tags,
     permission: "available_usernames.view",
   },
+  { labelKey: "nav.items.canceled", to: "/stopped", icon: Users, permission: "disabled.view" },
 ];
 
 /** Admin / manager — full operations menu (logs & users live under Settings) */
@@ -56,7 +57,7 @@ export const adminNavItems: DashboardNavItem[] = [
   { labelKey: "nav.items.subscribers", to: "/subscribers", icon: Users, permission: "subscribers.view" },
   { labelKey: "nav.items.onlineUsers", to: "/online-users", icon: Wifi, permission: "online_users.view" },
   { labelKey: "nav.items.expiring", to: "/expiring", icon: ClipboardList, permission: "expired.view" },
-  { labelKey: "nav.items.stopped", to: "/stopped", icon: Users, permission: "disabled.view" },
+  { labelKey: "nav.items.canceled", to: "/stopped", icon: Users, permission: "disabled.view" },
   { labelKey: "nav.items.speeds", to: "/speeds", icon: Gauge, permission: "speeds.view" },
   {
     labelKey: "nav.items.availableUsernames",

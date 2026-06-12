@@ -128,6 +128,7 @@ export interface TranslationSchema {
       onlineUsers: string;
       expiring: string;
       stopped: string;
+      canceled: string;
       speeds: string;
       availableUsernames: string;
       sms: string;
@@ -545,6 +546,7 @@ export const ar: TranslationSchema = {
       onlineUsers: "المتصلين",
       expiring: "المنتهية",
       stopped: "المتوقفون",
+      canceled: "المتوقفين",
       speeds: "السرعات",
       availableUsernames: "أسماء متاحة",
       sms: "إرسال رسائل",

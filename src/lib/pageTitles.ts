@@ -18,7 +18,7 @@ const ROUTE_TITLE_KEYS: Array<{ match: (path: string) => boolean; titleKey: stri
   { match: (path) => path.startsWith("/subscribers"), titleKey: "subscribers.title" },
   { match: (path) => path === "/online-users", titleKey: "nav.items.onlineUsers" },
   { match: (path) => path === "/expiring", titleKey: "pages.expiring" },
-  { match: (path) => path === "/stopped", titleKey: "nav.items.stopped" },
+  { match: (path) => path === "/stopped", titleKey: "nav.items.canceled" },
   { match: (path) => path === "/speeds", titleKey: "speeds.title" },
   {
     match: (path) =>

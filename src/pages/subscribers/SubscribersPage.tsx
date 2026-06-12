@@ -248,7 +248,7 @@ export function SubscribersPage() {
             {" · "}
             {t("subscribers.stoppedPageHint")}{" "}
             <Link to="/stopped" className="font-medium text-foreground underline-offset-2 hover:underline">
-              {t("nav.items.stopped")}
+              {t("nav.items.canceled")}
             </Link>
           </>
         ) : null}

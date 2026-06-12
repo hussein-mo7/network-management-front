@@ -121,6 +121,7 @@ export const en: TranslationSchema = {
       onlineUsers: "Online users",
       expiring: "Expiring",
       stopped: "Stopped",
+      canceled: "Canceled",
       speeds: "Speeds",
       availableUsernames: "Available usernames",
       sms: "SMS",
