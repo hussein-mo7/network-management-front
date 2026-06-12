@@ -3,24 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, ModalFooterButton } from "@/components/ui/modals";
 import { Text } from "@/components/ui/typography";
-import type { SpeedTier } from "@/types/speeds";
 import { cn } from "@/lib/cn";
 
-interface ImportUsernamesModalProps {
+interface ImportUsernameHistoryModalProps {
   open: boolean;
-  speedTier: SpeedTier;
   onClose: () => void;
   onImport: (file: File) => void;
   isSubmitting?: boolean;
 }
 
-export function ImportUsernamesModal({
+export function ImportUsernameHistoryModal({
   open,
-  speedTier,
   onClose,
   onImport,
   isSubmitting = false,
-}: ImportUsernamesModalProps) {
+}: ImportUsernameHistoryModalProps) {
   const { t } = useTranslation();
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -43,26 +40,22 @@ export function ImportUsernamesModal({
     <Modal
       open={open}
       onClose={handleClose}
-      title={t("availableUsernames.form.importTitle", { speed: speedTier.label })}
+      title={t("settings.excel.usernameHistory.importModalTitle")}
       closeLabel={t("common.cancel")}
       footer={
         <>
           <ModalFooterButton variant="outline" onClick={handleClose} disabled={isSubmitting}>
             {t("common.cancel")}
           </ModalFooterButton>
-          <ModalFooterButton
-            onClick={handleImport}
-            disabled={!file}
-            isLoading={isSubmitting}
-          >
-            {t("availableUsernames.form.importSubmit")}
+          <ModalFooterButton onClick={handleImport} disabled={!file} isLoading={isSubmitting}>
+            {t("settings.excel.usernameHistory.importSubmit")}
           </ModalFooterButton>
         </>
       }
     >
       <div className="space-y-4">
         <Text muted className="text-sm">
-          {t("availableUsernames.form.importHint", { speed: speedTier.label })}
+          {t("settings.excel.usernameHistory.importHint")}
         </Text>
 
         <input
@@ -83,7 +76,7 @@ export function ImportUsernamesModal({
         >
           <FileSpreadsheet className="h-10 w-10 text-muted-foreground" />
           <span className="text-sm font-medium text-foreground">
-            {file ? file.name : t("availableUsernames.form.selectFile")}
+            {file ? file.name : t("settings.excel.usernameHistory.selectFile")}
           </span>
           <span className="text-xs text-muted-foreground">.xlsx, .xls</span>
         </button>

@@ -80,18 +80,20 @@ export function ExpiringTable({ rows, className }: ExpiringTableProps) {
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
         <table className={cn(dataTableFixedClass, dataTableScrollMinClass)}>
           <colgroup>
-            <col className="w-[22%]" />
-            <col className="w-[9%]" />
-            <col className="w-[14%]" />
-            <col className="w-[18%]" />
-            <col className="w-[11%]" />
+            <col className="w-[20%]" />
+            <col className="w-[8%]" />
+            <col className="w-[12%]" />
             <col className="w-[10%]" />
+            <col className="w-[17%]" />
+            <col className="w-[10%]" />
+            <col className="w-[9%]" />
           </colgroup>
           <thead>
             <tr className={dataTableHeadRowClass}>
               <th className={dataTableHeadCellClass}>{t("expiring.table.subscriber")}</th>
               <th className={dataTableHeadCellClass}>{t("expiring.table.lineId")}</th>
               <th className={dataTableHeadCellClass}>{t("expiring.table.username")}</th>
+              <th className={dataTableHeadCellClass}>{t("expiring.table.phone")}</th>
               <th className={dataTableHeadCellClass}>{t("expiring.table.disconnectDate")}</th>
               <th className={dataTableHeadCellClass}>{t("expiring.table.urgency")}</th>
               <th className={dataTableActionsHeadCellClass}>
@@ -133,6 +135,13 @@ function ExpiringDesktopRow({ row }: { row: Customer }) {
       </td>
       <td className={cn("cursor-pointer", dataTableCellClass)} onClick={openProfile}>
         <LtrText className="font-mono text-xs">{row.username}</LtrText>
+      </td>
+      <td className={cn("cursor-pointer", dataTableCellClass)} onClick={openProfile}>
+        {row.phone ? (
+          <LtrText className="text-xs text-muted-foreground">{row.phone}</LtrText>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        )}
       </td>
       <td className={cn("cursor-pointer", dataTableCellClass)} onClick={openProfile}>
         <span className="whitespace-nowrap text-xs text-muted-foreground">
@@ -187,6 +196,12 @@ function ExpiringMobileCard({ row }: { row: Customer }) {
             <dt className="text-xs font-medium text-muted-foreground">{t("expiring.table.username")}</dt>
             <dd className="mt-1 font-mono text-xs" dir="ltr">
               {row.username}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-muted-foreground">{t("expiring.table.phone")}</dt>
+            <dd className="mt-1 text-xs" dir="ltr">
+              {row.phone ?? "—"}
             </dd>
           </div>
           <div>

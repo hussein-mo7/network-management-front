@@ -1,4 +1,4 @@
-import { Logo } from "@/components/ui/branding";
+import { AuthSponsor } from "@/components/pages/auth";
 import { DashboardSidebarNav } from "@/components/ui/navigation";
 import type { DashboardNavItem } from "@/lib/dashboardNav";
 import { cn } from "@/lib/cn";
@@ -13,6 +13,13 @@ interface DashboardSidebarPanelProps {
   showLogo?: boolean;
 }
 
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "•";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
+}
+
 export function DashboardSidebarPanel({
   navItems,
   displayName,
@@ -23,14 +30,14 @@ export function DashboardSidebarPanel({
   showLogo = true,
 }: DashboardSidebarPanelProps) {
   return (
-    <div className={cn("flex min-h-0 flex-1 flex-col", className)}>
+    <div className={cn("flex h-full min-h-0 flex-col", className)}>
       {showLogo ? (
-        <div className="sidebar-shell-header hidden lg:flex">
-          <Logo size="sm" variant="on-dark" preferImage />
+        <div className="sidebar-brand-header hidden lg:flex">
+          <AuthSponsor variant="on-dark" size="compact" className="w-full" />
         </div>
       ) : null}
 
-      <div className="flex-1 overflow-y-auto overscroll-contain">
+      <div className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <DashboardSidebarNav
           items={navItems}
           canAccess={canAccess}
@@ -38,9 +45,23 @@ export function DashboardSidebarPanel({
         />
       </div>
 
-      <div className="shrink-0 border-t border-white/10 p-4">
-        <p className="truncate text-sm font-medium text-white">{displayName}</p>
-        <p className="truncate text-xs text-sidebar-foreground">{displayRole}</p>
+      <div className="shrink-0 border-t border-white/[0.08] px-3 py-2.5">
+        <div className="flex items-center gap-2.5">
+          <span
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-sidebar-active/20 text-[11px] font-bold text-sidebar-active"
+            aria-hidden
+          >
+            {initialsOf(displayName)}
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-semibold leading-tight text-white">
+              {displayName}
+            </p>
+            <p className="truncate text-[11px] leading-tight text-sidebar-foreground">
+              {displayRole}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

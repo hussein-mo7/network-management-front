@@ -14,7 +14,7 @@ export function DashboardSidebarNav({ items, canAccess, onNavigate }: DashboardS
   const visibleItems = items.filter((item) => canAccess(item.permission));
 
   return (
-    <nav className="flex flex-col gap-0.5 p-3">
+    <nav className="flex flex-col gap-0.5 p-2">
       {visibleItems.map(({ labelKey, to, icon: Icon }) => (
         <NavLink
           key={to}
@@ -22,15 +22,35 @@ export function DashboardSidebarNav({ items, canAccess, onNavigate }: DashboardS
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              "group relative flex min-h-10 items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium leading-normal transition-colors duration-150",
               isActive
-                ? "bg-sidebar-active/15 text-sidebar-active shadow-sm ring-1 ring-sidebar-active/25"
-                : "text-sidebar-foreground hover:bg-white/[0.06] hover:text-white",
+                ? "bg-white/[0.08] text-white"
+                : "text-sidebar-foreground hover:bg-white/[0.05] hover:text-white/90",
             )
           }
         >
-          <Icon className="h-4 w-4 shrink-0" strokeWidth={2} />
-          <span className="truncate">{t(labelKey)}</span>
+          {({ isActive }) => (
+            <>
+              <span
+                className={cn(
+                  "absolute inset-y-2 start-0 w-0.5 rounded-full bg-sidebar-active transition-opacity duration-150",
+                  isActive ? "opacity-100" : "opacity-0",
+                )}
+                aria-hidden
+              />
+              <span
+                className={cn(
+                  "flex h-8 w-8 shrink-0 items-center justify-center rounded-md transition-colors duration-150",
+                  isActive
+                    ? "bg-sidebar-active/20 text-sidebar-active"
+                    : "text-sidebar-foreground group-hover:text-white/80",
+                )}
+              >
+                <Icon className="h-4 w-4" strokeWidth={2} />
+              </span>
+              <span className="min-w-0 flex-1 truncate leading-normal">{t(labelKey)}</span>
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

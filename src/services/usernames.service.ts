@@ -1,4 +1,4 @@
-import { apiClient, apiDelete, apiPost, apiPut } from "@/lib/apiClient";
+import { apiClient, apiDelete, apiPost, apiPut, EXCEL_TIMEOUT_MS } from "@/lib/apiClient";
 import {
   formValuesToCreateBody,
   formValuesToUpdateBody,
@@ -101,7 +101,7 @@ export const usernamesService = {
   async importExcel(
     speedId: number,
     file: File,
-  ): Promise<{ imported: number; message: string }> {
+  ): Promise<{ imported: number; skipped: number; message: string }> {
     const formData = new FormData();
     formData.append("file", file, file.name);
 
@@ -109,8 +109,9 @@ export const usernamesService = {
     const response = await apiClient.post<{
       status: string;
       message?: string;
-      data?: { imported: number };
+      data?: { imported: number; skipped?: number };
     }>(usernamesPath(speedId, "/import"), formData, {
+      timeout: EXCEL_TIMEOUT_MS,
       transformRequest: [
         (data, headers) => {
           if (data instanceof FormData) {
@@ -122,8 +123,10 @@ export const usernamesService = {
     });
 
     const imported = response.data.data?.imported ?? 0;
+    const skipped = response.data.data?.skipped ?? 0;
     return {
       imported,
+      skipped,
       message: response.data.message ?? `Imported ${imported} usernames`,
     };
   },
@@ -131,6 +134,7 @@ export const usernamesService = {
   async exportExcel(speedId: number): Promise<void> {
     const response = await apiClient.get(usernamesPath(speedId, "/export"), {
       responseType: "blob",
+      timeout: EXCEL_TIMEOUT_MS,
     });
 
     const disposition = response.headers["content-disposition"] as string | undefined;

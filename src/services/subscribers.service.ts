@@ -1,4 +1,4 @@
-import { apiClient, apiDelete, apiGet, apiPatch, apiPost, apiPut } from "@/lib/apiClient";
+import { apiClient, apiDelete, apiGet, apiPatch, apiPost, apiPut, EXCEL_TIMEOUT_MS } from "@/lib/apiClient";
 import {
   mapInvoiceRecord,
   mapPaymentMethodToApi,
@@ -367,5 +367,111 @@ export const subscribersService = {
 
   async deleteInvoice(subscriberId: number, invoiceId: number): Promise<void> {
     await apiDelete(`/subscribers/${subscriberId}/invoices/${invoiceId}`);
+  },
+
+  async importExcel(file: File): Promise<{
+    imported: number;
+    updated: number;
+    skipped: number;
+    message: string;
+  }> {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    const response = await apiClient.post<{
+      status: string;
+      message?: string;
+      data?: { imported: number; updated: number; skipped?: number };
+    }>("/subscribers/import", formData, {
+      timeout: EXCEL_TIMEOUT_MS,
+      transformRequest: [
+        (data, headers) => {
+          if (data instanceof FormData) {
+            delete headers["Content-Type"];
+          }
+          return data;
+        },
+      ],
+    });
+
+    const imported = response.data.data?.imported ?? 0;
+    const updated = response.data.data?.updated ?? 0;
+    const skipped = response.data.data?.skipped ?? 0;
+    return {
+      imported,
+      updated,
+      skipped,
+      message: response.data.message ?? `Imported ${imported}, updated ${updated}`,
+    };
+  },
+
+  async exportExcel(): Promise<void> {
+    const response = await apiClient.get("/subscribers/export", {
+      responseType: "blob",
+      timeout: EXCEL_TIMEOUT_MS,
+    });
+
+    const disposition = response.headers["content-disposition"] as string | undefined;
+    const fileNameMatch = disposition?.match(/filename=([^;]+)/i);
+    const fileName = fileNameMatch?.[1]?.trim() ?? `subscribers_${new Date().toISOString().split("T")[0]}.xlsx`;
+
+    const url = URL.createObjectURL(response.data);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  },
+
+  async importUsernameHistoryExcel(file: File): Promise<{
+    imported: number;
+    skipped: number;
+    message: string;
+  }> {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+
+    const response = await apiClient.post<{
+      status: string;
+      message?: string;
+      data?: { imported: number; skipped?: number };
+    }>("/subscribers/username-history/import", formData, {
+      timeout: EXCEL_TIMEOUT_MS,
+      transformRequest: [
+        (data, headers) => {
+          if (data instanceof FormData) {
+            delete headers["Content-Type"];
+          }
+          return data;
+        },
+      ],
+    });
+
+    const imported = response.data.data?.imported ?? 0;
+    const skipped = response.data.data?.skipped ?? 0;
+    return {
+      imported,
+      skipped,
+      message: response.data.message ?? `Imported ${imported} history row(s)`,
+    };
+  },
+
+  async exportUsernameHistoryExcel(): Promise<void> {
+    const response = await apiClient.get("/subscribers/username-history/export", {
+      responseType: "blob",
+      timeout: EXCEL_TIMEOUT_MS,
+    });
+
+    const disposition = response.headers["content-disposition"] as string | undefined;
+    const fileNameMatch = disposition?.match(/filename=([^;]+)/i);
+    const fileName =
+      fileNameMatch?.[1]?.trim() ?? `username_history_${new Date().toISOString().split("T")[0]}.xlsx`;
+
+    const url = URL.createObjectURL(response.data);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+    URL.revokeObjectURL(url);
   },
 };

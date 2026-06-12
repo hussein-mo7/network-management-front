@@ -17,10 +17,14 @@ interface PaginatedResponse<T> {
   data: StatisticsDayListResult<T>;
 }
 
+/** Statistics dashboard runs many aggregate queries — allow more time than the default client timeout. */
+const STATISTICS_TIMEOUT_MS = 60_000;
+
 export const statisticsService = {
   async getDashboard(year: number): Promise<StatisticsData> {
     const { data: response } = await apiClient.get<StatisticsResponse>("/statistics", {
       params: { year },
+      timeout: STATISTICS_TIMEOUT_MS,
     });
     return response.data;
   },
@@ -32,7 +36,7 @@ export const statisticsService = {
   ): Promise<StatisticsDayListResult<UsernameChangeRow>> {
     const { data: response } = await apiClient.get<PaginatedResponse<UsernameChangeRow>>(
       "/statistics/username-changes",
-      { params: { date, page, limit } },
+      { params: { date, page, limit }, timeout: STATISTICS_TIMEOUT_MS },
     );
     return (
       response.data ?? {
@@ -51,7 +55,7 @@ export const statisticsService = {
   ): Promise<StatisticsDayListResult<RecentSubscriberRow>> {
     const { data: response } = await apiClient.get<PaginatedResponse<RecentSubscriberRow>>(
       "/statistics/new-subscribers",
-      { params: { date, page, limit } },
+      { params: { date, page, limit }, timeout: STATISTICS_TIMEOUT_MS },
     );
     return (
       response.data ?? {

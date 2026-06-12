@@ -21,6 +21,7 @@ export type ExpiringI18n = {
     lineId: string;
     fullName: string;
     username: string;
+    phone: string;
     disconnectDate: string;
     timeLeft: string;
     daysLeft: string;
@@ -60,6 +61,7 @@ export const expiringEn: ExpiringI18n = {
     lineId: "Line ID",
     fullName: "Name",
     username: "Username",
+    phone: "Phone",
     disconnectDate: "Disconnect date",
     timeLeft: "Time left",
     daysLeft: "{{days}} days left",
@@ -98,6 +100,7 @@ export const expiringAr: ExpiringI18n = {
     lineId: "رقم الخط",
     fullName: "الاسم",
     username: "اسم المستخدم",
+    phone: "الهاتف",
     disconnectDate: "تاريخ الانقطاع",
     timeLeft: "الوقت المتبقي",
     daysLeft: "متبقي {{days}} يوم",

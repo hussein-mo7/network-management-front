@@ -1,5 +1,5 @@
 import { ExternalLink, Pencil, Trash2, Users } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { SubscriberStatusBadge } from "@/components/pages/subscribers/SubscriberStatusBadge";
 import { Button } from "@/components/ui/buttons";
@@ -69,15 +69,16 @@ export function SubscribersTable({
 
   const columnWidths = [
     ...(showCheckboxes ? ["w-[3%]"] : []),
-    "w-[17%]",
+    "w-[15%]",
     "w-[7%]",
-    "w-[11%]",
-    ...(canViewPasswords ? ["w-[9%]"] : []),
+    "w-[10%]",
     "w-[9%]",
-    "w-[7%]",
-    "w-[11%]",
+    ...(canViewPasswords ? ["w-[8%]"] : []),
     "w-[8%]",
-    showCheckboxes ? "w-[10%]" : "w-[12%]",
+    "w-[7%]",
+    "w-[10%]",
+    "w-[7%]",
+    showCheckboxes ? "w-[9%]" : "w-[11%]",
   ];
 
   if (rows.length === 0) {
@@ -107,7 +108,7 @@ export function SubscribersTable({
       />
 
       <div className={cn("hidden lg:block", dataTableWrapClass)}>
-        <table className={cn(dataTableFixedClass, dataTableScrollMinClass, "min-w-[960px]")}>
+        <table className={cn(dataTableFixedClass, dataTableScrollMinClass, "min-w-[1080px]")}>
           <colgroup>
             {columnWidths.map((width, index) => (
               <col key={index} className={width} />
@@ -129,6 +130,7 @@ export function SubscribersTable({
               <th className={dataTableHeadCellClass}>{t("subscribers.table.subscriber")}</th>
               <th className={dataTableHeadCellClass}>{t("subscribers.table.lineId")}</th>
               <th className={dataTableHeadCellClass}>{t("subscribers.table.username")}</th>
+              <th className={dataTableHeadCellClass}>{t("subscribers.table.phone")}</th>
               {canViewPasswords ? (
                 <th className={cn("pe-4", dataTableHeadCellClass)}>
                   {t("subscribers.table.password")}
@@ -185,12 +187,9 @@ function SubscriberDesktopRow({
   showPasswordColumn?: boolean;
 }) {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const listStatus = getSubscriberListStatus(row);
   const daysLeft = getDaysUntilDisconnect(row);
   const initials = getSubscriberInitials(row.fullName);
-
-  const openProfile = () => navigate(profilePath(row.lineId));
 
   return (
     <tr
@@ -212,21 +211,28 @@ function SubscriberDesktopRow({
           />
         </td>
       ) : null}
-      <td className={cn("cursor-pointer max-w-0", dataTableCellClass)} onClick={openProfile}>
+      <td className={cn("max-w-0", dataTableCellClass)}>
         <TableSubscriberCell
           name={row.fullName}
           subtitle={row.facilityType}
           initials={initials}
         />
       </td>
-      <td className={cn("cursor-pointer", dataTableCellClass)} onClick={openProfile}>
-        <LtrText className="font-mono text-xs text-muted-foreground">{row.lineId}</LtrText>
+      <td className={dataTableCellClass}>
+        <LtrText className="select-all font-mono text-xs text-muted-foreground">{row.lineId}</LtrText>
       </td>
-      <td className={cn("cursor-pointer overflow-hidden", dataTableCellClass)} onClick={openProfile}>
+      <td className={cn("overflow-hidden", dataTableCellClass)}>
         {row.username ? (
-          <LtrText className="font-mono text-xs font-medium">{row.username}</LtrText>
+          <LtrText className="select-all font-mono text-xs font-medium">{row.username}</LtrText>
         ) : (
           <span className="text-xs text-muted-foreground">{t("subscribers.profile.noUsername")}</span>
+        )}
+      </td>
+      <td className={dataTableCellClass}>
+        {row.phone ? (
+          <LtrText className="select-all text-xs text-muted-foreground">{row.phone}</LtrText>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
         )}
       </td>
       {showPasswordColumn ? (
@@ -234,16 +240,13 @@ function SubscriberDesktopRow({
           {row.password ? <MaskedPasswordCell value={row.password} /> : "—"}
         </td>
       ) : null}
-      <td
-        className={cn("cursor-pointer whitespace-nowrap ps-2 text-muted-foreground", dataTableCellClass)}
-        onClick={openProfile}
-      >
+      <td className={cn("whitespace-nowrap ps-2 text-muted-foreground", dataTableCellClass)}>
         {buildSpeedLabel(row.speedMbps)}
       </td>
-      <td className={cn("cursor-pointer whitespace-nowrap text-muted-foreground", dataTableCellClass)} onClick={openProfile}>
+      <td className={cn("whitespace-nowrap text-muted-foreground", dataTableCellClass)}>
         {formatDate(row.firstContactDate)}
       </td>
-      <td className={cn("cursor-pointer text-muted-foreground", dataTableCellClass)} onClick={openProfile}>
+      <td className={cn("text-muted-foreground", dataTableCellClass)}>
         <span className="whitespace-nowrap text-xs">
           {formatDate(row.disconnectionDate)}
           {daysLeft !== null && daysLeft <= 7 ? (
@@ -254,7 +257,7 @@ function SubscriberDesktopRow({
           ) : null}
         </span>
       </td>
-      <td className={cn("cursor-pointer", dataTableCellClass)} onClick={openProfile}>
+      <td className={dataTableCellClass}>
         <SubscriberStatusBadge status={listStatus} />
       </td>
       <td className={dataTableActionsCellClass} onClick={(e) => e.stopPropagation()}>
@@ -310,30 +313,28 @@ function SubscribersMobileList({
                 />
               ) : null}
               <div className="min-w-0 flex-1">
-                <Link to={profilePath(row.lineId)} className="block">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
-                      {initials}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <p className="truncate font-medium text-foreground">{row.fullName}</p>
-                          <p className="text-xs text-muted-foreground">{row.facilityType}</p>
-                        </div>
-                        <SubscriberStatusBadge status={listStatus} />
-                      </div>
-                      <p className="mt-2 font-mono text-xs text-muted-foreground">{row.lineId}</p>
-                    </div>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-muted/30 text-xs font-medium text-muted-foreground">
+                    {initials}
                   </div>
-                </Link>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium text-foreground">{row.fullName}</p>
+                        <p className="text-xs text-muted-foreground">{row.facilityType}</p>
+                      </div>
+                      <SubscriberStatusBadge status={listStatus} />
+                    </div>
+                    <p className="mt-2 select-all font-mono text-xs text-muted-foreground">{row.lineId}</p>
+                  </div>
+                </div>
 
                 <dl className="mt-4 grid grid-cols-2 gap-3 border-t border-border/80 pt-4 text-sm">
                   <div>
                     <dt className="text-xs font-medium text-muted-foreground">
                       {t("subscribers.table.username")}
                     </dt>
-                    <dd className="mt-1 font-medium" dir="ltr">
+                    <dd className="mt-1 select-all font-medium" dir="ltr">
                       {row.username ?? "—"}
                     </dd>
                   </div>
@@ -364,7 +365,7 @@ function SubscribersMobileList({
                     <dt className="text-xs font-medium text-muted-foreground">
                       {t("subscribers.table.phone")}
                     </dt>
-                    <dd className="mt-1" dir="ltr">
+                    <dd className="mt-1 select-all" dir="ltr">
                       {row.phone ?? "—"}
                     </dd>
                   </div>

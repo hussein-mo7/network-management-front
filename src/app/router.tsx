@@ -16,7 +16,14 @@ import { StatisticsPage } from "@/pages/statistics/StatisticsPage";
 import { SubscriberProfilePage, SubscribersPage } from "@/pages/subscribers";
 import { ActivityLogsPage } from "@/pages/activity-logs/ActivityLogsPage";
 import { AdminUsersPage } from "@/pages/users/AdminUsersPage";
-import { ExcelToolsPage, SettingsDataPage, SettingsPage } from "@/pages/settings";
+import {
+  ExcelAvailableUsernamesPage,
+  ExcelSubscribersPage,
+  ExcelUsernameHistoryPage,
+  ExcelToolsPage,
+  SettingsDataPage,
+  SettingsPage,
+} from "@/pages/settings";
 
 export function AppRouter() {
   return (
@@ -184,6 +191,30 @@ export function AppRouter() {
             element={
               <RequirePermission permission="settings.view">
                 <ExcelToolsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="settings/excel/available-usernames"
+            element={
+              <RequirePermission permission="settings.view">
+                <ExcelAvailableUsernamesPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="settings/excel/subscribers"
+            element={
+              <RequirePermission permission="settings.view">
+                <ExcelSubscribersPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="settings/excel/username-history"
+            element={
+              <RequirePermission permission="settings.view">
+                <ExcelUsernameHistoryPage />
               </RequirePermission>
             }
           />

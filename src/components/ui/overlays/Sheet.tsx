@@ -45,7 +45,7 @@ export function Sheet({ open, onClose, children, className, ariaLabel = "Close" 
         role="dialog"
         aria-modal="true"
         className={cn(
-          "fixed inset-y-0 start-0 z-50 flex w-[min(100vw-2.5rem,18rem)] flex-col bg-sidebar text-sidebar-foreground shadow-2xl transition-transform duration-200 ease-out lg:hidden",
+          "dashboard-sidebar fixed inset-y-0 start-0 z-50 flex w-[min(100vw-2.5rem,18rem)] flex-col overflow-hidden text-sidebar-foreground shadow-2xl transition-transform duration-200 ease-out lg:hidden",
           className,
         )}
       >

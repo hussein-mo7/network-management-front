@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import type { ReactNode } from "react";
+import { AuthSponsor } from "@/components/pages/auth";
 import { Logo } from "@/components/ui/branding";
 import { LanguageToggle, ThemeToggle } from "@/components/ui/navigation";
 import { cn } from "@/lib/cn";
@@ -28,7 +29,7 @@ export function AuthLayout({
         <div className="auth-grid-pattern pointer-events-none absolute inset-0 opacity-[0.07]" />
 
         <div className="relative z-10 p-8 xl:p-14">
-          <Logo size="lg" showTagline variant="on-dark" />
+          <AuthSponsor variant="on-dark" />
         </div>
 
         <div className="relative z-10 space-y-6 p-8 xl:p-14">

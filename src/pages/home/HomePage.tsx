@@ -1,4 +1,3 @@
-import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { HomeQuickLinkCard } from "@/components/pages/home/HomeQuickLinkCard";
 import { HOME_LINKS } from "@/components/pages/home/homeLinks";
@@ -39,7 +38,6 @@ export function HomePage() {
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0 max-w-2xl">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              <Sparkles className="h-3.5 w-3.5" aria-hidden />
               WeWiFi
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">

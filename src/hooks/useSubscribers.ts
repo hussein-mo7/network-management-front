@@ -339,6 +339,46 @@ export function useSubscriberUsernameHistoryMutations(subscriberId: number, line
   return { createMutation, updateMutation, deleteMutation };
 }
 
+export function useUsernameHistoryExcelMutations() {
+  const queryClient = useQueryClient();
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["subscribers"] });
+    queryClient.invalidateQueries({ queryKey: ["username-history"] });
+  };
+
+  const importMutation = useMutation({
+    mutationFn: (file: File) => subscribersService.importUsernameHistoryExcel(file),
+    onSuccess: invalidate,
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: () => subscribersService.exportUsernameHistoryExcel(),
+  });
+
+  return { importMutation, exportMutation };
+}
+
+export function useSubscriberExcelMutations() {
+  const queryClient = useQueryClient();
+
+  const invalidate = () => {
+    queryClient.invalidateQueries({ queryKey: ["subscribers"] });
+    queryClient.invalidateQueries({ queryKey: ["customers"] });
+  };
+
+  const importMutation = useMutation({
+    mutationFn: (file: File) => subscribersService.importExcel(file),
+    onSuccess: invalidate,
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: () => subscribersService.exportExcel(),
+  });
+
+  return { importMutation, exportMutation };
+}
+
 export function useSubscriberListMutations() {
   const queryClient = useQueryClient();
 

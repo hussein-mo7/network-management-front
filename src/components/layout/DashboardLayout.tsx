@@ -27,13 +27,13 @@ export function DashboardLayout() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <aside className="dashboard-sidebar sticky top-0 hidden h-screen w-64 shrink-0 self-start flex-col bg-sidebar text-sidebar-foreground lg:flex">
+      <aside className="dashboard-sidebar sticky top-0 hidden h-dvh w-[16.5rem] shrink-0 overflow-hidden bg-sidebar text-sidebar-foreground lg:flex lg:flex-col">
         <DashboardSidebarPanel
           navItems={navItems}
           displayName={displayName}
           displayRole={displayRole}
           canAccess={canAccess}
-          className="h-full"
+          className="min-h-0 flex-1"
         />
       </aside>
 

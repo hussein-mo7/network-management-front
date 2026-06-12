@@ -110,7 +110,6 @@ export const settingsHubItems: SettingsHubItem[] = [
     to: "/settings/excel",
     icon: FileSpreadsheet,
     permission: "settings.view",
-    badgeKey: "settings.hub.comingSoon",
   },
   {
     titleKey: "settings.hub.users.title",

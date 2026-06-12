@@ -34,6 +34,9 @@ const ROUTE_TITLE_KEYS: Array<{ match: (path: string) => boolean; titleKey: stri
   { match: (path) => path === "/users", titleKey: "pages.users" },
   { match: (path) => path === "/logs", titleKey: "nav.items.logs" },
   { match: (path) => path === "/settings/data", titleKey: "settings.data.title" },
+  { match: (path) => path === "/settings/excel/available-usernames", titleKey: "settings.excel.availableUsernames.pageTitle" },
+  { match: (path) => path === "/settings/excel/subscribers", titleKey: "settings.excel.subscribers.pageTitle" },
+  { match: (path) => path === "/settings/excel/username-history", titleKey: "settings.excel.usernameHistory.pageTitle" },
   { match: (path) => path === "/settings/excel", titleKey: "settings.excel.title" },
   { match: (path) => path === "/settings", titleKey: "settings.title" },
 ];

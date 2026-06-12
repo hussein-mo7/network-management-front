@@ -69,6 +69,9 @@ export interface TranslationSchema {
     statSubscribers: string;
     statMonitoring: string;
     statControl: string;
+    sponsorLabel: string;
+    sponsorAlt: string;
+    sponsorAria: string;
     copyright: string;
     backToLogin: string;
     forgotPasswordLink: string;
@@ -231,6 +234,7 @@ export interface TranslationSchema {
       import: string;
       importForSpeed: string;
       export: string;
+      exportForSpeed: string;
       deleteAll: string;
       deleteAllForSpeed: string;
     };
@@ -301,6 +305,7 @@ export interface TranslationSchema {
       selectFile: string;
       importSubmit: string;
       importSuccess: string;
+      importSuccessWithSkipped: string;
       exportSuccess: string;
     };
   };
@@ -480,6 +485,9 @@ export const ar: TranslationSchema = {
     statSubscribers: "مشترك",
     statMonitoring: "متابعة",
     statControl: "تحكم",
+    sponsorLabel: "برعاية",
+    sponsorAlt: "جوال فلسطين",
+    sponsorAria: "برعاية جوال فلسطين",
     copyright: "جميع الحقوق محفوظة",
     backToLogin: "العودة لتسجيل الدخول",
     forgotPasswordLink: "نسيت كلمة المرور؟",
@@ -670,6 +678,7 @@ export const ar: TranslationSchema = {
       import: "استيراد Excel",
       importForSpeed: "استيراد Excel — {{speed}}",
       export: "تصدير",
+      exportForSpeed: "تصدير — {{speed}}",
       deleteAll: "حذف الكل",
       deleteAllForSpeed: "حذف الكل — {{speed}}",
     },
@@ -739,11 +748,13 @@ export const ar: TranslationSchema = {
       deleteAllSuccess: "تم حذف {{count}} اسم من {{speed}}",
       importTitle: "استيراد Excel — {{speed}}",
       importHint:
-        "ارفع Excel (.xlsx): العمود A اسم المستخدم، العمود B كلمة المرور فقط. لا تعيد استيراد ملف التصدير (فيه أعمدة إضافية). الأسماء المكررة مرفوضة.",
+        "ارفع ملف Excel (.xlsx) لسرعة {{speed}}. الأعمدة: اسم المستخدم (A)، كلمة المرور (B)، الباقة (C) اختياري. صفوف العناوين المتكررة تُتخطى تلقائياً. يجب أن تطابق الباقة السرعة المختارة. الأسماء المكررة تُتخطى.",
       selectFile: "اختر ملفاً",
       importSubmit: "استيراد",
-      importSuccess: "تم استيراد {{count}} اسم",
-      exportSuccess: "تم تصدير أسماء {{speed}} (وضع تجريبي)",
+      importSuccess: "تم استيراد {{count}} اسم لـ {{speed}}",
+      importSuccessWithSkipped:
+        "تم استيراد {{count}} اسم لـ {{speed}} (تم تخطي {{skipped}} مكرر أو عنوان)",
+      exportSuccess: "تم تصدير الأسماء المتاحة لـ {{speed}}",
     },
   },
   customers: customersAr,

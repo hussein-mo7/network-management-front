@@ -4,6 +4,9 @@ import { ApiError } from "@/types/api";
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || "/api/v1";
 
+/** Bulk Excel import/export can run longer than normal CRUD requests. */
+export const EXCEL_TIMEOUT_MS = 60_000;
+
 export const apiClient = axios.create({
   baseURL,
   withCredentials: true,
